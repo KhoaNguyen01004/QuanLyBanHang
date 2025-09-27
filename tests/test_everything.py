@@ -15,9 +15,9 @@ class InventoryTest(unittest.TestCase):
         self.assertEqual(3, inventory.get_size())
 
     def test_init_with_size(self):
-        inventory = Inventory(size=10)
-        self.assertFalse(inventory.is_empty(), "Inventory chưa bỏ item nào hết nên phải trống")
-        self.assertEqual(10, inventory.get_size())
+        inventory = Inventory()
+        self.assertTrue(inventory.is_empty(), "Inventory chưa bỏ item nào hết nên phải trống")
+        self.assertEqual(0, inventory.get_size(), "Vì Inventory chưa có item nào được bỏ vô nên size phải bằng 0")
 
     def test_get_size(self):
         inventory1 = Inventory(list_of_items=[self.item1, self.item2, self.item3])
