@@ -6,8 +6,8 @@
 
 ## 🟠 Workflow Status
 
-[![GitHub Actions Status](https://github.com/KhoaNguyen01004/QuanLyBanHang/actions/workflows/python-app.yml/badge.svg)](https://github.com/KhoaNguyen01004/QuanLyBanHang/actions)
-> **Latest run:** [failure - sửa size và equal method](https://github.com/KhoaNguyen01004/QuanLyBanHang/actions/runs/18058632300) on branch `master`
+[![GitHub Actions Status](https://github.com/KhoaNguyen01004/QuanLyBanHang/actions/workflows/python-app.yml/badge.svg)](https://github.com/KhoaNguyen01004/QuanLyBanHang/actions/workflows/python-app.yml)
+> **Latest run:** [See latest run details](https://github.com/KhoaNguyen01004/QuanLyBanHang/actions/workflows/python-app.yml) on branch `master`
 
 ---
 
