@@ -25,8 +25,10 @@ class Inventory:
         """
         if list_of_items is None:
             self.__list_of_items = []
+            self._size = 0
         else:
             self.__list_of_items = list_of_items
+            self._size = len(list_of_items)
 
     def add(self, item: Item):
         #TODO thêm object Item vào lists_of_items. Tất cả item chỉ được duy nhất 1 id và
@@ -48,7 +50,6 @@ class Inventory:
         pass
 
     def get_size(self) -> int:
-        #TODO trả về số lượng items trong __list_of_items
         pass
 
     def get_item_by_id(self, item_id: str) -> Item|None:
