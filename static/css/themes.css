@@ -1,0 +1,21 @@
+/* Example theme CSS */
+body {
+    background-color: #f0f0f0;
+    color: #333333;
+    font-family: Arial, sans-serif;
+}
+
+h1,
+h2,
+h3 {
+    color: #0055aa;
+}
+
+a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
