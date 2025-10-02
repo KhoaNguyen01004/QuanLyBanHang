@@ -6,6 +6,7 @@ from app.models.cart_item import CartItem
 from app.models.user import User
 from app.schemas.item import ItemCreate, ItemUpdate
 from app.schemas.user import UserCreate
+from app.core.security import get_password_hash
 from typing import List, Optional
 
 
@@ -128,11 +129,12 @@ def get_user_by_email(db: Session, email: str) -> Optional[User]:
 
 
 def create_user(db: Session, user: UserCreate) -> User:
-    # Note: In real app, hash password here
+    print("Password received:", user.password)
     db_user = User(
         username=user.username,
         email=user.email,
-        hashed_password=user.password  # Should hash this
+        hashed_password=get_password_hash(user.password),
+        role=user.role
     )
     db.add(db_user)
     db.commit()
