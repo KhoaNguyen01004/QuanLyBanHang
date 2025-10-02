@@ -1,21 +1,114 @@
-/* Example theme CSS */
+/* CSS Variables for themes */
+:root {
+    --bg-color: #ffffff;
+    --text-color: #333333;
+    --header-color: #0055aa;
+    --link-color: #007bff;
+    --link-hover: #0056b3;
+    --button-bg: #007bff;
+    --button-hover: #0056b3;
+    --form-bg: #f9f9f9;
+    --shadow: rgba(0, 0, 0, 0.1);
+}
+
+body.dark {
+    --bg-color: #121212;
+    --text-color: #e0e0e0;
+    --header-color: #4da6ff;
+    --link-color: #4da6ff;
+    --link-hover: #80c1ff;
+    --button-bg: #4da6ff;
+    --button-hover: #80c1ff;
+    --form-bg: #1e1e1e;
+    --shadow: rgba(255, 255, 255, 0.1);
+}
+
 body {
-    background-color: #f0f0f0;
-    color: #333333;
-    font-family: Arial, sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    transition: background-color 0.3s, color 0.3s;
 }
 
 h1,
 h2,
 h3 {
-    color: #0055aa;
+    color: var(--header-color);
 }
 
 a {
-    color: #007bff;
+    color: var(--link-color);
     text-decoration: none;
 }
 
 a:hover {
     text-decoration: underline;
+    color: var(--link-hover);
+}
+
+button {
+    background-color: var(--button-bg);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: var(--button-hover);
+}
+
+.theme-switcher {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+}
+
+.theme-switcher button {
+    padding: 8px 16px;
+    font-size: 14px;
+}
+
+/* Login specific */
+.login-container {
+    background-color: var(--form-bg);
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px var(--shadow);
+    width: 300px;
+    margin: auto;
+    margin-top: 100px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+input[type="text"],
+input[type="password"],
+input[type="email"],
+select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+}
+
+.error {
+    color: #ff6b6b;
+    text-align: center;
+    margin-top: 10px;
 }
