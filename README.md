@@ -51,8 +51,8 @@ python -m unittest tests/test_everything.py
 #### Example
 
 ```python
-from Inventory import Inventory
-from Item import Item
+from models.inventory import Inventory
+from models.item import Item
 
 item1 = Item("Cá", "c1", 100.0)
 item2 = Item("Trứng", "tr1", 80.0)

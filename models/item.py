@@ -1,4 +1,3 @@
-from __future__ import annotations
 from typing import Any
 
 class Item:
@@ -47,3 +46,12 @@ class Item:
         This allows items to be used in sets or as dictionary keys.
         """
         return hash(self._item_id)
+
+    def get_id(self):
+        """
+        Get the id of an item
+
+        :return: id of an item
+
+        """
+        return self._item_id
