@@ -55,3 +55,39 @@ class Item:
 
         """
         return self._item_id
+
+    def __str__(self) -> str:
+        """
+        Return a human-readable string representation of the Item.
+
+        :return: A string showing the name, ID, and price.
+                 Example: "Item(name='Cá', id='c1', price=100.0)"
+        """
+        return f"Item(name='{self._name}', id='{self._item_id}', price={self._price})"
+
+    def __repr__(self) -> str:
+        """
+        Return the official string representation of the Item.
+
+        This is mainly for debugging and logging, and by default
+        it mirrors the __str__ output.
+
+        :return: A string representation of the item.
+        """
+        return self.__str__()
+
+    def get_name(self) -> str:
+        """
+        Get the name of the item.
+
+        :return: The item's name as a string.
+        """
+        return self._name
+
+    def get_price(self) -> float:
+        """
+        Get the price of the item.
+
+        :return: The item's price as a float.
+        """
+        return self._price
