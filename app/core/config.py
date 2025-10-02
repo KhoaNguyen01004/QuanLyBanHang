@@ -1,13 +1,14 @@
 from pydantic_settings import BaseSettings
+from pydantic import ConfigDict
 from typing import Optional
 
 
 class Settings(BaseSettings):
     # Database
-    database_url: str
+    database_url: str = "sqlite:///./test.db"
 
     # Application
-    secret_key: str
+    secret_key: str = "test-secret-key-for-development"
     debug: bool = False
 
     # Supabase (optional, for reference)
@@ -15,9 +16,10 @@ class Settings(BaseSettings):
     supabase_anon_key: Optional[str] = None
     supabase_service_role_key: Optional[str] = None
 
-    class Config:
-        env_file = ".env"
-        case_sensitive = False
+    model_config = ConfigDict(
+        env_file=".env",
+        case_sensitive=False
+    )
 
 
 settings = Settings()
