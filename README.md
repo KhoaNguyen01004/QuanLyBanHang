@@ -1,6 +1,6 @@
-# QuanLyBanHang
+# Shop Management Webapp
 
-**QuanLyBanHang** is a Python-based inventory management system designed to help you manage a collection of items efficiently. It provides a simple and extensible structure for adding, removing, searching, and managing items in an inventory, making it suitable for learning, prototyping, or building small-scale sales or stock management applications.
+**Shop Management Webapp** is a FastAPI-based e-commerce backend system designed to manage shop items, shopping carts, and users. It uses Supabase for PostgreSQL database hosting and is ready for deployment on Railway Cloudflare.
 
 ---
 
@@ -11,20 +11,41 @@
 
 ---
 
+## Features
+
+- **Item Management**: CRUD operations for shop items
+- **Cart Management**: Add/remove items from shopping carts
+- **User Management**: Basic user registration and authentication (extensible)
+- **RESTful API**: FastAPI with automatic OpenAPI documentation
+- **Database**: PostgreSQL via Supabase
+- **Testing**: Comprehensive unit and integration tests
+
 ## Repository Structure
 
 ```
-├── Inventory.py        # Inventory class implementation
-├── Item.py             # Item class implementation
-└── tests/
-    └── test_everything.py  # Unit tests for inventory functionality
+├── app/
+│   ├── main.py              # FastAPI application entry point
+│   ├── models/              # SQLAlchemy ORM models
+│   ├── schemas/             # Pydantic request/response schemas
+│   ├── services/            # Business logic services
+│   ├── api/                 # API route handlers
+│   ├── db/                  # Database configuration
+│   └── core/                # Application configuration
+├── tests/
+│   └── test_everything.py   # Unit and integration tests
+├── requirements.txt         # Python dependencies
+├── .env                     # Environment variables (configure for your setup)
+├── alembic/                 # Database migrations (optional)
+└── README.md
 ```
 
 ## Getting Started
 
 ### Prerequisites
 
-- Python 3.13 or higher
+- Python 3.8 or higher
+- Supabase account for database
+- Railway account for deployment (optional)
 
 ### Installation
 
@@ -34,44 +55,98 @@
    cd QuanLyBanHang
    ```
 
-2. **(Optional) Create a virtual environment**
+2. **Create a virtual environment**
    ```sh
    python -m venv venv
    source venv/bin/activate  # On Windows: venv\Scripts\activate
    ```
 
-### Usage
+3. **Install dependencies**
+   ```sh
+   pip install -r requirements.txt
+   ```
 
-You can use the `Inventory` and `Item` classes in your own scripts, or run the provided unittests to verify functionality:
+4. **Set up environment variables**
+   - Copy `.env` and update with your Supabase credentials:
+   ```env
+   DATABASE_URL=postgresql://postgres:[YOUR_PASSWORD]@db.[YOUR_PROJECT_REF].supabase.co:5432/postgres
+   SECRET_KEY=your-secret-key-here
+   DEBUG=True
+   ```
 
+### Database Setup
+
+1. Create a new project in [Supabase](https://supabase.com)
+2. Get your database URL from the project settings
+3. Update the `DATABASE_URL` in `.env`
+4. The application will automatically create tables on startup
+
+### Running the Application
+
+**Development:**
+```sh
+uvicorn app.main:app --reload
+```
+
+**Production:**
+```sh
+uvicorn app.main:app --host 0.0.0.0 --port 8000
+```
+
+Visit `http://localhost:8000/docs` for interactive API documentation.
+
+### API Endpoints
+
+#### Items
+- `GET /api/items/` - List all items
+- `GET /api/items/{item_id}` - Get specific item
+- `POST /api/items/` - Create new item
+- `PUT /api/items/{item_id}` - Update item
+- `DELETE /api/items/{item_id}` - Delete item
+
+#### Carts
+- `GET /api/carts/{cart_id}` - Get cart details
+- `POST /api/carts/` - Create new cart
+- `POST /api/carts/{cart_id}/items` - Add item to cart
+- `DELETE /api/carts/{cart_id}/items/{item_id}` - Remove item from cart
+- `PUT /api/carts/{cart_id}/items/{item_id}` - Update item quantity
+
+#### Users
+- `GET /api/users/{user_id}` - Get user details
+- `GET /api/users/email/{email}` - Get user by email
+- `POST /api/users/` - Create new user
+
+### Testing
+
+Run the test suite:
 ```sh
 python -m unittest tests/test_everything.py
 ```
 
-#### Example
+### Deployment to Railway
 
-```python
-from models.inventory import Inventory
-from models.item import Item
-
-item1 = Item("Cá", "c1", 100.0)
-item2 = Item("Trứng", "tr1", 80.0)
-inventory = Inventory([item1, item2])
-print(inventory.get_size())  # Output: 2
-
-inventory.remove_by_item_id("c1")
-print(inventory.get_size())  # Output: 1
-```
+1. Connect your GitHub repository to Railway
+2. Set environment variables in Railway dashboard:
+   - `DATABASE_URL`
+   - `SECRET_KEY`
+   - `DEBUG=False`
+3. Deploy automatically on push
 
 ## Contributing
 
-Contributions are welcome! Please open an issue or submit a pull request for improvements or bug fixes.
+Contributions are welcome! Please:
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests for new functionality
+5. Submit a pull request
 
 ## License
 
 This project is licensed under the [MIT License](LICENSE).
 
-## Author
+## Authors
 
 - [Khoa Nguyen](https://github.com/KhoaNguyen01004)
 - [Thao Nguyen](https://github.com/TyraJr1)
