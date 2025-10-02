@@ -191,6 +191,7 @@ cython_debug/
  profiles_settings.xml
  QuanLyBanHang.iml
  vsc.xml
+ *.xml
 
 # Abstra
 #   Abstra is an AI-powered process automation framework.
