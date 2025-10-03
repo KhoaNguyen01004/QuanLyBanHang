@@ -1,6 +1,6 @@
-# Shop Management Webapp
+# Shop Management Web Application
 
-**Shop Management Webapp** is a FastAPI-based e-commerce backend system designed to manage shop items, shopping carts, and users. It uses Supabase for PostgreSQL database hosting and is ready for deployment on Railway Cloudflare.
+**Shop Management Web Application** is a full-stack web application built with FastAPI, providing both a RESTful API and a user-friendly web interface for managing shop items, shopping carts, and users. It uses Supabase for PostgreSQL database hosting and is ready for deployment on Railway Cloudflare.
 
 ---
 
@@ -17,6 +17,7 @@
 - **Cart Management**: Add/remove items from shopping carts
 - **User Management**: Basic user registration and authentication (extensible)
 - **RESTful API**: FastAPI with automatic OpenAPI documentation
+- **Web Interface**: User-friendly web pages for login, registration, and welcome
 - **Database**: PostgreSQL via Supabase
 - **Testing**: Comprehensive unit and integration tests
 
@@ -31,6 +32,8 @@
 │   ├── api/                 # API route handlers
 │   ├── db/                  # Database configuration
 │   └── core/                # Application configuration
+├── static/                  # Static files (CSS, JS, images)
+├── templates/               # Jinja2 HTML templates
 ├── tests/
 │   └── test_everything.py   # Unit and integration tests
 ├── requirements.txt         # Python dependencies
@@ -93,7 +96,15 @@ uvicorn app.main:app --reload
 uvicorn app.main:app --host 0.0.0.0 --port 8000
 ```
 
-Visit `http://localhost:8000/docs` for interactive API documentation.
+Visit `http://localhost:8000/docs` for interactive API documentation. Access the web interface at `http://localhost:8000`.
+
+### Web Routes
+
+- `GET /` - Login page (redirects to welcome if logged in)
+- `GET /welcome` - Welcome page (requires login)
+- `GET /logout` - Logout and redirect to login
+- `GET /register` - Redirect to user registration API
+- `GET /login` - Redirect to user login API
 
 ### API Endpoints
 
@@ -150,3 +161,9 @@ This project is licensed under the [MIT License](LICENSE).
 
 - [Khoa Nguyen](https://github.com/KhoaNguyen01004)
 - [Thao Nguyen](https://github.com/TyraJr1)
+
+---
+
+## Future Features
+
+More features will be added soon to enhance the functionality and user experience of the Shop Management Web Application.
