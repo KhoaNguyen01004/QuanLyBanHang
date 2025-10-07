@@ -1,29 +1,26 @@
 import os
-from fastapi import FastAPI
+import json
+from fastapi import FastAPI, Request
+from fastapi.templating import Jinja2Templates
+from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.staticfiles import StaticFiles
+from app.api import users, carts, items
+from starlette.middleware.sessions import SessionMiddleware
 from fastapi.middleware.cors import CORSMiddleware
-from starlette.responses import RedirectResponse
-
-from app.api.carts import router as carts_router
-from app.api.items import router as items_router
-from app.api.users import router as users_router
 from app.db.db import engine, Base
+from app.core.config import settings
 
 # Create database tables
 Base.metadata.create_all(bind=engine)
 
-# Create FastAPI app
 app = FastAPI(
     title="Shop Management API",
     description="A FastAPI application for managing shop items, carts, and users",
     version="1.0.0"
 )
 
-# Session middleware
-from starlette.middleware.sessions import SessionMiddleware
-from app.core.config import settings
 app.add_middleware(SessionMiddleware, secret_key=settings.secret_key)
 
-# CORS middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  # In production, specify allowed origins
@@ -32,55 +29,39 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-from fastapi.staticfiles import StaticFiles
-from fastapi.templating import Jinja2Templates
-
-# Include routers
-app.include_router(
-    items_router,
-    prefix="/api/items",
-    tags=["items"]
-)
-
-app.include_router(
-    carts_router,
-    prefix="/api/carts",
-    tags=["carts"]
-)
-
-app.include_router(
-    users_router,
-    prefix="/api/users",
-    tags=["users"]
-)
-
-# Mount static files
-app.mount("/static", StaticFiles(directory="static"), name="static")
-
-# Setup templates
 templates = Jinja2Templates(directory="templates")
 
-from fastapi import Request
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
-@app.get("/")
-def read_root(request: Request):
-    if request.session.get('username'):
-        return RedirectResponse(url="/welcome", status_code=303)
-    return templates.TemplateResponse("login.html", {"request": request, "error": None})
+app.include_router(users.router, prefix="/api/users", tags=["users"])
+app.include_router(carts.router, prefix="/api/carts", tags=["carts"])
+app.include_router(items.router, prefix="/api/items", tags=["items"])
 
-@app.get("/welcome")
-def welcome(request: Request):
-    username = request.session.get('username')
-    if not username:
-        return RedirectResponse(url="/", status_code=303)
-    return templates.TemplateResponse("welcome.html", {"request": request, "username": username})
+@app.get("/", response_class=HTMLResponse)
+async def home(request: Request):
+    # Render the public browsing homepage
+    username = request.session.get("username")
+    items = []
+    items_path = "static/data/items.json"
+    if os.path.exists(items_path):
+        with open(items_path, 'r') as f:
+            items = json.load(f)
+    return templates.TemplateResponse("home.html", {"request": request, "username": username, "items": items})
+
+@app.get("/cart")
+async def cart(request: Request):
+    username = request.session.get("username")
+    items = []
+    items_path = "static/data/items.json"
+    if os.path.exists(items_path):
+        with open(items_path, 'r') as f:
+            items = json.load(f)
+    return templates.TemplateResponse("cart.html", {"request": request, "username": username, "items": items})
 
 @app.get("/logout")
 def logout(request: Request):
     request.session.clear()
     return RedirectResponse(url="/", status_code=303)
-
-from fastapi.responses import RedirectResponse
 
 @app.get("/register")
 def register_redirect():

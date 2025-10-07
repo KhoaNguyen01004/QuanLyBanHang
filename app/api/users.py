@@ -27,7 +27,7 @@ def login(request: Request, db: Session = Depends(get_db), form_data: OAuth2Pass
         return templates.TemplateResponse("login.html", {"request": request, "error": "Invalid credentials"})
     # Set username in session
     request.session['username'] = user.username
-    response = RedirectResponse(url="/welcome", status_code=303)
+    response = RedirectResponse(url="/", status_code=303)
     return response
 
 
@@ -59,7 +59,7 @@ def register(request: Request, db: Session = Depends(get_db), username: str = Fo
 
 
 @router.get("/{user_id}", response_model=User)
-def read_user(user_id: int, db: Session = Depends(get_db)):
+def read_user(user_id: str, db: Session = Depends(get_db)):
     db_user = get_user(db, user_id=user_id)
     if db_user is None:
         raise HTTPException(status_code=404, detail="User not found")

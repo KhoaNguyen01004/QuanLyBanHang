@@ -20,7 +20,7 @@ class UserUpdate(BaseModel):
 
 
 class User(UserBase):
-    id: int
+    id: str
     created_at: datetime
     updated_at: Optional[datetime] = None
 

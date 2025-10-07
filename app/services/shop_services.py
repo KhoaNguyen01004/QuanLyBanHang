@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from sqlalchemy import and_
+from sqlalchemy import and_, String
 from app.models.item import Item
 from app.models.cart import Cart
 from app.models.cart_item import CartItem
@@ -52,7 +52,7 @@ def get_cart(db: Session, cart_id: int) -> Optional[Cart]:
     return db.query(Cart).filter(Cart.id == cart_id).first()  # type: ignore
 
 
-def get_or_create_cart(db: Session, user_id: Optional[int] = None, session_id: Optional[str] = None) -> Optional[Cart]:
+def get_or_create_cart(db: Session, user_id: Optional[str] = None, session_id: Optional[str] = None) -> Optional[Cart]:
     if user_id:
         cart = db.query(Cart).filter(Cart.user_id == user_id).first()  # type: ignore
     elif session_id:
@@ -120,7 +120,7 @@ def update_cart_item_quantity(db: Session, cart_id: int, item_id: int, quantity:
 
 
 # User services (basic)
-def get_user(db: Session, user_id: int) -> Optional[User]:
+def get_user(db: Session, user_id: str) -> Optional[User]:
     return db.query(User).filter(User.id == user_id).first()  # type: ignore
 
 
@@ -129,8 +129,24 @@ def get_user_by_email(db: Session, email: str) -> Optional[User]:
 
 
 def create_user(db: Session, user: UserCreate) -> User:
-    print("Password received:", user.password)
+    # Generate custom 5-digit user ID with prefix based on role
+    prefix = "B" if user.role == "customer" else "V"
+    # Get the max existing user id with the same prefix
+    max_id_user = (
+        db.query(User)
+        .filter(User.id.cast(String).like(f"{prefix}%"))
+        .order_by(User.id.desc())
+        .first()
+    )
+    if max_id_user:
+        max_num = int(max_id_user.id[1:])
+        new_num = max_num + 1
+    else:
+        new_num = 1
+    new_id = f"{prefix}{new_num:04d}"
+
     db_user = User(
+        id=new_id,
         username=user.username,
         email=user.email,
         hashed_password=get_password_hash(user.password),
