@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Your Cart</title>
+    <link rel="stylesheet" href="/static/css/themes.css" />
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #1a1a1a;
+            color: white;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+        }
+
+        .cart-item {
+            background: #222;
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .cart-item img {
+            width: 100px;
+            height: 100px;
+            object-fit: contain;
+            border-radius: 6px;
+            background-color: #444;
+        }
+
+        .cart-item-details {
+            flex-grow: 1;
+        }
+
+        .cart-item-details h3 {
+            margin: 0 0 5px;
+        }
+
+        .cart-item-details p {
+            margin: 0;
+            color: #ccc;
+        }
+
+        .empty-cart {
+            font-size: 18px;
+            color: #bbb;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Your Cart</h1>
+    <div id="cartItems"></div>
+    <script>
+        const items = {{ items | tojson }};
+        function getCart() {
+            const cart = localStorage.getItem('cart');
+            return cart ? JSON.parse(cart) : [];
+        }
+        function displayCart() {
+            const cart = getCart();
+            const container = document.getElementById('cartItems');
+            if (cart.length === 0) {
+                container.innerHTML = '<p class="empty-cart">Your cart is empty.</p>';
+                return;
+            }
+            container.innerHTML = '';
+            cart.forEach(cartItem => {
+                const item = items.find(i => i.id === cartItem.id);
+                if (item) {
+                    const div = document.createElement('div');
+                    div.className = 'cart-item';
+                    div.innerHTML = `
+                        <img src="${item.picture_path}" alt="${item.name}" />
+                        <div class="cart-item-details">
+                            <h3>${item.name}</h3>
+                            <p>Quantity: ${cartItem.quantity}</p>
+                            <p>Description: ${item.description}</p>
+                            <p>Tags: ${item.tags.join(', ')}</p>
+                        </div>
+                    `;
+                    container.appendChild(div);
+                }
+            });
+        }
+        document.addEventListener('DOMContentLoaded', displayCart);
+    </script>
+</body>
+
+</html>

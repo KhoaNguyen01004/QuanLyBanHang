@@ -1,0 +1,90 @@
+[
+    {
+        "id": 1,
+        "name": "Wireless Headphones",
+        "picture_path": "/static/images/items/Screenshot 2025-10-02 215021.png",
+        "description": "High-quality wireless headphones with noise cancellation and long battery life. Perfect for music lovers and professionals.",
+        "tags": [
+            "electronics",
+            "audio",
+            "wireless"
+        ]
+    },
+    {
+        "id": 2,
+        "name": "Smartphone Case",
+        "picture_path": "/static/images/items/Screenshot 2025-10-02 215518.png",
+        "description": "Durable and stylish case for smartphones, providing protection against drops and scratches.",
+        "tags": [
+            "accessories",
+            "protection",
+            "mobile"
+        ]
+    },
+    {
+        "id": 3,
+        "name": "Laptop Stand",
+        "picture_path": "/static/images/items/Screenshot 2025-10-03 022445.png",
+        "description": "Adjustable laptop stand for better ergonomics and cooling during work sessions.",
+        "tags": [
+            "computer",
+            "ergonomics",
+            "stand"
+        ]
+    },
+    {
+        "id": 4,
+        "name": "Bluetooth Speaker",
+        "picture_path": "/static/images/items/Screenshot 2025-10-06 102429.png",
+        "description": "Portable Bluetooth speaker with excellent sound quality and waterproof design.",
+        "tags": [
+            "audio",
+            "portable",
+            "bluetooth"
+        ]
+    },
+    {
+        "id": 5,
+        "name": "Gaming Mouse",
+        "picture_path": "/static/images/items/Screenshot 2025-10-06 102502.png",
+        "description": "Precision gaming mouse with customizable buttons and RGB lighting.",
+        "tags": [
+            "gaming",
+            "peripheral",
+            "mouse"
+        ]
+    },
+    {
+        "id": 6,
+        "name": "USB Charger",
+        "picture_path": "/static/images/items/Screenshot 2025-10-06 104534.png",
+        "description": "Fast-charging USB adapter compatible with multiple devices.",
+        "tags": [
+            "charger",
+            "usb",
+            "electronics"
+        ]
+    },
+    {
+        "id": 7,
+        "name": "Webcam",
+        "picture_path": "/static/images/items/Screenshot 2025-10-06 104916.png",
+        "description": "HD webcam for video calls and streaming with built-in microphone.",
+        "tags": [
+            "camera",
+            "video",
+            "streaming"
+        ]
+    },
+    {
+        "id": 8,
+        "name": "Keyboard",
+        "picture_path": "/static/images/items/Screenshot 2025-10-06 105734.png",
+        "description": "Mechanical keyboard with tactile switches for comfortable typing.",
+        "tags": [
+            "keyboard",
+            "mechanical",
+            "typing"
+        ]
+    }
+]
