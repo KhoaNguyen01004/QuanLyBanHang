@@ -122,10 +122,24 @@ async def home(request: Request):
 async def cart(request: Request):
     username = request.session.get("username")
     items = []
-    items_path = "static/data/items.json"
-    if os.path.exists(items_path):
-        with open(items_path, 'r') as f:
-            items = json.load(f)
+    if username:
+        db = SessionLocal()
+        from app.services.shop_services import get_user, get_or_create_cart
+        user = get_user(db, username)
+        if user:
+            cart = get_or_create_cart(db, user.id)
+            # cart.cart_items is a list of CartItem objects
+            for cart_item in cart.cart_items:
+                item = cart_item.item
+                items.append({
+                    "id": item.id,
+                    "name": item.name,
+                    "description": item.description,
+                    "price": item.price,
+                    "quantity": cart_item.quantity,
+                    "picture_path": item.picture_path,
+                })
+        db.close()
     return templates.TemplateResponse(request, "cart.html", {"username": username, "items": items})
 
 @app.get("/logout")
