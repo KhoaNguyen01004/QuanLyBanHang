@@ -1,12 +1,18 @@
+import os
 import unittest
 from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 from app.main import app
 from app.db.db import Base, get_db
 
-# Use in-memory SQLite for testing
-TEST_DATABASE_URL = "sqlite:///./test.db"
+# Ensure test.db exists
+TEST_DB_PATH = os.path.join(os.path.dirname(__file__), '..', 'test.db')
+if not os.path.exists(TEST_DB_PATH):
+    open(TEST_DB_PATH, 'a').close()
+
+# Use SQLite for testing
+TEST_DATABASE_URL = f"sqlite:///{TEST_DB_PATH}"
 
 engine = create_engine(TEST_DATABASE_URL, connect_args={"check_same_thread": False})
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
@@ -24,6 +30,17 @@ app.dependency_overrides[get_db] = override_get_db
 
 client = TestClient(app)
 
+def truncate_tables(engine):
+    with engine.connect() as conn:
+        conn.execute(text("PRAGMA foreign_keys=off;"))
+        conn.execute(text("BEGIN TRANSACTION;"))
+        conn.execute(text("DELETE FROM cart_items;"))
+        conn.execute(text("DELETE FROM carts;"))
+        conn.execute(text("DELETE FROM items;"))
+        conn.execute(text("DELETE FROM users;"))
+        conn.execute(text("COMMIT;"))
+        conn.execute(text("PRAGMA foreign_keys=on;"))
+
 class TestItemsAPI(unittest.TestCase):
 
     def setUp(self):
@@ -31,8 +48,8 @@ class TestItemsAPI(unittest.TestCase):
         Base.metadata.create_all(bind=engine)
 
     def tearDown(self):
-        # Drop tables
-        Base.metadata.drop_all(bind=engine)
+        # Clean up all test data after each test
+        truncate_tables(engine)
 
     def test_create_item(self):
         response = client.post(

@@ -54,6 +54,10 @@
             font-size: 18px;
             color: #bbb;
         }
+
+        input[type="number"] {
+            width: 60px;
+        }
     </style>
 </head>
 
@@ -61,21 +65,24 @@
     <h1>Your Cart</h1>
     <div id="cartItems"></div>
     <script>
-        const items = {{ items | tojson }};
-        function getCart() {
-            const cart = localStorage.getItem('cart');
-            return cart ? JSON.parse(cart) : [];
+        async function fetchCart() {
+            // Get or create cart from backend
+            let cart = await fetch('/api/carts', { method: 'POST' }).then(res => res.json());
+            // Fetch cart details
+            let cartData = await fetch(`/api/carts/${cart.id}`).then(res => res.json());
+            // Fetch all items for stock info
+            let items = await fetch('/api/items').then(res => res.json());
+            return { cart: cartData, items };
         }
-        function displayCart() {
-            const cart = getCart();
+        function renderCart(cart, items) {
             const container = document.getElementById('cartItems');
-            if (cart.length === 0) {
+            if (!cart.items || cart.items.length === 0) {
                 container.innerHTML = '<p class="empty-cart">Your cart is empty.</p>';
                 return;
             }
             container.innerHTML = '';
-            cart.forEach(cartItem => {
-                const item = items.find(i => i.id === cartItem.id);
+            cart.items.forEach(cartItem => {
+                const item = items.find(i => i.id === cartItem.item_id);
                 if (item) {
                     const div = document.createElement('div');
                     div.className = 'cart-item';
@@ -83,16 +90,39 @@
                         <img src="${item.picture_path}" alt="${item.name}" />
                         <div class="cart-item-details">
                             <h3>${item.name}</h3>
-                            <p>Quantity: ${cartItem.quantity}</p>
+                            <p>Quantity: <input type="number" min="1" max="${item.stock + cartItem.quantity}" value="${cartItem.quantity}" onchange="updateQuantity(${cart.id}, ${item.id}, this.value, ${item.stock + cartItem.quantity})"> (Available: ${item.stock + cartItem.quantity})</p>
                             <p>Description: ${item.description}</p>
-                            <p>Tags: ${item.tags.join(', ')}</p>
+                            <p>Tags: ${item.tags ? item.tags.join(', ') : ''}</p>
+                            <button onclick="removeItem(${cart.id}, ${item.id}, ${cartItem.quantity})">Remove</button>
                         </div>
                     `;
                     container.appendChild(div);
                 }
             });
         }
-        document.addEventListener('DOMContentLoaded', displayCart);
+        async function updateQuantity(cartId, itemId, quantity, max) {
+            quantity = parseInt(quantity);
+            if (quantity < 1 || quantity > max) {
+                alert('Invalid quantity.');
+                return;
+            }
+            await fetch(`/api/carts/${cartId}/items/${itemId}?quantity=${quantity}`, { method: 'PUT' });
+            loadCart();
+        }
+        async function removeItem(cartId, itemId, maxQuantity) {
+            const quantity = prompt(`Enter the quantity to remove (max: ${maxQuantity}):`);
+            if (!quantity || isNaN(quantity) || quantity < 1 || quantity > maxQuantity) {
+                alert('Invalid quantity.');
+                return;
+            }
+            await fetch(`/api/carts/${cartId}/items/${itemId}?quantity=${quantity}`, { method: 'DELETE' });
+            loadCart();
+        }
+        async function loadCart() {
+            const { cart, items } = await fetchCart();
+            renderCart(cart, items);
+        }
+        document.addEventListener('DOMContentLoaded', loadCart);
     </script>
 </body>
 

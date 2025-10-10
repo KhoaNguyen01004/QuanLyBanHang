@@ -17,7 +17,7 @@
 - **Cart Management**: Add/remove items from shopping carts
 - **User Management**: Basic user registration and authentication (extensible)
 - **RESTful API**: FastAPI with automatic OpenAPI documentation
-- **Web Interface**: User-friendly web pages for login, registration, and welcome
+- **Web Interface**: User-friendly web pages for login, registration, and shopping
 - **Database**: PostgreSQL via Supabase
 - **Testing**: Comprehensive unit and integration tests
 
@@ -39,6 +39,7 @@
 ├── requirements.txt         # Python dependencies
 ├── .env                     # Environment variables (configure for your setup)
 ├── alembic/                 # Database migrations (optional)
+├── scripts/                 # Utility scripts (e.g., database population)
 └── README.md
 ```
 
@@ -98,13 +99,39 @@ uvicorn app.main:app --host 0.0.0.0 --port 8000
 
 Visit `http://localhost:8000/docs` for interactive API documentation. Access the web interface at `http://localhost:8000`.
 
+### Running the Application (with Session Authentication)
+
+> **Important:** To ensure session-based authentication works for both web and API endpoints, you must run the app using the correct ASGI app object.
+
+```sh
+uvicorn app.main:asgi_app --reload
+```
+
+- Do **not** use `uvicorn app.main:app --reload` as this will bypass custom middleware and session logic for API endpoints.
+
+### Configuration Notes
+
+- **SessionMiddleware** is configured with `same_site="lax"` and `https_only=False` for local development. Adjust these settings for production as needed.
+- **CORS** is set to allow all origins and credentials for development. Restrict origins in production.
+
+### Troubleshooting Authentication Issues
+
+- If you see `Not authenticated` or `401 Unauthorized` when using the API (e.g., Add to Cart), ensure:
+  - You are running the app with `asgi_app` as shown above.
+  - You are logged in via the web interface (session cookie is set).
+  - If using JavaScript fetch/AJAX for API calls, set `credentials: 'include'` in your fetch options to send cookies.
+  - Your browser is not blocking cookies (check browser/site settings).
+- Check server logs for session and authentication debug output if issues persist.
+
 ### Web Routes
 
-- `GET /` - Login page (redirects to welcome if logged in)
-- `GET /welcome` - Welcome page (requires login)
-- `GET /logout` - Logout and redirect to login
+- `GET /` - Login page (redirects to home if logged in)
+- `GET /cart` - Shopping cart page (requires login)
+- `GET /logout` - Logout and redirect to login (clears session)
 - `GET /register` - Redirect to user registration API
 - `GET /login` - Redirect to user login API
+
+**Note:** There is no separate "welcome" page. After login, users are redirected to the home page (`home.html`).
 
 ### API Endpoints
 
@@ -126,6 +153,10 @@ Visit `http://localhost:8000/docs` for interactive API documentation. Access the
 - `GET /api/users/{user_id}` - Get user details
 - `GET /api/users/email/{email}` - Get user by email
 - `POST /api/users/` - Create new user
+
+## Utility Scripts
+
+- All utility scripts (such as database population) are now located in the `scripts/` folder.
 
 ### Testing
 
@@ -167,3 +198,7 @@ This project is licensed under the [MIT License](LICENSE).
 ## Future Features
 
 More features will be added soon to enhance the functionality and user experience of the Shop Management Web Application.
+
+## TODO / Known Issues
+- Implement show price tag
+- The show more detail still does not work

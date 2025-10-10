@@ -22,7 +22,7 @@ class CartItem(CartItemBase):
 
 
 class CartBase(BaseModel):
-    user_id: Optional[int] = None
+    user_id: Optional[str] = None
     session_id: Optional[str] = None
 
 

@@ -22,6 +22,8 @@
             padding: 10px 20px;
             display: flex;
             align-items: center;
+            position: relative; /* ensure header sits above other elements */
+            z-index: 100; /* avoid being overlapped by other fixed elements */
         }
 
         header .logo {
@@ -181,13 +183,7 @@
             background-color: #f3a847;
         }
 
-        footer {
-            text-align: center;
-            padding: 20px;
-            color: #777;
-            font-size: 14px;
-            margin-top: 40px;
-        }
+        /* Removed footer styles as footer is no longer present */
 
         .user-menu-dropdown {
             display: none;
@@ -202,6 +198,16 @@
             z-index: 10;
         }
 
+        .user-menu-dropdown.show {
+            display: block;
+        }
+
+        /* CSS fallback: show dropdown on hover or when button receives focus (accessibility) */
+        .user-menu-container:hover .user-menu-dropdown,
+        .user-menu-container:focus-within .user-menu-dropdown {
+            display: block;
+        }
+
         .user-menu-dropdown a {
             display: block;
             padding: 10px 16px;
@@ -211,6 +217,21 @@
 
         .user-menu-dropdown a:hover {
             background-color: #f3a847;
+        }
+
+        footer {
+            background-color: #131921;
+            color: #ccc;
+            text-align: center;
+            padding: 15px 0;
+            position: relative;
+            z-index: 100;
+            margin-top: 20px;
+        }
+
+        footer p {
+            margin: 0;
+            font-size: 14px;
         }
     </style>
 </head>
@@ -223,7 +244,7 @@
             <button onclick="searchItems()">Search</button>
         </div>
         <div class="user-menu-container" style="margin-left: 20px; position: relative;">
-            <div id="userMenuButton" style="color: white; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+            <div id="userMenuButton" role="button" tabindex="0" aria-haspopup="true" aria-expanded="false" style="color: white; cursor: pointer; display: flex; align-items: center; gap: 8px;">
                 {% if username %}
                 <span>Hello, {{ username }}</span>
                 {% else %}
@@ -231,7 +252,7 @@
                 {% endif %}
                 <span style="font-size: 14px;">&#9662;</span>
             </div>
-            <div id="userMenuDropdown" class="user-menu-dropdown" style="display: none; position: absolute; right: 0; top: 100%; background: #232f3e; color: white; min-width: 180px; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.2); z-index: 10;">
+            <div id="userMenuDropdown" class="user-menu-dropdown" style="position: absolute; right: 0; top: 100%; background: #232f3e; color: white; min-width: 180px; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.2); z-index: 10;">
                 {% if username %}
                 <div style="padding: 12px 16px; border-bottom: 1px solid #333;">
                     <strong>{{ username }}</strong><br/>
@@ -249,6 +270,7 @@
         <a href="#">Today's Deals</a>
         <a href="#">Gift Cards</a>
         <a href="#">Customer Service</a>
+        <a href="/cart" id="cartButton" style="margin-left:auto; font-weight:bold; color:#febd69;">🛒 Cart</a>
     </nav>
 
     <main>
@@ -259,15 +281,18 @@
         </div>
         <div class="categories" id="categoriesContainer">
             {% for item in items %}
-            <div class="category-card" data-tags="{{ item.tags|join(',') }}" onclick="showDetails({{ item.id }})">
+            <div class="category-card" data-id="{{ item.id }}" data-tags="{{ item.tags|join(',') }}">
                 <img src="{{ item.picture_path }}" alt="{{ item.name }}" />
                 <h3>{{ item.name }}</h3>
                 <p>{{ item.description }}</p>
+                <p style="color:#febd69; font-weight:bold;">Price: ${{ item.price }}</p>
+                <p style="color:#febd69; font-weight:bold;">Available: {{ item.stock }}</p>
                 <p class="tags">Tags:
                     {% for tag in item.tags %}
                         <a href="#" class="tag-link" data-tag="{{ tag }}" style="color:#febd69; text-decoration:underline; margin-right:6px;" onclick="event.stopPropagation(); filterByTag('{{ tag }}');">{{ tag }}</a>{% if not loop.last %},{% endif %}
                     {% endfor %}
                 </p>
+                <!-- Removed Add to Cart button from main listing -->
             </div>
             {% endfor %}
         </div>
@@ -281,7 +306,8 @@
                 style="width: 100%; max-height: 300px; object-fit: cover; border-radius: 8px;" />
             <p id="modalDescription"></p>
             <p><strong>Tags:</strong> <span id="modalTags"></span></p>
-            <button onclick="addToCart(document.getElementById('modalTitle').dataset.id)">Add to Cart</button>
+            <p id="modalStock" style="color:#febd69; font-weight:bold;"></p>
+            <button id="modalAddToCartBtn" onclick="addToCart(document.getElementById('modalTitle').dataset.id, document.getElementById('modalStock').dataset.stock)">Add to Cart</button>
         </div>
     </div>
 
@@ -296,175 +322,364 @@
         </div>
     </div>
 
+    <!-- Ensure the footer is the last visible section -->
     <footer>
-        &copy; 2024 MyShop. All rights reserved.
+        <p>&copy; 2025 MyShop. All rights reserved.</p>
     </footer>
 
     <script>
-        // Initialize items from server-side data
-        window.shopItems = {{ items | tojson | safe }};
+        // Remove any unintended stock information below the footer
+        document.addEventListener('DOMContentLoaded', function() {
+            const body = document.body;
+            const footer = document.querySelector('footer');
+            if (footer) {
+                let sibling = footer.nextSibling;
+                while (sibling) {
+                    const nextSibling = sibling.nextSibling;
+                    body.removeChild(sibling);
+                    sibling = nextSibling;
+                }
+            }
+        });
+    </script>
 
-        // Cart management functions
+    <!-- Inject items data for JS -->
+    <script>
+        window.shopItems = {{ items|tojson }};
+        window.currentUser = {{ username|tojson }};
+        console.log('window.shopItems:', window.shopItems);
+    </script>
+    <!-- Consolidated script: single source of truth for all UI behavior -->
+    <script>
+    (function(){
+        'use strict';
+        console.log('[home.js] script loaded');
+
+        // Helper: safe query
+        const $ = (sel) => document.querySelector(sel);
+        const $$ = (sel) => Array.from(document.querySelectorAll(sel));
+
+        // Cart functions
         function getCart() {
             const cart = localStorage.getItem('cart');
             return cart ? JSON.parse(cart) : [];
         }
-
         function setCart(cart) {
             localStorage.setItem('cart', JSON.stringify(cart));
             updateCartCount();
         }
-
+        function setCartBadge(count) {
+            const badge = document.getElementById('cartCount');
+            if (badge) badge.textContent = String(count);
+        }
         function updateCartCount() {
             const cart = getCart();
-            const count = cart.reduce((sum, item) => sum + item.quantity, 0);
-            document.getElementById('cartCount').textContent = count;
+            const count = cart.reduce((sum, item) => sum + (item.quantity || 0), 0);
+            const badge = document.getElementById('cartCount');
+            if (badge) badge.textContent = count;
         }
 
-        // Search functionality
+        // Search
         function searchItems() {
-            const query = document.getElementById('searchInput').value.trim();
-            if (query) {
-                window.location.href = `/search?query=${encodeURIComponent(query)}`;
-            }
+            const input = document.getElementById('searchInput');
+            if (!input) return;
+            const query = input.value.trim();
+            if (query) window.location.href = `/search?query=${encodeURIComponent(query)}`;
         }
 
-        // Modal management
+        // Modal controls
         function showDetails(itemId) {
-            const item = window.shopItems.find(i => i.id === itemId);
-            if (item) {
-                document.getElementById('modalTitle').textContent = item.name;
-                document.getElementById('modalTitle').dataset.id = item.id;
-                document.getElementById('modalImage').src = item.picture_path;
-                document.getElementById('modalImage').alt = item.name;
-                document.getElementById('modalDescription').textContent = item.description;
-                // Render clickable tags in modal
-                document.getElementById('modalTags').innerHTML = item.tags.map(tag =>
-                    `<a href="#" class="tag-link" style="color:#febd69; text-decoration:underline; margin-right:6px;" onclick="event.preventDefault(); filterByTagModal('${tag}');">${tag}</a>`
-                ).join(', ');
-                document.getElementById('itemModal').style.display = 'block';
+            console.log('showDetails called', itemId);
+            const item = window.shopItems?.find(i => i.id === itemId);
+            if (!item) {
+                console.log('Item not found in shopItems:', itemId, window.shopItems);
+                return;
             }
-        }
-        // Make modal tags filter and close modal
-        function filterByTagModal(tag) {
-            filterByTag(tag);
-            closeModal();
+            const title = document.getElementById('modalTitle');
+            const img = document.getElementById('modalImage');
+            const desc = document.getElementById('modalDescription');
+            const tagsEl = document.getElementById('modalTags');
+            const stockEl = document.getElementById('modalStock');
+            title.textContent = item.name;
+            title.dataset.id = item.id;
+            img.src = item.picture_path;
+            desc.textContent = item.description;
+            tagsEl.innerHTML = item.tags.map(tag => `<a href="#" class="tag-link" data-tag="${tag}" style="color:#febd69; text-decoration:underline; margin-right:6px;">${tag}</a>`).join(', ');
+            stockEl.textContent = `Available: ${item.stock}`;
+            stockEl.dataset.stock = item.stock;
+            document.getElementById('itemModal').style.display = 'block';
+            console.log('Modal should now be visible');
+            // attach tag link handlers inside modal
+            $$('.tag-link').forEach(a => a.addEventListener('click', function(e){ e.preventDefault(); filterByTag(this.dataset.tag); closeModal(); }));
         }
         function closeModal() {
+            console.log('closeModal called');
             document.getElementById('itemModal').style.display = 'none';
         }
 
-        // Change Username Modal logic
-        function openChangeUsernameModal() {
-            document.getElementById('changeUsernameModal').style.display = 'block';
-        }
-        function closeChangeUsernameModal() {
-            document.getElementById('changeUsernameModal').style.display = 'none';
-        }
-        var changeUsernameLink = document.getElementById('changeUsernameLink');
-        if (changeUsernameLink) {
-            changeUsernameLink.onclick = openChangeUsernameModal;
-        }
-        document.getElementById('changeUsernameForm')?.addEventListener('submit', function(e) {
-            e.preventDefault();
-            var newUsername = document.getElementById('newUsername').value.trim();
-            if (newUsername) {
-                fetch('/api/users/change-username', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username: newUsername })
-                })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.success) {
-                        window.location.reload();
-                    } else {
-                        alert(data.message || 'Failed to change username.');
+        // Change username modal
+        function openChangeUsernameModal() { document.getElementById('changeUsernameModal').style.display = 'block'; }
+        function closeChangeUsernameModal() { document.getElementById('changeUsernameModal').style.display = 'none'; }
+
+        // Add to cart via API (keeps local cart in sync)
+        async function addToCart(itemId, stock) {
+            try {
+                if (!itemId) return;
+                if (Number(stock) === 0) { alert('Item out of stock'); return; }
+                // create/get cart from API
+                const cartRes = await fetch('/api/carts/', { method: 'POST', credentials: 'include' });
+                if (!cartRes.ok) throw new Error('Failed to create/get cart');
+                const cart = await cartRes.json();
+                const res = await fetch(`/api/carts/${cart.id}/items`, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ item_id: Number(itemId), quantity: 1 })
+                });
+                if (res.ok) {
+                    alert('Item added to cart!');
+                    closeModal();
+                    // Update localStorage cart so the cart badge shows correct count
+                    try {
+                        const existing = getCart();
+                        const itemIdNum = Number(itemId);
+                        const found = existing.find(ci => ci.item_id === itemIdNum);
+                        if (found) {
+                            found.quantity = (found.quantity || 0) + 1;
+                        } else {
+                            existing.push({ item_id: itemIdNum, quantity: 1 });
+                        }
+                        setCart(existing);
+                    } catch (err) {
+                        console.error('Failed to update local cart in localStorage', err);
                     }
-                })
-                .catch(() => alert('Failed to change username.'));
-            }
-        });
-
-        // Cart functionality
-        function addToCart(itemId) {
-            const cart = getCart();
-            const existing = cart.find(item => item.id === parseInt(itemId));
-            if (existing) {
-                existing.quantity += 1;
-            } else {
-                cart.push({ id: parseInt(itemId), quantity: 1 });
-            }
-            setCart(cart);
-            alert('Added to cart!');
-        }
-
-        // User menu dropdown logic
-        const userMenuButton = document.getElementById('userMenuButton');
-        const userMenuDropdown = document.getElementById('userMenuDropdown');
-        if (userMenuButton && userMenuDropdown) {
-            userMenuButton.onclick = function(e) {
-                e.stopPropagation();
-                userMenuDropdown.style.display = userMenuDropdown.style.display === 'block' ? 'none' : 'block';
-            };
-            document.body.addEventListener('click', function() {
-                userMenuDropdown.style.display = 'none';
-            });
-            userMenuDropdown.onclick = function(e) { e.stopPropagation(); };
-        }
-        // If not logged in, clicking the user menu button or dropdown link brings to signin/register
-        {% if not username %}
-        if (userMenuButton) {
-            userMenuButton.onclick = function() {
-                window.location.href = '/api/users/login';
-            };
-        }
-        if (document.getElementById('signinRegisterLink')) {
-            document.getElementById('signinRegisterLink').onclick = function(e) {
-                e.preventDefault();
-                window.location.href = '/api/users/login';
-            };
-        }
-        {% endif %}
-        // Close modal when clicking outside
-        window.onclick = function (event) {
-            const modal = document.getElementById('itemModal');
-            if (event.target === modal) {
-                modal.style.display = 'none';
-            }
-        }
-
-        // Initialize cart count on page load
-        document.addEventListener('DOMContentLoaded', updateCartCount);
-
-        // Add keyboard event listener for search
-        document.getElementById('searchInput').addEventListener('keypress', function (event) {
-            if (event.key === 'Enter') {
-                searchItems();
-            }
-        });
-
-        // Tag filtering logic
-        function filterByTag(tag) {
-            document.getElementById('tagFilterBar').style.display = '';
-            document.getElementById('activeTag').textContent = tag;
-            const cards = document.querySelectorAll('.category-card');
-            cards.forEach(card => {
-                const tags = card.getAttribute('data-tags').split(',');
-                if (tags.includes(tag)) {
-                    card.style.display = '';
-                } else {
-                    card.style.display = 'none';
+                    // Always sync with backend after add
+                    await syncCartWithBackend();
                 }
+                else { const data = await res.json().catch(()=>({})); alert(data.detail || 'Failed to add item to cart.'); }
+            } catch (err) {
+                console.error(err);
+                alert('Failed to add item to cart.');
+            }
+        }
+
+        // Tag filtering
+        function filterByTag(tag) {
+            const bar = document.getElementById('tagFilterBar');
+            if (bar) bar.style.display = '';
+            const active = document.getElementById('activeTag'); if (active) active.textContent = tag;
+            $$('.category-card').forEach(card => {
+                const tags = (card.getAttribute('data-tags')||'').split(',').map(s=>s.trim());
+                card.style.display = tags.includes(tag) ? '' : 'none';
             });
         }
         function clearTagFilter() {
-            document.getElementById('tagFilterBar').style.display = 'none';
-            const cards = document.querySelectorAll('.category-card');
-            cards.forEach(card => {
-                card.style.display = '';
-            });
+            const bar = document.getElementById('tagFilterBar'); if (bar) bar.style.display = 'none';
+            $$('.category-card').forEach(card => card.style.display = '');
         }
+
+        // Change username submit
+        async function handleChangeUsernameSubmit(e) {
+            e.preventDefault();
+            const newUsername = document.getElementById('newUsername')?.value?.trim();
+            if (!newUsername) return;
+            try {
+                const res = await fetch('/api/users/change-username', { method: 'POST', headers: { 'Content-Type':'application/json' }, body: JSON.stringify({ username: newUsername }) });
+                const data = await res.json();
+                if (data.success) window.location.reload();
+                else alert(data.message || 'Failed to change username.');
+            } catch (err) { console.error(err); alert('Failed to change username.'); }
+        }
+
+        // Synchronize local cart with backend cart on page load
+        async function syncCartWithBackend() {
+            try {
+                // Only sync if user is logged in (username exists)
+                const username = window.currentUser || null;
+                console.log('syncCartWithBackend: currentUser=', username);
+                if (!username) {
+                    // If not logged in, clear local cart
+                    console.log('Not logged in — clearing localStorage cart');
+                    localStorage.removeItem('cart');
+                    updateCartCount();
+                    return;
+                }
+                // Get or create backend cart
+                console.log('Requesting backend cart (POST /api/carts/)');
+                const cartRes = await fetch('/api/carts/', { method: 'POST', credentials: 'same-origin' });
+                console.log('cartRes status:', cartRes.status);
+                if (!cartRes.ok) throw new Error('Failed to get backend cart');
+                const cart = await cartRes.json();
+                console.log('backend cart object:', cart);
+                // Get cart details (with items)
+                console.log('Requesting cart details GET /api/carts/' + cart.id);
+                const cartDetailRes = await fetch(`/api/carts/${cart.id}`, { credentials: 'same-origin' });
+                console.log('cartDetailRes status:', cartDetailRes.status);
+                if (!cartDetailRes.ok) throw new Error('Failed to get cart details');
+                const cartDetail = await cartDetailRes.json();
+                console.log('cartDetail:', cartDetail);
+                // Log localStorage before modifying
+                try { console.log('localStorage cart before sync:', JSON.parse(localStorage.getItem('cart') || 'null')); } catch(e){ console.log('localStorage cart parse error', e); }
+                // If backend cart is empty, clear local cart and badge
+                if (!cartDetail.items || cartDetail.items.length === 0) {
+                    console.log('Backend cart empty — clearing local cart and badge');
+                    localStorage.removeItem('cart');
+                    updateCartCount();
+                    return;
+                }
+                // Map backend cart items to local format
+                const localCart = (cartDetail.items || []).map(ci => ({ item_id: ci.item_id, quantity: ci.quantity }));
+                console.log('Setting local cart from backend:', localCart);
+                setCart(localCart);
+                console.log('localStorage cart after sync:', JSON.parse(localStorage.getItem('cart') || 'null'));
+            } catch (err) {
+                console.warn('Could not sync cart with backend:', err);
+                // If syncing fails, clear local client cart to avoid showing stale counts
+                try {
+                    console.warn('Clearing local cart due to sync failure');
+                    console.log('localStorage cart before clearing due to error:', JSON.parse(localStorage.getItem('cart')||'null'));
+                    localStorage.removeItem('cart');
+                    updateCartCount();
+                    console.log('localStorage cart after clearing due to error:', JSON.parse(localStorage.getItem('cart')||'null'));
+                } catch (e) {
+                    console.error('Failed to clear local cart after sync failure', e);
+                }
+            }
+        }
+
+        // Initialize everything once DOM is ready
+        document.addEventListener('DOMContentLoaded', async function(){
+            console.log('DOMContentLoaded fired');
+            // user menu dropdown
+            const userMenuButton = document.getElementById('userMenuButton');
+            const userMenuDropdown = document.getElementById('userMenuDropdown');
+            console.log('[home.js] DOMContentLoaded, userMenuButton=', userMenuButton, 'userMenuDropdown=', userMenuDropdown);
+            if (userMenuButton && userMenuDropdown) {
+                userMenuDropdown.classList.remove('show');
+                userMenuButton.addEventListener('click', function(e){ e.stopPropagation(); userMenuDropdown.classList.toggle('show'); userMenuButton.setAttribute('aria-expanded', userMenuDropdown.classList.contains('show')); });
+                // keyboard accessibility: Enter/Space toggles menu
+                userMenuButton.addEventListener('keydown', function(e){ if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); userMenuDropdown.classList.toggle('show'); userMenuButton.setAttribute('aria-expanded', userMenuDropdown.classList.contains('show')); } });
+                userMenuDropdown.addEventListener('click', function(e){ e.stopPropagation(); });
+                document.addEventListener('click', function(e){ if (!userMenuButton.contains(e.target)) userMenuDropdown.classList.remove('show'); });
+            }
+
+            // Clear client-side cart on logout click to avoid stale localStorage showing phantom items
+            const logoutLink = document.querySelector('a[href="/logout"]');
+            if (logoutLink) {
+                logoutLink.addEventListener('click', function() {
+                    try { localStorage.removeItem('cart'); updateCartCount(); } catch (e) { console.error('Failed to clear local cart on logout', e); }
+                });
+            }
+
+            // search enter key
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) searchInput.addEventListener('keypress', function(ev){ if (ev.key === 'Enter') searchItems(); });
+
+            // Sync cart with backend first so badge reflects server state
+            await syncCartWithBackend();
+            // cart badge (create if missing, then update)
+            if (!document.getElementById('cartCount')) {
+                const cartButton = document.getElementById('cartButton');
+                if (cartButton) {
+                    const badge = document.createElement('span'); badge.id = 'cartCount'; badge.style = 'background:#febd69;color:#232f3e;border-radius:10px;padding:2px 8px;margin-left:6px;font-weight:bold;'; badge.textContent = '0'; cartButton.appendChild(badge);
+                }
+            }
+            updateCartCount();
+
+            // attach change username submit
+            const changeForm = document.getElementById('changeUsernameForm');
+            if (changeForm) changeForm.addEventListener('submit', handleChangeUsernameSubmit);
+
+            // attach modal close when clicking outside
+            window.addEventListener('click', function(event){
+                const modal = document.getElementById('itemModal');
+                if (modal && event.target === modal) {
+                    console.log('Clicked outside modal content, closing modal');
+                    closeModal();
+                }
+                const changeModal = document.getElementById('changeUsernameModal');
+                if (changeModal && event.target === changeModal) changeModal.style.display = 'none';
+            });
+
+            // attach tag click handlers in listings
+            $$('.tag-link').forEach(a => a.addEventListener('click', function(e){ e.preventDefault(); e.stopPropagation(); filterByTag(this.dataset.tag); }));
+
+            // make category cards clickable for details (event delegation)
+            const categoriesContainer = document.getElementById('categoriesContainer');
+            const cards = $$('.category-card');
+            console.log('Number of .category-card elements found:', cards.length);
+            if (categoriesContainer) {
+                categoriesContainer.addEventListener('click', function(event) {
+                    let card = event.target;
+                    // Traverse up to .category-card if a child is clicked
+                    while (card && !card.classList.contains('category-card') && card !== categoriesContainer) {
+                        card = card.parentElement;
+                    }
+                    if (card && card.classList.contains('category-card')) {
+                        const id = card.getAttribute('data-id');
+                        if (id) {
+                            console.log('category-card clicked (delegated), id:', id);
+                            showDetails(Number(id));
+                        }
+                    }
+                });
+            }
+        });
+
+        // Expose some functions to global scope used by inline attributes
+        window.addToCart = addToCart;
+        window.showDetails = showDetails;
+        window.closeModal = closeModal;
+        window.filterByTag = filterByTag;
+        window.clearTagFilter = clearTagFilter;
+        window.openChangeUsernameModal = openChangeUsernameModal;
+        window.closeChangeUsernameModal = closeChangeUsernameModal;
+        window.searchItems = searchItems;
+    })();
+    </script>
+
+    <script>
+        const socket = new WebSocket("ws://127.0.0.1:8000/ws/stock-updates");
+
+        socket.onmessage = function(event) {
+            console.log("WebSocket message received:", event.data); // Log received message
+            const data = JSON.parse(event.data);
+            if (data.type === "stock_update") {
+                const itemElement = document.querySelector(`#item-stock-${data.item_id}`);
+                if (itemElement) {
+                    itemElement.textContent = `Stock: ${data.stock}`;
+                }
+            }
+        };
+
+        socket.onclose = function() {
+            console.log("WebSocket connection closed.");
+        };
+    </script>
+
+    <!-- Example item display -->
+    <div id="item-container">
+        {% for item in items %}
+        <div class="item-card">
+            <h3>{{ item.name }}</h3>
+            <p id="item-stock-{{ item.id }}">Stock: {{ item.stock }}</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    {# Ensure no unintended rendering of items data below the footer #}
+    <!-- Removed any unintended rendering of items data below the footer -->
+
+    <!-- Ensure the footer is the last visible section -->
+    <footer>
+        <p>&copy; 2025 MyShop. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // Ensure no stray data is appended to the DOM
+        document.addEventListener('DOMContentLoaded', function() {
+            const redundantElements = document.querySelectorAll('#redundant-stock-info');
+            redundantElements.forEach(el => el.remove());
+        });
     </script>
 </body>
 

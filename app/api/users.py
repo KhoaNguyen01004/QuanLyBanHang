@@ -4,9 +4,10 @@ from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 from app.db.db import get_db
 from app.schemas.user import User, UserCreate
-from app.services.shop_services import get_user, get_user_by_email, create_user
-from app.core.security import verify_password
+from app.services.shop_services import get_user, get_user_by_email, create_user, get_user_by_username_or_email
+from app.core.security import verify_password, create_access_token
 from fastapi.security import OAuth2PasswordRequestForm
+from fastapi import status
 
 router = APIRouter()
 
@@ -15,25 +16,29 @@ templates = Jinja2Templates(directory="templates")
 
 @router.get("/login", response_class=HTMLResponse)
 def login_form(request: Request):
-    return templates.TemplateResponse("login.html", {"request": request})
+    return templates.TemplateResponse(request, "login.html", {})
 
 
 @router.post("/login")
 def login(request: Request, db: Session = Depends(get_db), form_data: OAuth2PasswordRequestForm = Depends()):
-    user = get_user_by_email(db, email=form_data.username)
+    import logging
+    user = get_user_by_username_or_email(db, identifier=form_data.username)
     if not user:
-        return templates.TemplateResponse("login.html", {"request": request, "error": "Invalid credentials"})
+        logging.warning(f"Login failed: user not found for {form_data.username}")
+        return templates.TemplateResponse(request, "login.html", {"error": "Invalid credentials"})
     if not verify_password(form_data.password, user.hashed_password):
-        return templates.TemplateResponse("login.html", {"request": request, "error": "Invalid credentials"})
+        logging.warning(f"Login failed: invalid password for {form_data.username}")
+        return templates.TemplateResponse(request, "login.html", {"error": "Invalid credentials"})
     # Set username in session
     request.session['username'] = user.username
+    logging.warning(f"Login success: session after login: {dict(request.session)}")
     response = RedirectResponse(url="/", status_code=303)
     return response
 
 
 @router.get("/register", response_class=HTMLResponse)
 def register_form(request: Request):
-    return templates.TemplateResponse("register.html", {"request": request, "error": None})
+    return templates.TemplateResponse(request, "register.html", {"error": None})
 
 
 import unicodedata
@@ -45,11 +50,11 @@ def register(request: Request, db: Session = Depends(get_db), username: str = Fo
     # Check password length for bcrypt limitation (72 bytes)
     if len(password.encode('utf-8')) > 72:
         error_msg = "Password cannot be longer than 72 bytes. Please choose a shorter password."
-        return templates.TemplateResponse("register.html", {"request": request, "error": error_msg})
+        return templates.TemplateResponse(request, "register.html", {"error": error_msg})
     # Check if user already exists
     db_user = get_user_by_email(db, email=email)
     if db_user:
-        return templates.TemplateResponse("register.html", {"request": request, "error": "Email already registered"})
+        return templates.TemplateResponse(request, "register.html", {"error": "Email already registered"})
     # Create user
     user_create = UserCreate(username=username, email=email, password=password, role=role)
     create_user(db=db, user=user_create)
@@ -81,3 +86,20 @@ def create_new_user(user: UserCreate, db: Session = Depends(get_db)):
     if db_user:
         raise HTTPException(status_code=400, detail="Email already registered")
     return create_user(db=db, user=user)
+
+
+@router.post("/token")
+def api_login_token(db: Session = Depends(get_db), form_data: OAuth2PasswordRequestForm = Depends()):
+    user = get_user_by_username_or_email(db, identifier=form_data.username)
+    if not user or not verify_password(form_data.password, user.hashed_password):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect username or password")
+    access_token = create_access_token(data={"sub": user.username})
+    return {"access_token": access_token, "token_type": "bearer"}
+
+
+@router.get("/debug/session")
+def debug_session(request: Request):
+    import logging
+    session_data = dict(request.session) if hasattr(request, 'session') else 'No session'
+    logging.warning(f"[DEBUG SESSION ENDPOINT] Session content: {session_data}")
+    return {"session": session_data}

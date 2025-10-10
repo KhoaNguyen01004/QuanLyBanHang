@@ -10,5 +10,8 @@ class Item(Base):
     name = Column(String, nullable=False, index=True)
     description = Column(Text, nullable=True)
     price = Column(Float, nullable=False)
+    stock = Column(Integer, nullable=False, default=0)  # New field for available stock
+    picture_path = Column(String, nullable=True)  # New field for image path
+    tags = Column(String, nullable=True)  # New field for tags as comma-separated string
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
