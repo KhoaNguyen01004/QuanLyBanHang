@@ -87,7 +87,7 @@
                     const div = document.createElement('div');
                     div.className = 'cart-item';
                     div.innerHTML = `
-                        <img src="${item.picture_path}" alt="${item.name}" />
+                        <img src="/static/${item.picture_path}" alt="${item.name}" />
                         <div class="cart-item-details">
                             <h3>${item.name}</h3>
                             <p>Quantity: <input type="number" min="1" max="${item.stock + cartItem.quantity}" value="${cartItem.quantity}" onchange="updateQuantity(${cart.id}, ${item.id}, this.value, ${item.stock + cartItem.quantity})"> (Available: ${item.stock + cartItem.quantity})</p>

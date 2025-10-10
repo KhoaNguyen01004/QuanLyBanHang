@@ -81,13 +81,23 @@ async def home(request: Request):
     # Convert items to dicts and split tags into lists
     items_dicts = []
     for item in items:
+        # Ensure correct image path
+        pic_path = item.picture_path or ''
+        if pic_path.startswith('images/'):
+            final_path = pic_path
+        elif pic_path.startswith('/static/images/'):
+            final_path = pic_path[len('/static/'):]
+        elif pic_path:
+            final_path = f"images/items/{pic_path}"
+        else:
+            final_path = "images/items/default.png"  # fallback image
         item_dict = {
             "id": item.id,
             "name": item.name,
             "description": item.description,
             "price": item.price,
             "stock": item.stock,
-            "picture_path": item.picture_path,
+            "picture_path": final_path,
             "tags": item.tags.split(",") if item.tags else [],
             "created_at": item.created_at.isoformat() if item.created_at else None,
             "updated_at": item.updated_at.isoformat() if item.updated_at else None,

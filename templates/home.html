@@ -282,7 +282,7 @@
         <div class="categories" id="categoriesContainer">
             {% for item in items %}
             <div class="category-card" data-id="{{ item.id }}" data-tags="{{ item.tags|join(',') }}">
-                <img src="{{ item.picture_path }}" alt="{{ item.name }}" />
+                <img src="/static/{{ item.picture_path }}" alt="{{ item.name }}" />
                 <h3>{{ item.name }}</h3>
                 <p>{{ item.description }}</p>
                 <p style="color:#febd69; font-weight:bold;">Price: ${{ item.price }}</p>
