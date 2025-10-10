@@ -56,7 +56,19 @@ class AutoLogoutASGIMiddleware:
         await self.app(scope, receive, send)
 
 # Add middlewares to the FastAPI instance (keeps app as FastAPI for tests)
-app.add_middleware(SessionMiddleware, secret_key=settings.secret_key, same_site="lax", https_only=False)
+# Determine environment (production vs. development)
+DEBUG = os.environ.get("DEBUG", "False").lower() == "true"
+
+# Add SessionMiddleware with secure settings in production
+def get_session_middleware_settings():
+    if DEBUG:
+        return dict(secret_key=settings.secret_key, same_site="lax", https_only=False)
+    else:
+        # Railway/production: secure cookies
+        return dict(secret_key=settings.secret_key, same_site="lax", https_only=True)
+
+app.add_middleware(SessionMiddleware, **get_session_middleware_settings())
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  # For local dev, allow all origins
@@ -147,8 +159,8 @@ async def websocket_endpoint(websocket: WebSocket):
     except WebSocketDisconnect:
         connected_clients.remove(websocket)
 
-# Create the ASGI app wrapper that applies auto-logout behavior for runtime.
-asgi_app = AutoLogoutASGIMiddleware(app)
+# Export asgi_app for Uvicorn (ensures all middleware is applied)
+asgi_app = app
 
 # IMPORTANT: For session and custom middleware to work, run with:
 # uvicorn app.main:asgi_app --reload
