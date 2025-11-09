@@ -1,19 +1,18 @@
 import os
-import json
+from datetime import datetime, UTC
+
 from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect
-from fastapi.templating import Jinja2Templates
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
-from app.api import users, carts, items
+from fastapi.templating import Jinja2Templates
 from starlette.middleware.sessions import SessionMiddleware
-from fastapi.middleware.cors import CORSMiddleware
-from app.db.db import engine, Base, SessionLocal
-from app.core.config import settings
-from app.models.item import Item
-from datetime import datetime, UTC
 from starlette.types import ASGIApp, Receive, Scope, Send
-from typing import List
-from app.websocket_manager import manager  # Import the WebSocket manager from the new module
+
+from app.api import users, carts, items
+from app.core.config import settings
+from app.db.db import engine, Base, SessionLocal
+from app.models.item import Item
 
 # Create database tables
 Base.metadata.create_all(bind=engine)
@@ -122,24 +121,57 @@ async def home(request: Request):
 async def cart(request: Request):
     username = request.session.get("username")
     items = []
-    if username:
-        db = SessionLocal()
-        from app.services.shop_services import get_user, get_or_create_cart
-        user = get_user(db, username)
-        if user:
-            cart = get_or_create_cart(db, user.id)
-            # cart.cart_items is a list of CartItem objects
-            for cart_item in cart.cart_items:
+    db = SessionLocal()
+    from app.services.shop_services import get_user, get_user_by_username_or_email, get_or_create_cart
+
+    try:
+        user_id = None
+        session_id = None
+        if username:
+            # Try to resolve the session username to a DB user (could be stored as id or username/email)
+            resolved_user = get_user(db, username)
+            if not resolved_user:
+                resolved_user = get_user_by_username_or_email(db, username)
+            if resolved_user:
+                user_id = resolved_user.id
+        # If no user_id, attempt to use or create a session_id stored in the server session
+        if not user_id:
+            session_id = request.session.get('session_id')
+            if not session_id:
+                import uuid
+                session_id = uuid.uuid4().hex
+                request.session['session_id'] = session_id
+
+        cart = get_or_create_cart(db, user_id=user_id, session_id=session_id)
+        if cart:
+            # cart.items is the relationship on the Cart model
+            for cart_item in cart.items:
                 item = cart_item.item
+                if not item:
+                    continue
+                # Normalize picture path similar to home view
+                pic_path = item.picture_path or ''
+                if pic_path.startswith('images/'):
+                    final_path = pic_path
+                elif pic_path.startswith('/static/images/'):
+                    final_path = pic_path[len('/static/'):]
+                elif pic_path:
+                    final_path = f"images/items/{pic_path}"
+                else:
+                    final_path = "images/items/default.png"
+
                 items.append({
                     "id": item.id,
                     "name": item.name,
                     "description": item.description,
                     "price": item.price,
                     "quantity": cart_item.quantity,
-                    "picture_path": item.picture_path,
+                    "picture_path": final_path,
+                    "tags": item.tags.split(",") if item.tags else [],
                 })
+    finally:
         db.close()
+
     return templates.TemplateResponse(request, "cart.html", {"username": username, "items": items})
 
 @app.get("/logout")
