@@ -12,11 +12,72 @@
             background-color: #1a1a1a;
             color: white;
             margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: #131921;
+            color: white;
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        header .logo {
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        header .spacer {
+            flex: 1;
+        }
+
+        header .btn {
+            background-color: #febd69;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 4px;
+            cursor: pointer;
+            color: #232f3e;
+            font-weight: 700;
+        }
+
+        header .btn.secondary {
+            background: #37475a;
+            color: #fff;
+        }
+
+        header .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        main {
             padding: 20px;
         }
 
         h1 {
-            margin-bottom: 20px;
+            margin: 0 0 16px;
+        }
+
+        .summary-bar {
+            background: #232f3e;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin: 12px 0 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .summary-bar .spacer {
+            flex: 1;
+        }
+
+        .summary-bar strong {
+            color: #febd69;
         }
 
         .cart-item {
@@ -62,22 +123,153 @@
 </head>
 
 <body>
-    <h1>Your Cart</h1>
-    <div id="cartItems"></div>
+    <header>
+        <div class="logo" onclick="window.location.href='/'">MyShop</div>
+        <button class="btn secondary" onclick="window.location.href='/'">← Back to Home</button>
+        <button class="btn" onclick="window.location.href='/purchases'">Purchases</button>
+        <div class="spacer"></div>
+        <button id="checkoutTopBtn" class="btn" onclick="goCheckout()">Proceed to Checkout</button>
+    </header>
+
+    <main>
+        <h1>Your Cart</h1>
+        <div class="summary-bar">
+            <span>Items in cart: <strong id="cartCountText">0</strong></span>
+            <div class="spacer"></div>
+            <span>Total: <strong id="cartTotalText">$0.00</strong></span>
+            <button id="checkoutBtn" class="btn" style="margin-left: 8px;" onclick="goCheckout()">Checkout →</button>
+        </div>
+        <div id="cartItems"></div>
+    </main>
+
+    <!-- Hidden usage hint to satisfy static analyzer for CSS classes used dynamically -->
+    <div aria-hidden="true" style="display:none;">
+        <div class="cart-item">
+            <div class="cart-item-details"></div>
+        </div>
+        <p class="empty-cart">.</p>
+    </div>
+
+    <!-- Toast container -->
+    <div id="toastContainer" aria-live="polite"
+        style="position:fixed;bottom:16px;right:16px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none;align-items:flex-end;"></div>
+
     <script>
-        async function fetchCart() {
-            // Get or create cart from backend
-            let cart = await fetch('/api/carts', { method: 'POST' }).then(res => res.json());
-            // Fetch cart details
-            let cartData = await fetch(`/api/carts/${cart.id}`).then(res => res.json());
-            // Fetch all items for stock info
-            let items = await fetch('/api/items').then(res => res.json());
-            return { cart: cartData, items };
+        function fmtMoney(n) {
+            try {
+                return '$' + (Number(n || 0)).toFixed(2);
+            } catch {
+                return '$0.00';
+            }
         }
-        function renderCart(cart, items) {
+
+        // Toast helper
+        function showToast(message, type = 'info', timeout = 4000) {
+            try {
+                const container = document.getElementById('toastContainer');
+                if (!container) return;
+                const toast = document.createElement('div');
+                toast.className = 'app-toast ' + type;
+                toast.style = 'background:#333;color:#fff;padding:10px 14px;border-radius:6px;box-shadow:0 2px 8px rgba(0,0,0,0.3);pointer-events:auto;max-width:320px;';
+                if (type === 'success') toast.style.background = '#2e7d32';
+                if (type === 'error') toast.style.background = '#c62828';
+                if (type === 'info') toast.style.background = '#1565c0';
+                toast.textContent = message;
+                toast.addEventListener('click', () => toast.remove());
+                container.appendChild(toast);
+                setTimeout(() => toast.remove(), timeout);
+            } catch (e) { console.error('showToast error', e); }
+        }
+
+        async function fetchCart() {
+            // Try getting/creating cart from backend first (include credentials so cookies/sessions are used)
+            try {
+                const cartRes = await fetch('/api/carts/', { method: 'POST', credentials: 'include' });
+                if (cartRes && cartRes.ok) {
+                    const cart = await cartRes.json();
+                    // Fetch cart details
+                    const cartDetailRes = await fetch(`/api/carts/${cart.id}`, { credentials: 'include' });
+                    if (cartDetailRes && cartDetailRes.ok) {
+                        const cartData = await cartDetailRes.json();
+                        // Fetch all items for stock info
+                        const items = await fetch('/api/items').then(res => res.json()).catch(() => []);
+                        return { cart: cartData, items, isGuest: false, cartId: cart.id };
+                    }
+                }
+            } catch (e) {
+                console.warn('Backend cart fetch failed, falling back to local cart:', e);
+            }
+
+            // Fallback: build cart from localStorage (guest/offline scenario)
+            try {
+                const local = JSON.parse(localStorage.getItem('cart') || '[]');
+                const items = await fetch('/api/items').then(res => res.json()).catch(() => []);
+                // Normalize local format to match backend cart detail shape
+                const cartData = { items: (local || []).map(ci => ({ item_id: ci.item_id, quantity: ci.quantity })) };
+                return { cart: cartData, items, isGuest: true, cartId: null };
+            } catch (err) {
+                console.warn('Failed to read localStorage cart or items', err);
+                return { cart: { items: [] }, items: [], isGuest: true, cartId: null };
+            }
+        }
+
+        // If logged-in (backend cart available) and there are local guest items, merge them into backend
+        async function mergeLocalCartToBackendIfNeeded(cartId, backendCart) {
+            try {
+                if (!cartId) return false;
+                const local = JSON.parse(localStorage.getItem('cart') || '[]');
+                if (!local || local.length === 0) return false;
+                const backendItems = (backendCart && backendCart.items) ? backendCart.items : [];
+                for (const li of local) {
+                    const itemId = Number(li.item_id);
+                    const qty = Number(li.quantity) || 0;
+                    if (!itemId || qty <= 0) continue;
+                    const bi = backendItems.find(b => Number(b.item_id) === itemId);
+                    if (bi) {
+                        const newQty = (Number(bi.quantity) || 0) + qty;
+                        await fetch(`/api/carts/${cartId}/items/${itemId}?quantity=${newQty}`, { method: 'PUT', credentials: 'include' });
+                    } else {
+                        await fetch(`/api/carts/${cartId}/items`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify({ item_id: itemId, quantity: qty }) });
+                    }
+                }
+                localStorage.removeItem('cart');
+                showToast('Your local cart was merged into your account.', 'success');
+                return true;
+            } catch (e) {
+                console.warn('mergeLocalCartToBackendIfNeeded failed:', e);
+                return false;
+            }
+        }
+
+        function updateSummary(cart, items) {
+            try {
+                const countEl = document.getElementById('cartCountText');
+                const totalEl = document.getElementById('cartTotalText');
+                const chk1 = document.getElementById('checkoutBtn');
+                const chk2 = document.getElementById('checkoutTopBtn');
+                let count = 0,
+                    total = 0;
+                (cart.items || []).forEach(ci => {
+                    const it = items.find(i => i.id === ci.item_id);
+                    const qty = Number(ci.quantity) || 0;
+                    if (qty > 0) {
+                        count += qty;
+                        if (it && typeof it.price !== 'undefined') total += qty * Number(it.price);
+                    }
+                });
+                if (countEl) countEl.textContent = String(count);
+                if (totalEl) totalEl.textContent = fmtMoney(total);
+                const disabled = count === 0;
+                if (chk1) chk1.disabled = disabled;
+                if (chk2) chk2.disabled = disabled;
+            } catch (e) { console.warn('updateSummary failed', e); }
+        }
+
+        async function renderCart(cart, items) {
             const container = document.getElementById('cartItems');
             if (!cart.items || cart.items.length === 0) {
                 container.innerHTML = '<p class="empty-cart">Your cart is empty.</p>';
+                updateSummary({ items: [] }, items || []);
                 return;
             }
             container.innerHTML = '';
@@ -90,38 +282,52 @@
                         <img src="/static/${item.picture_path}" alt="${item.name}" />
                         <div class="cart-item-details">
                             <h3>${item.name}</h3>
-                            <p>Quantity: <input type="number" min="1" max="${item.stock + cartItem.quantity}" value="${cartItem.quantity}" onchange="updateQuantity(${cart.id}, ${item.id}, this.value, ${item.stock + cartItem.quantity})"> (Available: ${item.stock + cartItem.quantity})</p>
+                            <p>Quantity: ${cartItem.quantity} (Available: ${item.stock + cartItem.quantity})</p>
                             <p>Description: ${item.description}</p>
                             <p>Tags: ${item.tags ? item.tags.join(', ') : ''}</p>
+                            <p style="color:#febd69;font-weight:bold;">Price: ${fmtMoney(item.price)} | Subtotal: ${fmtMoney((item.price || 0) * (cartItem.quantity || 0))}</p>
                             <button onclick="removeItem(${cart.id}, ${item.id}, ${cartItem.quantity})">Remove</button>
                         </div>
                     `;
                     container.appendChild(div);
                 }
             });
+            updateSummary(cart, items);
         }
+
         async function updateQuantity(cartId, itemId, quantity, max) {
             quantity = parseInt(quantity);
-            if (quantity < 1 || quantity > max) {
-                alert('Invalid quantity.');
-                return;
-            }
-            await fetch(`/api/carts/${cartId}/items/${itemId}?quantity=${quantity}`, { method: 'PUT' });
-            loadCart();
+            if (isNaN(quantity) || quantity < 1 || quantity > max) { showToast('Invalid quantity.', 'error'); return; }
+            await fetch(`/api/carts/${cartId}/items/${itemId}?quantity=${quantity}`, { method: 'PUT', credentials: 'include' });
+            // Auto refresh after update
+            window.location.reload();
         }
+
         async function removeItem(cartId, itemId, maxQuantity) {
             const quantity = prompt(`Enter the quantity to remove (max: ${maxQuantity}):`);
-            if (!quantity || isNaN(quantity) || quantity < 1 || quantity > maxQuantity) {
-                alert('Invalid quantity.');
-                return;
-            }
-            await fetch(`/api/carts/${cartId}/items/${itemId}?quantity=${quantity}`, { method: 'DELETE' });
-            loadCart();
+            if (!quantity || isNaN(quantity) || quantity < 1 || quantity > maxQuantity) { showToast('Invalid quantity.', 'error'); return; }
+            await fetch(`/api/carts/${cartId}/items/${itemId}?quantity=${quantity}`, { method: 'DELETE', credentials: 'include' });
+            // Auto refresh after remove
+            window.location.reload();
         }
+
+        function goCheckout() { window.location.href = '/checkout'; }
+
         async function loadCart() {
-            const { cart, items } = await fetchCart();
-            renderCart(cart, items);
+            const { cart, items, isGuest, cartId } = await fetchCart();
+            // If backend is available and there's a local guest cart, merge then refetch for accurate view
+            let merged = false;
+            if (!isGuest) {
+                merged = await mergeLocalCartToBackendIfNeeded(cartId, cart);
+            }
+            if (merged) {
+                const refreshed = await fetchCart();
+                renderCart(refreshed.cart, refreshed.items);
+            } else {
+                renderCart(cart, items);
+            }
         }
+
         document.addEventListener('DOMContentLoaded', loadCart);
     </script>
 </body>

@@ -89,7 +89,7 @@
 
 **Development:**
 ```sh
-uvicorn app.main:app --reload
+python -m uvicorn app.main:asgi_app --reload --host 127.0.0.1 --port 8000
 ```
 
 **Production:**
@@ -157,6 +157,30 @@ uvicorn app.main:asgi_app --reload
 ## Utility Scripts
 
 - All utility scripts (such as database population) are now located in the `scripts/` folder.
+
+### Populate demo items
+
+Ensure dependencies are installed and an app secret key is set (required by settings):
+
+- Windows (cmd.exe):
+```
+set SECRET_KEY=dev-secret
+python -m scripts.populate_items
+```
+- Windows (PowerShell):
+```
+$env:SECRET_KEY='dev-secret'
+python -m scripts.populate_items
+```
+- Linux/macOS:
+```
+SECRET_KEY=dev-secret python -m scripts.populate_items
+```
+
+Notes:
+- Run the command from the project root (the folder that contains `app/` and `scripts/`).
+- By default this uses `sqlite:///./test.db`. To target another DB, set `DATABASE_URL` before the command.
+- After running, the database contains 8 curated items and previous carts/items are cleared.
 
 ### Testing
 

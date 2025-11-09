@@ -2,7 +2,7 @@
     {
         "id": 1,
         "name": "Wireless Headphones",
-        "picture_path": "/static/images/items/Screenshot 2025-10-02 215021.png",
+        "picture_path": "images/items/Wireless_Headphone.png",
         "description": "High-quality wireless headphones with noise cancellation and long battery life. Perfect for music lovers and professionals.",
         "tags": [
             "electronics",
@@ -13,7 +13,7 @@
     {
         "id": 2,
         "name": "Smartphone Case",
-        "picture_path": "/static/images/items/Screenshot 2025-10-02 215518.png",
+        "picture_path": "images/items/Smartphone_Case.png",
         "description": "Durable and stylish case for smartphones, providing protection against drops and scratches.",
         "tags": [
             "accessories",
@@ -24,7 +24,7 @@
     {
         "id": 3,
         "name": "Laptop Stand",
-        "picture_path": "/static/images/items/Screenshot 2025-10-03 022445.png",
+        "picture_path": "images/items/Laptop_Stand.png",
         "description": "Adjustable laptop stand for better ergonomics and cooling during work sessions.",
         "tags": [
             "computer",
@@ -35,7 +35,7 @@
     {
         "id": 4,
         "name": "Bluetooth Speaker",
-        "picture_path": "/static/images/items/Screenshot 2025-10-06 102429.png",
+        "picture_path": "images/items/Bluetooth_Speaker.png",
         "description": "Portable Bluetooth speaker with excellent sound quality and waterproof design.",
         "tags": [
             "audio",
@@ -46,7 +46,7 @@
     {
         "id": 5,
         "name": "Gaming Mouse",
-        "picture_path": "/static/images/items/Screenshot 2025-10-06 102502.png",
+        "picture_path": "images/items/Gaming_Mouse.png",
         "description": "Precision gaming mouse with customizable buttons and RGB lighting.",
         "tags": [
             "gaming",
@@ -56,35 +56,35 @@
     },
     {
         "id": 6,
-        "name": "USB Charger",
-        "picture_path": "/static/images/items/Screenshot 2025-10-06 104534.png",
-        "description": "Fast-charging USB adapter compatible with multiple devices.",
-        "tags": [
-            "charger",
-            "usb",
-            "electronics"
-        ]
-    },
-    {
-        "id": 7,
-        "name": "Webcam",
-        "picture_path": "/static/images/items/Screenshot 2025-10-06 104916.png",
-        "description": "HD webcam for video calls and streaming with built-in microphone.",
-        "tags": [
-            "camera",
-            "video",
-            "streaming"
-        ]
-    },
-    {
-        "id": 8,
-        "name": "Keyboard",
-        "picture_path": "/static/images/items/Screenshot 2025-10-06 105734.png",
+        "name": "Mechanical Keyboard",
+        "picture_path": "images/items/Mechanical_Keyboard.png",
         "description": "Mechanical keyboard with tactile switches for comfortable typing.",
         "tags": [
             "keyboard",
             "mechanical",
             "typing"
+        ]
+    },
+    {
+        "id": 7,
+        "name": "Portable SSD",
+        "picture_path": "images/items/Portable_SSD.png",
+        "description": "High-speed portable SSD for fast data transfer and secure storage on the go.",
+        "tags": [
+            "storage",
+            "portable",
+            "ssd"
+        ]
+    },
+    {
+        "id": 8,
+        "name": "Smartwatch",
+        "picture_path": "images/items/Smartwatch.png",
+        "description": "Feature-rich smartwatch with fitness tracking, notifications, and long battery life.",
+        "tags": [
+            "wearable",
+            "fitness",
+            "smart"
         ]
     }
 ]

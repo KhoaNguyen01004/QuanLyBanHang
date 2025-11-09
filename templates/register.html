@@ -30,13 +30,7 @@
                 <label for="password">Password:</label>
                 <input type="password" id="password" name="password" required>
             </div>
-            <div class="form-group">
-                <label for="role">Role:</label>
-                <select id="role" name="role">
-                    <option value="customer">Customer</option>
-                    <option value="vendor">Vendor</option>
-                </select>
-            </div>
+            <!-- Role removed: site is customer-only -->
             <button type="submit">Register</button>
         </form>
         {% if error %}

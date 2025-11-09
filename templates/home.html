@@ -24,6 +24,7 @@
             align-items: center;
             position: relative; /* ensure header sits above other elements */
             z-index: 100; /* avoid being overlapped by other fixed elements */
+            flex-wrap: wrap; /* allow items to wrap on small screens */
         }
 
         header .logo {
@@ -31,17 +32,19 @@
             font-weight: bold;
             margin-right: 20px;
             cursor: pointer;
+            flex: 0 0 auto;
         }
 
         header .search-bar {
             flex-grow: 1;
             display: flex;
             align-items: center;
+            min-width: 0; /* allow input to shrink properly within flex container */
         }
 
         header .search-bar input[type="text"] {
             width: 100%;
-            padding: 8px;
+            padding: 10px 12px;
             border: none;
             border-radius: 4px 0 0 4px;
             font-size: 16px;
@@ -49,6 +52,7 @@
             box-sizing: border-box;
             line-height: 20px;
             vertical-align: middle;
+            min-width: 0; /* prevent overflow on small screens */
         }
 
         header .search-bar button {
@@ -62,6 +66,84 @@
             line-height: 20px;
             vertical-align: middle;
             margin: 0;
+        }
+
+        /* Responsive adjustments for small screens (mobile) */
+        @media (max-width: 600px) {
+            header {
+                padding: 12px 14px;
+                align-items: stretch;
+            }
+            /* Make the logo and controls stack vertically so the search bar can be full width */
+            header .logo {
+                width: 100%;
+                margin: 0 0 8px 0;
+                font-size: 20px;
+            }
+            header .search-bar {
+                width: 100%;
+                order: 2;
+                margin-bottom: 8px;
+            }
+            header .search-bar input[type="text"] {
+                height: 48px; /* larger touch target */
+                font-size: 18px;
+                padding: 10px 12px;
+            }
+            header .search-bar button {
+                height: 48px;
+                padding: 10px 14px;
+                font-size: 16px;
+            }
+
+            /* Move user/menu and cart into a single line beneath the search bar for compactness */
+            .user-menu-container {
+                order: 3;
+                width: 100%;
+                display: flex;
+                justify-content: flex-end;
+                margin-top: 4px;
+            }
+
+            nav {
+                padding: 8px 14px;
+            }
+        }
+
+        /* On very small screens make the search input and button stack vertically for larger touch targets */
+        @media (max-width: 420px) {
+            header .search-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            header .search-bar input[type="text"] {
+                height: 56px;
+                font-size: 18px;
+                padding: 12px 14px;
+                border-radius: 6px;
+            }
+            header .search-bar button {
+                margin-top: 8px;
+                width: 100%;
+                border-radius: 6px;
+                height: 52px;
+                padding: 12px 14px;
+                font-size: 16px;
+            }
+        }
+
+        /* Larger touch targets for coarse pointers (mobile/touch) */
+        @media (pointer: coarse) {
+            header .search-bar input[type="text"] {
+                height: 56px;
+                font-size: 18px;
+                padding: 12px 14px;
+            }
+            header .search-bar button {
+                height: 52px;
+                padding: 10px 14px;
+                font-size: 16px;
+            }
         }
 
         nav {
@@ -91,8 +173,35 @@
 
         .categories {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            /* allow more columns on narrower screens by reducing the min width */
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
             gap: 20px;
+        }
+
+        /* Make cards more compact on medium and small viewports so more items fit per row */
+        @media (max-width: 800px) {
+            .categories {
+                grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+                gap: 14px;
+            }
+            .category-card {
+                padding: 10px;
+            }
+            .category-card img { height: 110px; }
+            .category-card h3 { font-size: 14px; }
+            .category-card p { font-size: 12px; }
+            .category-card .tags { font-size: 11px; }
+        }
+
+        /* Very small screens: force 4 columns (compact) so users can see more items without scrolling.
+           This will make cards narrow; reduce image height and text size accordingly. */
+        @media (max-width: 420px) {
+            .categories { grid-template-columns: repeat(4, 1fr); gap: 8px; }
+            .category-card { padding: 8px; }
+            .category-card img { height: 80px; }
+            .category-card h3 { font-size: 12px; }
+            .category-card p { font-size: 11px; }
+            .category-card .tags { font-size: 10px; }
         }
 
         .category-card {
@@ -137,7 +246,8 @@
         .modal {
             display: none;
             position: fixed;
-            z-index: 1;
+            /* Ensure modal overlay sits above header/nav/footer */
+            z-index: 1000;
             left: 0;
             top: 0;
             width: 100%;
@@ -148,6 +258,8 @@
 
         .modal-content {
             background-color: #232f3e;
+            /* place modal content above the overlay */
+            z-index: 1001;
             color: white;
             margin: 15% auto;
             padding: 20px;
@@ -184,29 +296,7 @@
         }
 
         /* Removed footer styles as footer is no longer present */
-
-        .user-menu-dropdown {
-            display: none;
-            position: absolute;
-            right: 0;
-            top: 100%;
-            background: #232f3e;
-            color: white;
-            min-width: 180px;
-            border-radius: 6px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-            z-index: 10;
-        }
-
-        .user-menu-dropdown.show {
-            display: block;
-        }
-
-        /* CSS fallback: show dropdown on hover or when button receives focus (accessibility) */
-        .user-menu-container:hover .user-menu-dropdown,
-        .user-menu-container:focus-within .user-menu-dropdown {
-            display: block;
-        }
+        /* user-menu-dropdown styles moved to /static/css/themes.css */
 
         .user-menu-dropdown a {
             display: block;
@@ -233,6 +323,10 @@
             margin: 0;
             font-size: 14px;
         }
+
+        /* Force dropdown hidden by default; visible only with .show (overrides any external CSS) */
+        .user-menu-dropdown { display: none !important; }
+        .user-menu-dropdown.show { display: block !important; }
     </style>
 </head>
 
@@ -240,8 +334,9 @@
     <header>
         <div class="logo" onclick="window.location.href='/'">MyShop</div>
         <div class="search-bar">
-            <input type="text" placeholder="Search items..." id="searchInput" />
-            <button onclick="searchItems()">Search</button>
+            <label for="searchInput" class="sr-only">Search items</label>
+             <input type="text" placeholder="Search items..." id="searchInput" />
+             <button onclick="searchItems()">Search</button>
         </div>
         <div class="user-menu-container" style="margin-left: 20px; position: relative;">
             <div id="userMenuButton" role="button" tabindex="0" aria-haspopup="true" aria-expanded="false" style="color: white; cursor: pointer; display: flex; align-items: center; gap: 8px;">
@@ -256,7 +351,7 @@
                 {% if username %}
                 <div style="padding: 12px 16px; border-bottom: 1px solid #333;">
                     <strong>{{ username }}</strong><br/>
-                    <span style="font-size: 12px; color: #ccc;">User Info</span>
+                    <span style="font-size: 12px; color: #ccc;">{{ email if email else 'User Info' }}</span>
                 </div>
                 <a href="/logout" style="display: block; padding: 10px 16px; color: #febd69; text-decoration: none;">Sign out</a>
                 {% else %}
@@ -267,9 +362,8 @@
     </header>
 
     <nav>
-        <a href="#">Today's Deals</a>
-        <a href="#">Gift Cards</a>
-        <a href="#">Customer Service</a>
+        <!-- Removed static placeholder links: Today's Deals, Gift Cards, Customer Service -->
+        <a href="/purchases" style="font-weight:bold; color:#febd69;">Purchases</a>
         <a href="/cart" id="cartButton" style="margin-left:auto; font-weight:bold; color:#febd69;">🛒 Cart</a>
     </nav>
 
@@ -279,10 +373,16 @@
             <span id="activeTag" style="color:white; margin:0 8px;"></span>
             <button onclick="clearTagFilter()" style="background:#febd69; border:none; border-radius:4px; padding:2px 8px; cursor:pointer;">Clear</button>
         </div>
+        <!-- Live search bar: shows current client-side search and a clear control -->
+        <div id="searchFilterBar" style="display:none; margin-bottom: 20px;">
+            <span style="color:#febd69; font-weight:bold;">Search:</span>
+            <span id="activeSearchTerm" style="color:white; margin:0 8px;"></span>
+            <button onclick="clearSearchFilter()" style="background:#febd69; border:none; border-radius:4px; padding:2px 8px; cursor:pointer;">Clear</button>
+        </div>
         <div class="categories" id="categoriesContainer">
             {% for item in items %}
             <div class="category-card" data-id="{{ item.id }}" data-tags="{{ item.tags|join(',') }}">
-                <img src="/static/{{ item.picture_path }}" alt="{{ item.name }}" />
+                <img loading="lazy" src="/static/{{ item.picture_path }}" alt="{{ item.name }}" />
                 <h3>{{ item.name }}</h3>
                 <p>{{ item.description }}</p>
                 <p style="color:#febd69; font-weight:bold;">Price: ${{ item.price }}</p>
@@ -316,16 +416,25 @@
             <span class="close" onclick="closeChangeUsernameModal()">&times;</span>
             <h2>Change Username</h2>
             <form id="changeUsernameForm">
+                <label for="newUsername" class="sr-only">New username</label>
                 <input type="text" id="newUsername" placeholder="Enter new username" required style="width: 100%; padding: 8px; margin-bottom: 10px;" />
                 <button type="submit">Change</button>
             </form>
         </div>
     </div>
 
+    <!-- Toast container for friendly non-blocking messages -->
+    <div id="toastContainer" aria-live="polite" style="position:fixed;bottom:16px;right:16px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none;align-items:flex-end;"></div>
+
     <!-- Ensure the footer is the last visible section -->
     <footer>
         <p>&copy; 2025 MyShop. All rights reserved.</p>
     </footer>
+
+    <!-- Hidden usage hint for static analyzer: no visual effect -->
+    <div aria-hidden="true" style="display:none;">
+        <div class="user-menu-dropdown show"></div>
+    </div>
 
     <script>
         // Remove any unintended stock information below the footer
@@ -343,10 +452,10 @@
         });
     </script>
 
-    <!-- Inject items data for JS -->
     <script>
         window.shopItems = {{ items|tojson }};
         window.currentUser = {{ username|tojson }};
+        window.currentUserEmail = {{ email|tojson }};
         console.log('window.shopItems:', window.shopItems);
     </script>
     <!-- Consolidated script: single source of truth for all UI behavior -->
@@ -355,9 +464,99 @@
         'use strict';
         console.log('[home.js] script loaded');
 
-        // Helper: safe query
-        const $ = (sel) => document.querySelector(sel);
-        const $$ = (sel) => Array.from(document.querySelectorAll(sel));
+        // Minimal toast helper (used across this page)
+        function showToast(message, type = 'info', timeout = 4000) {
+            try {
+                const container = document.getElementById('toastContainer');
+                if (!container) return;
+                const toast = document.createElement('div');
+                toast.className = 'app-toast ' + type;
+                toast.style = 'color:#fff;padding:10px 14px;border-radius:6px;pointer-events:auto;max-width:320px;';
+                if (type === 'success') toast.style.background = '#2e7d32';
+                if (type === 'error') toast.style.background = '#c62828';
+                if (type === 'info') toast.style.background = '#1565c0';
+                toast.textContent = message;
+                toast.addEventListener('click', () => toast.remove());
+                container.appendChild(toast);
+                setTimeout(() => toast.remove(), timeout);
+            } catch (e) { console.error('showToast error', e); }
+        }
+
+        // Debounce helper used for live input to avoid doing too much work on each keystroke
+        function debounce(fn, wait) {
+            let timer = null;
+            return function() {
+                const args = arguments;
+                const ctx = this;
+                if (timer) clearTimeout(timer);
+                timer = setTimeout(function() { fn.apply(ctx, args); }, wait);
+            };
+        }
+
+        // Client-side partial-match search: uses window.shopItems (rendered server-side)
+        // Filters .category-card tiles by matching query against name, description and tags.
+        function performClientSideSearch(query) {
+            const q = (query || '').trim().toLowerCase();
+            const searchBar = document.getElementById('searchFilterBar');
+            const activeTerm = document.getElementById('activeSearchTerm');
+            if (!q) {
+                if (searchBar) searchBar.style.display = 'none';
+                if (activeTerm) activeTerm.textContent = '';
+                // If there's an active tag filter, keep that filter; otherwise show all
+                const tagBar = document.getElementById('tagFilterBar');
+                const activeTag = tagBar && tagBar.style.display !== 'none' ? document.getElementById('activeTag')?.textContent : null;
+                document.querySelectorAll('.category-card').forEach(card => {
+                    if (activeTag) {
+                        const tags = (card.getAttribute('data-tags')||'').split(',').map(s=>s.trim());
+                        card.style.display = tags.includes(activeTag) ? '' : 'none';
+                    } else {
+                        card.style.display = '';
+                    }
+                });
+                return;
+            }
+
+            if (searchBar) searchBar.style.display = '';
+            if (activeTerm) activeTerm.textContent = query;
+
+            // Build a fast lookup for items by id
+            const itemsById = new Map();
+            try {
+                (window.shopItems || []).forEach(i => itemsById.set(String(i.id), i));
+            } catch (e) { console.warn('shopItems not available for client-side search', e); }
+
+            document.querySelectorAll('.category-card').forEach(card => {
+                 const id = card.getAttribute('data-id');
+                 const item = itemsById.get(String(id));
+                 let match;
+                 if (item) {
+                     const hay = ((item.name||'') + ' ' + (item.description||'') + ' ' + ((item.tags||[]).join(' '))).toLowerCase();
+                     match = hay.indexOf(q) !== -1;
+                 } else {
+                     // Fallback if items are not available: try reading title/description from DOM
+                     const title = (card.querySelector('h3')?.textContent || '').toLowerCase();
+                     const desc = (card.querySelector('p')?.textContent || '').toLowerCase();
+                     match = title.indexOf(q) !== -1 || desc.indexOf(q) !== -1;
+                 }
+
+                // If a tag filter is active, ensure both tag and search match
+                const tagBar = document.getElementById('tagFilterBar');
+                const activeTagEl = document.getElementById('activeTag');
+                const activeTag = activeTagEl && tagBar && tagBar.style.display !== 'none' ? activeTagEl.textContent : null;
+                if (activeTag) {
+                    const tags = (card.getAttribute('data-tags')||'').split(',').map(s=>s.trim());
+                    card.style.display = (match && tags.includes(activeTag)) ? '' : 'none';
+                } else {
+                    card.style.display = match ? '' : 'none';
+                }
+            });
+        }
+
+        function clearSearchFilter() {
+            const input = document.getElementById('searchInput');
+            if (input) input.value = '';
+            performClientSideSearch('');
+        }
 
         // Cart functions
         function getCart() {
@@ -366,31 +565,34 @@
         }
         function setCart(cart) {
             localStorage.setItem('cart', JSON.stringify(cart));
+            // mark as guest cart so we know it's safe to merge once upon login
+            try { localStorage.setItem('cart_guest', '1'); } catch(_) {}
             updateCartCount();
-        }
-        function setCartBadge(count) {
-            const badge = document.getElementById('cartCount');
-            if (badge) badge.textContent = String(count);
         }
         function updateCartCount() {
             const cart = getCart();
             const count = cart.reduce((sum, item) => sum + (item.quantity || 0), 0);
+            setBadgeCount(count);
+        }
+        function setBadgeCount(count) {
             const badge = document.getElementById('cartCount');
-            if (badge) badge.textContent = count;
+            if (badge) badge.textContent = String(count || 0);
         }
 
-        // Search
+        // Search (submit)
         function searchItems() {
             const input = document.getElementById('searchInput');
             if (!input) return;
             const query = input.value.trim();
+            // If user explicitly submits the search (press Enter or clicks Search), navigate to server-side search
+            // for a full search page. Live filtering is handled on input events.
             if (query) window.location.href = `/search?query=${encodeURIComponent(query)}`;
         }
 
         // Modal controls
         function showDetails(itemId) {
             console.log('showDetails called', itemId);
-            const item = window.shopItems?.find(i => i.id === itemId);
+            const item = (window.shopItems || []).find(i => Number(i.id) === Number(itemId));
             if (!item) {
                 console.log('Item not found in shopItems:', itemId, window.shopItems);
                 return;
@@ -402,15 +604,16 @@
             const stockEl = document.getElementById('modalStock');
             title.textContent = item.name;
             title.dataset.id = item.id;
-            img.src = item.picture_path;
+            // Ensure the modal image uses the same /static/ path as the listing images
+            img.src = '/static/' + item.picture_path;
             desc.textContent = item.description;
-            tagsEl.innerHTML = item.tags.map(tag => `<a href="#" class="tag-link" data-tag="${tag}" style="color:#febd69; text-decoration:underline; margin-right:6px;">${tag}</a>`).join(', ');
+            tagsEl.innerHTML = (item.tags || []).map(tag => `<a href="#" class="tag-link" data-tag="${tag}" style="color:#febd69; text-decoration:underline; margin-right:6px;">${tag}</a>`).join(', ');
             stockEl.textContent = `Available: ${item.stock}`;
             stockEl.dataset.stock = item.stock;
             document.getElementById('itemModal').style.display = 'block';
             console.log('Modal should now be visible');
             // attach tag link handlers inside modal
-            $$('.tag-link').forEach(a => a.addEventListener('click', function(e){ e.preventDefault(); filterByTag(this.dataset.tag); closeModal(); }));
+            document.querySelectorAll('.tag-link').forEach(a => a.addEventListener('click', function(e){ e.preventDefault(); performClientSideSearch(''); filterByTag(this.dataset.tag); closeModal(); }));
         }
         function closeModal() {
             console.log('closeModal called');
@@ -425,10 +628,9 @@
         async function addToCart(itemId, stock) {
             try {
                 if (!itemId) return;
-                if (Number(stock) === 0) { alert('Item out of stock'); return; }
-                // create/get cart from API
+                if (Number(stock) === 0) { showToast('Item out of stock', 'error'); return; }
                 const cartRes = await fetch('/api/carts/', { method: 'POST', credentials: 'include' });
-                if (!cartRes.ok) throw new Error('Failed to create/get cart');
+                if (!cartRes.ok) { console.warn('Failed to create/get cart, status:', cartRes.status); return; }
                 const cart = await cartRes.json();
                 const res = await fetch(`/api/carts/${cart.id}/items`, {
                     method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -436,29 +638,28 @@
                     body: JSON.stringify({ item_id: Number(itemId), quantity: 1 })
                 });
                 if (res.ok) {
-                    alert('Item added to cart!');
-                    closeModal();
-                    // Update localStorage cart so the cart badge shows correct count
+                    showToast('Item added to cart!', 'success');
+                    // Only keep localStorage cart for guest users; logged-in uses backend only
                     try {
-                        const existing = getCart();
-                        const itemIdNum = Number(itemId);
-                        const found = existing.find(ci => ci.item_id === itemIdNum);
-                        if (found) {
-                            found.quantity = (found.quantity || 0) + 1;
-                        } else {
-                            existing.push({ item_id: itemIdNum, quantity: 1 });
+                        if (!window.currentUser) {
+                            const existing = getCart();
+                            const itemIdNum = Number(itemId);
+                            const found = existing.find(ci => ci.item_id === itemIdNum);
+                            if (found) { found.quantity = (found.quantity || 0) + 1; }
+                            else { existing.push({ item_id: itemIdNum, quantity: 1 }); }
+                            setCart(existing); // also sets cart_guest flag
                         }
-                        setCart(existing);
-                    } catch (err) {
-                        console.error('Failed to update local cart in localStorage', err);
-                    }
-                    // Always sync with backend after add
-                    await syncCartWithBackend();
+                    } catch (err) { console.error('Failed to update local cart in localStorage', err); }
+                    // Sync in background; then auto refresh page so UI reflects new state everywhere
+                    const info = await syncCartWithBackend();
+                    setTimeout(()=>{ window.location.reload(); }, 100);
+                } else {
+                    const data = await res.json().catch(()=>({}));
+                    showToast(data.detail || 'Failed to add item to cart.', 'error');
                 }
-                else { const data = await res.json().catch(()=>({})); alert(data.detail || 'Failed to add item to cart.'); }
             } catch (err) {
                 console.error(err);
-                alert('Failed to add item to cart.');
+                showToast('Failed to add item to cart.', 'error');
             }
         }
 
@@ -467,14 +668,20 @@
             const bar = document.getElementById('tagFilterBar');
             if (bar) bar.style.display = '';
             const active = document.getElementById('activeTag'); if (active) active.textContent = tag;
-            $$('.category-card').forEach(card => {
+            document.querySelectorAll('.category-card').forEach(card => {
                 const tags = (card.getAttribute('data-tags')||'').split(',').map(s=>s.trim());
                 card.style.display = tags.includes(tag) ? '' : 'none';
             });
         }
         function clearTagFilter() {
-            const bar = document.getElementById('tagFilterBar'); if (bar) bar.style.display = 'none';
-            $$('.category-card').forEach(card => card.style.display = '');
+            const bar = document.getElementById('tagFilterBar');
+            if (bar) bar.style.display = 'none';
+            const active = document.getElementById('activeTag');
+            if (active) active.textContent = '';
+            // Re-apply client-side search (if any) so results respect current search input
+            const searchInput = document.getElementById('searchInput');
+            const query = searchInput ? searchInput.value || '' : '';
+            performClientSideSearch(query);
         }
 
         // Change username submit
@@ -486,65 +693,86 @@
                 const res = await fetch('/api/users/change-username', { method: 'POST', headers: { 'Content-Type':'application/json' }, body: JSON.stringify({ username: newUsername }) });
                 const data = await res.json();
                 if (data.success) window.location.reload();
-                else alert(data.message || 'Failed to change username.');
-            } catch (err) { console.error(err); alert('Failed to change username.'); }
+                else showToast(data.message || 'Failed to change username.', 'error');
+            } catch (err) { console.error(err); showToast('Failed to change username.', 'error'); }
         }
 
         // Synchronize local cart with backend cart on page load
         async function syncCartWithBackend() {
             try {
-                // Only sync if user is logged in (username exists)
                 const username = window.currentUser || null;
-                console.log('syncCartWithBackend: currentUser=', username);
-                if (!username) {
-                    // If not logged in, clear local cart
-                    console.log('Not logged in — clearing localStorage cart');
-                    localStorage.removeItem('cart');
-                    updateCartCount();
-                    return;
-                }
-                // Get or create backend cart
-                console.log('Requesting backend cart (POST /api/carts/)');
-                const cartRes = await fetch('/api/carts/', { method: 'POST', credentials: 'same-origin' });
-                console.log('cartRes status:', cartRes.status);
-                if (!cartRes.ok) throw new Error('Failed to get backend cart');
+                if (!username) { updateCartCount(); return { backendHadItems: null, cartId: null, count: null }; }
+                const cartRes = await fetch('/api/carts/', { method: 'POST', credentials: 'include' });
+                if (!cartRes.ok) { console.warn('Failed to get backend cart, status:', cartRes.status); return { backendHadItems: null, cartId: null, count: null }; }
                 const cart = await cartRes.json();
-                console.log('backend cart object:', cart);
-                // Get cart details (with items)
-                console.log('Requesting cart details GET /api/carts/' + cart.id);
-                const cartDetailRes = await fetch(`/api/carts/${cart.id}`, { credentials: 'same-origin' });
-                console.log('cartDetailRes status:', cartDetailRes.status);
-                if (!cartDetailRes.ok) throw new Error('Failed to get cart details');
+                const cartDetailRes = await fetch(`/api/carts/${cart.id}`, { credentials: 'include' });
+                if (!cartDetailRes.ok) { console.warn('Failed to get cart details, status:', cartDetailRes.status); return { backendHadItems: null, cartId: cart.id, count: null }; }
                 const cartDetail = await cartDetailRes.json();
-                console.log('cartDetail:', cartDetail);
-                // Log localStorage before modifying
-                try { console.log('localStorage cart before sync:', JSON.parse(localStorage.getItem('cart') || 'null')); } catch(e){ console.log('localStorage cart parse error', e); }
-                // If backend cart is empty, clear local cart and badge
-                if (!cartDetail.items || cartDetail.items.length === 0) {
-                    console.log('Backend cart empty — clearing local cart and badge');
-                    localStorage.removeItem('cart');
-                    updateCartCount();
-                    return;
+                const items = cartDetail.items || [];
+                const count = items.reduce((s,it)=> s + (it.quantity||0), 0);
+                setBadgeCount(count);
+                if (items.length === 0) {
+                    return { backendHadItems: false, cartId: cart.id, count };
                 }
-                // Map backend cart items to local format
-                const localCart = (cartDetail.items || []).map(ci => ({ item_id: ci.item_id, quantity: ci.quantity }));
-                console.log('Setting local cart from backend:', localCart);
-                setCart(localCart);
-                console.log('localStorage cart after sync:', JSON.parse(localStorage.getItem('cart') || 'null'));
+                // IMPORTANT: Do not write backend items into localStorage when logged in — avoid double-merge.
+                try { localStorage.removeItem('cart'); localStorage.removeItem('cart_guest'); } catch(_) {}
+                return { backendHadItems: true, cartId: cart.id, count };
             } catch (err) {
                 console.warn('Could not sync cart with backend:', err);
-                // If syncing fails, clear local client cart to avoid showing stale counts
-                try {
-                    console.warn('Clearing local cart due to sync failure');
-                    console.log('localStorage cart before clearing due to error:', JSON.parse(localStorage.getItem('cart')||'null'));
-                    localStorage.removeItem('cart');
-                    updateCartCount();
-                    console.log('localStorage cart after clearing due to error:', JSON.parse(localStorage.getItem('cart')||'null'));
-                } catch (e) {
-                    console.error('Failed to clear local cart after sync failure', e);
-                }
+                return { backendHadItems: null, cartId: null, count: null };
             }
         }
+
+        // Merge local (guest) cart into backend cart after user logs in.
+        // This runs once after a successful login (when `window.currentUser` is present)
+        async function mergeLocalCartToBackend() {
+            try {
+                const local = JSON.parse(localStorage.getItem('cart') || '[]');
+                const isGuestFlag = localStorage.getItem('cart_guest') === '1';
+                if (!local || local.length === 0 || !isGuestFlag) return;
+                console.log('Merging local cart to backend for user=', window.currentUser, local);
+                const cartRes = await fetch('/api/carts/', { method: 'POST', credentials: 'include' });
+                if (!cartRes.ok) { console.warn('Failed to get backend cart, status:', cartRes.status); return; }
+                const cart = await cartRes.json();
+                const detailRes = await fetch(`/api/carts/${cart.id}`, { credentials: 'include' });
+                if (!detailRes.ok) { console.warn('Failed to fetch backend cart detail for merging, status:', detailRes.status); return; }
+                const cartDetail = await detailRes.json();
+                const backendItems = cartDetail.items || [];
+
+                for (const li of local) {
+                    const itemId = Number(li.item_id);
+                    const qty = Number(li.quantity) || 0;
+                    if (!itemId || qty <= 0) continue;
+                    const bi = backendItems.find(b => Number(b.item_id) === itemId);
+                    if (bi) {
+                        const newQty = (Number(bi.quantity) || 0) + qty;
+                        await fetch(`/api/carts/${cart.id}/items/${itemId}?quantity=${newQty}`, { method: 'PUT', credentials: 'include' });
+                    } else {
+                        await fetch(`/api/carts/${cart.id}/items`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify({ item_id: itemId, quantity: qty }) });
+                    }
+                }
+                // On success, clear the local guest cart and update the badge
+                localStorage.removeItem('cart');
+                localStorage.removeItem('cart_guest');
+                updateCartCount();
+                showToast('Your local cart was merged into your account.', 'success');
+            } catch (e) {
+                console.warn('Failed to merge local cart to backend:', e);
+                showToast && showToast('Could not merge local cart (network).', 'info');
+            }
+        }
+
+        // Expose API functions to global scope for inline onclick handlers and templates
+        try {
+            window.searchItems = searchItems;
+            window.closeModal = closeModal;
+            window.clearTagFilter = clearTagFilter;
+            window.filterByTag = filterByTag;
+            window.clearSearchFilter = clearSearchFilter;
+            window.addToCart = addToCart;
+            window.openChangeUsernameModal = openChangeUsernameModal;
+            window.closeChangeUsernameModal = closeChangeUsernameModal;
+        } catch (e) { console.warn('Could not expose globals', e); }
 
         // Initialize everything once DOM is ready
         document.addEventListener('DOMContentLoaded', async function(){
@@ -552,14 +780,93 @@
             // user menu dropdown
             const userMenuButton = document.getElementById('userMenuButton');
             const userMenuDropdown = document.getElementById('userMenuDropdown');
-            console.log('[home.js] DOMContentLoaded, userMenuButton=', userMenuButton, 'userMenuDropdown=', userMenuDropdown);
             if (userMenuButton && userMenuDropdown) {
-                userMenuDropdown.classList.remove('show');
-                userMenuButton.addEventListener('click', function(e){ e.stopPropagation(); userMenuDropdown.classList.toggle('show'); userMenuButton.setAttribute('aria-expanded', userMenuDropdown.classList.contains('show')); });
-                // keyboard accessibility: Enter/Space toggles menu
-                userMenuButton.addEventListener('keydown', function(e){ if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); userMenuDropdown.classList.toggle('show'); userMenuButton.setAttribute('aria-expanded', userMenuDropdown.classList.contains('show')); } });
+                const container = userMenuButton.parentElement;
+                let suppressHoverOpen = false; // if true, do not auto-open on hover until pointer leaves the container
+                let leaveTimer = null;
+
+                function openUserMenu(){
+                    if (suppressHoverOpen) return;
+                    if (!userMenuDropdown.classList.contains('show')) {
+                        userMenuDropdown.classList.add('show');
+                        userMenuButton.setAttribute('aria-expanded','true');
+                    }
+                }
+                function closeUserMenu(){
+                    if (userMenuDropdown.classList.contains('show')) {
+                        userMenuDropdown.classList.remove('show');
+                        userMenuButton.setAttribute('aria-expanded','false');
+                    }
+                }
+                function scheduleClose(){
+                    if (leaveTimer) clearTimeout(leaveTimer);
+                    leaveTimer = setTimeout(()=>{
+                        // Close only if focus isn't inside and pointer not hovering container
+                        const stillHover = container.matches(':hover');
+                        const focusedInside = container.contains(document.activeElement);
+                        if (!stillHover && !focusedInside) closeUserMenu();
+                    }, 180);
+                }
+                function cancelClose(){ if (leaveTimer) { clearTimeout(leaveTimer); leaveTimer = null; } }
+
+                // Initial state hidden
+                closeUserMenu();
+
+                // Click toggles
+                userMenuButton.addEventListener('click', function(e){
+                    e.stopPropagation();
+                    if (userMenuDropdown.classList.contains('show')) {
+                        closeUserMenu();
+                        // prevent immediate re-open by hover if pointer remains; require leaving first
+                        suppressHoverOpen = true;
+                    } else {
+                        suppressHoverOpen = false;
+                        openUserMenu();
+                    }
+                });
+
+                // Keyboard toggle on button
+                userMenuButton.addEventListener('keydown', function(e){
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        if (userMenuDropdown.classList.contains('show')) {
+                            closeUserMenu(); suppressHoverOpen = true;
+                        } else { suppressHoverOpen = false; openUserMenu(); }
+                    }
+                });
+
+                // Outside click closes (capture to run early)
+                document.addEventListener('click', function(e){
+                    if (!container.contains(e.target)) { closeUserMenu(); suppressHoverOpen = false; }
+                }, true);
+
+                // ESC closes and suppresses hover until pointer leaves
+                window.addEventListener('keydown', function(e){
+                    if (e.key === 'Escape') {
+                        closeUserMenu();
+                        suppressHoverOpen = true;
+                        // move focus back to button for accessibility
+                        try { userMenuButton.focus(); } catch(_){}
+                    }
+                }, true);
+
+                // Prevent clicks inside menu from bubbling to document
                 userMenuDropdown.addEventListener('click', function(e){ e.stopPropagation(); });
-                document.addEventListener('click', function(e){ if (!userMenuButton.contains(e.target)) userMenuDropdown.classList.remove('show'); });
+
+                // Hover open/close managed by JS so ESC can override
+                container.addEventListener('pointerenter', function(){ cancelClose(); if (!suppressHoverOpen) openUserMenu(); });
+                container.addEventListener('mouseenter', function(){ cancelClose(); if (!suppressHoverOpen) openUserMenu(); });
+                container.addEventListener('pointerleave', function(){ scheduleClose(); suppressHoverOpen = false; });
+                container.addEventListener('mouseleave', function(){ scheduleClose(); suppressHoverOpen = false; });
+
+                // Focus management: when focus leaves container, close
+                container.addEventListener('focusout', function(e){
+                    const to = e.relatedTarget;
+                    if (!container.contains(to)) scheduleClose();
+                });
+
+                // Expose for quick debugging in console
+                window.__userMenu = { open: openUserMenu, close: closeUserMenu };
             }
 
             // Clear client-side cart on logout click to avoid stale localStorage showing phantom items
@@ -574,8 +881,23 @@
             const searchInput = document.getElementById('searchInput');
             if (searchInput) searchInput.addEventListener('keypress', function(ev){ if (ev.key === 'Enter') searchItems(); });
 
-            // Sync cart with backend first so badge reflects server state
-            await syncCartWithBackend();
+            // Live search: debounce input and perform client-side partial-match filtering
+            if (searchInput) {
+                const debounced = debounce(function(ev) { performClientSideSearch(ev.target.value || ''); }, 220);
+                searchInput.addEventListener('input', debounced);
+            }
+
+            // Start syncing cart with backend but don't await it — we want the UI to be interactive immediately
+            // syncCartWithBackend will update the badge when it completes (or fail fast on slow networks)
+            syncCartWithBackend().then((info) => {
+                try {
+                    const hasGuestLocal = localStorage.getItem('cart_guest') === '1' && (JSON.parse(localStorage.getItem('cart')||'[]')||[]).length>0;
+                    if (window.currentUser && info && info.backendHadItems === false && hasGuestLocal) {
+                        mergeLocalCartToBackend();
+                    }
+                } catch (e) { console.warn('mergeLocalCartToBackend schedule error', e); }
+            }).catch(err => { console.warn('syncCartWithBackend error (fire-and-forget):', err); showToast && showToast('Could not sync cart (network)', 'info'); });
+
             // cart badge (create if missing, then update)
             if (!document.getElementById('cartCount')) {
                 const cartButton = document.getElementById('cartButton');
@@ -601,14 +923,17 @@
             });
 
             // attach tag click handlers in listings
-            $$('.tag-link').forEach(a => a.addEventListener('click', function(e){ e.preventDefault(); e.stopPropagation(); filterByTag(this.dataset.tag); }));
+            document.querySelectorAll('.tag-link').forEach(a => a.addEventListener('click', function(e){ e.preventDefault(); e.stopPropagation(); filterByTag(this.dataset.tag); }));
 
-            // make category cards clickable for details (event delegation)
+            // make category cards clickable for details (use pointer events to improve mobile/touch reliability)
             const categoriesContainer = document.getElementById('categoriesContainer');
-            const cards = $$('.category-card');
+            const cards = document.querySelectorAll('.category-card');
             console.log('Number of .category-card elements found:', cards.length);
             if (categoriesContainer) {
-                categoriesContainer.addEventListener('click', function(event) {
+                // Use pointerup which works for mouse/touch/pen and avoids some mobile click delays
+                categoriesContainer.addEventListener('pointerup', function(event) {
+                    // Ignore events originating from links (tag links) so their handlers run
+                    if (event.target.closest && event.target.closest('.tag-link')) return;
                     let card = event.target;
                     // Traverse up to .category-card if a child is clicked
                     while (card && !card.classList.contains('category-card') && card !== categoriesContainer) {
@@ -617,70 +942,49 @@
                     if (card && card.classList.contains('category-card')) {
                         const id = card.getAttribute('data-id');
                         if (id) {
-                            console.log('category-card clicked (delegated), id:', id);
+                            console.log('category-card activated (pointerup), id:', id);
                             showDetails(Number(id));
                         }
                     }
                 });
             }
-        });
 
-        // Expose some functions to global scope used by inline attributes
-        window.addToCart = addToCart;
-        window.showDetails = showDetails;
-        window.closeModal = closeModal;
-        window.filterByTag = filterByTag;
-        window.clearTagFilter = clearTagFilter;
-        window.openChangeUsernameModal = openChangeUsernameModal;
-        window.closeChangeUsernameModal = closeChangeUsernameModal;
-        window.searchItems = searchItems;
+            // Ensure cart link is responsive on touch devices as well
+            const cartButton = document.getElementById('cartButton');
+            if (cartButton) {
+                cartButton.addEventListener('pointerup', function(e) {
+                    // If an interactive element inside the link handled the event, ignore
+                    if (e.defaultPrevented) return;
+                    const href = cartButton.getAttribute('href');
+                    if (href) {
+                        // small delay so visual feedback (if any) can render on some devices
+                        setTimeout(() => { window.location.href = href; }, 10);
+                    }
+                });
+            }
+
+        });
     })();
     </script>
 
     <script>
-        const socket = new WebSocket("ws://127.0.0.1:8000/ws/stock-updates");
-
-        socket.onmessage = function(event) {
-            console.log("WebSocket message received:", event.data); // Log received message
-            const data = JSON.parse(event.data);
-            if (data.type === "stock_update") {
-                const itemElement = document.querySelector(`#item-stock-${data.item_id}`);
-                if (itemElement) {
-                    itemElement.textContent = `Stock: ${data.stock}`;
-                }
-            }
-        };
-
-        socket.onclose = function() {
-            console.log("WebSocket connection closed.");
-        };
-    </script>
-
-    <!-- Example item display -->
-    <div id="item-container">
-        {% for item in items %}
-        <div class="item-card">
-            <h3>{{ item.name }}</h3>
-            <p id="item-stock-{{ item.id }}">Stock: {{ item.stock }}</p>
-        </div>
-        {% endfor %}
-    </div>
-
-    {# Ensure no unintended rendering of items data below the footer #}
-    <!-- Removed any unintended rendering of items data below the footer -->
-
-    <!-- Ensure the footer is the last visible section -->
-    <footer>
-        <p>&copy; 2025 MyShop. All rights reserved.</p>
-    </footer>
-
-    <script>
-        // Ensure no stray data is appended to the DOM
-        document.addEventListener('DOMContentLoaded', function() {
-            const redundantElements = document.querySelectorAll('#redundant-stock-info');
-            redundantElements.forEach(el => el.remove());
-        });
+        // Use current host and proper ws/wss protocol so mobile devices reach the right server
+        try {
+            const wsProto = (location.protocol === 'https:') ? 'wss:' : 'ws:';
+            const socketUrl = `${wsProto}//${window.location.host}/ws/stock-updates`;
+            const socket = new WebSocket(socketUrl);
+            socket.onmessage = function(event) {
+                try {
+                    const data = JSON.parse(event.data);
+                    if (data.type === 'stock_update') {
+                        const itemElement = document.querySelector(`#item-stock-${data.item_id}`);
+                        if (itemElement) itemElement.textContent = `Stock: ${data.stock}`;
+                    }
+                } catch (e) { console.warn('Invalid WS message', e); }
+            };
+            socket.onclose = function() { console.log('WebSocket connection closed.'); };
+            socket.onerror = function(e) { console.warn('WebSocket error', e); };
+        } catch (e) { console.warn('WebSocket init failed', e); }
     </script>
 </body>
-
 </html>

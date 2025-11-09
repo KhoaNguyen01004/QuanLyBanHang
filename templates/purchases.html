@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>My Purchases</title>
+  <link rel="stylesheet" href="/static/css/themes.css" />
+  <style>
+    body { font-family: Arial, sans-serif; margin:0; background:#1a1a1a; color:#fff; }
+    header { background:#131921; padding:12px 20px; display:flex; align-items:center; gap:12px; }
+    header .logo { font-size:20px; font-weight:bold; cursor:pointer; }
+    header .spacer { flex:1; }
+    .btn { background:#febd69; border:none; padding:8px 14px; border-radius:4px; cursor:pointer; font-weight:700; color:#232f3e; }
+    main { max-width:1000px; margin:20px auto; padding:0 20px; }
+    h1 { margin:0 0 20px; }
+    .order-card { background:#232f3e; border-radius:8px; padding:14px 16px; margin-bottom:16px; }
+    .order-header { display:flex; align-items:center; gap:12px; }
+    .order-items { margin-top:10px; }
+    .order-line { display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid #333; }
+    .order-line:last-child { border-bottom:none; }
+    .price { color:#febd69; font-weight:bold; }
+    .empty { color:#bbb; font-size:16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo" onclick="window.location.href='/'">MyShop</div>
+    <button class="btn" onclick="window.location.href='/cart'">Cart</button>
+    <button class="btn" onclick="window.location.href='/checkout'">Checkout</button>
+    <div class="spacer"></div>
+    <button class="btn" onclick="window.location.href='/logout'">Logout</button>
+  </header>
+  <main>
+    <h1>My Purchases</h1>
+    <div id="ordersContainer"></div>
+    <div id="toastContainer" aria-live="polite" style="position:fixed;bottom:16px;right:16px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none;align-items:flex-end;"></div>
+  </main>
+  <script>
+    function showToast(message, type = 'info', timeout = 4000) {
+      try { const c = document.getElementById('toastContainer'); if (!c) return; const t = document.createElement('div'); t.style='background:#333;color:#fff;padding:10px 14px;border-radius:6px;box-shadow:0 2px 8px rgba(0,0,0,0.3);pointer-events:auto;max-width:320px;'; if (type==='success') t.style.background='#2e7d32'; if (type==='error') t.style.background='#c62828'; if (type==='info') t.style.background='#1565c0'; t.textContent=message; t.addEventListener('click',()=>t.remove()); c.appendChild(t); setTimeout(()=>t.remove(),timeout);} catch(e){console.error(e);} }
+    function fmt(n){ return '$' + (Number(n||0)).toFixed(2); }
+    async function loadOrders(){
+      try {
+        const res = await fetch('/api/orders/my', { credentials:'include' });
+        if (!res.ok){ document.getElementById('ordersContainer').innerHTML = '<p class="empty">You must be logged in to view purchases.</p>'; return; }
+        const orders = await res.json();
+        const container = document.getElementById('ordersContainer');
+        if (!orders.length){ container.innerHTML = '<p class="empty">No purchases yet.</p>'; return; }
+        container.innerHTML='';
+        orders.forEach(o => {
+          const card = document.createElement('div'); card.className='order-card';
+          card.innerHTML = `<div class='order-header'><strong>Order #${o.id}</strong><span style='color:#ccc;font-size:13px;'>${new Date(o.created_at).toLocaleString()}</span><span class='price' style='margin-left:auto;'>${fmt(o.total_amount)}</span></div>`;
+          const itemsDiv = document.createElement('div'); itemsDiv.className='order-items';
+          o.items.forEach(it => {
+            const line = document.createElement('div'); line.className='order-line';
+            const lineTotal = (it.unit_price||0)*(it.quantity||0);
+            line.innerHTML = `<span>${it.item.name} x ${it.quantity}</span><span class='price'>${fmt(lineTotal)}</span>`;
+            itemsDiv.appendChild(line);
+          });
+          card.appendChild(itemsDiv);
+          container.appendChild(card);
+        });
+      } catch(e){ console.error(e); showToast('Failed to load purchases','error'); }
+    }
+    document.addEventListener('DOMContentLoaded', loadOrders);
+  </script>
+</body>
+</html>
+

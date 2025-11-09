@@ -201,3 +201,62 @@ select {
     text-align: center;
     margin-top: 10px;
 }
+
+/* Utility: visually hidden (screen-reader only) */
+.sr-only {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+}
+
+/* Simple toast UI used across templates */
+.app-toast {
+    display: inline-flex;
+    align-items: center;
+    padding: 10px 14px;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    color: #fff;
+    max-width: 320px;
+    pointer-events: auto;
+}
+.app-toast.success { background: #2e7d32; }
+.app-toast.error { background: #c62828; }
+.app-toast.info { background: #1565c0; }
+
+/* User menu dropdown (shared) */
+.user-menu-dropdown {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: calc(100% + 8px); /* Add space below button */
+    background: #232f3e;
+    color: white;
+    min-width: 180px;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    z-index: 1001; /* Ensure above header but below cart button */
+}
+.user-menu-dropdown.show { display: block; }
+
+/* Cart item styles (moved from templates) */
+.cart-item {
+    background: #222;
+    border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+.cart-item img { width: 100px; height: 100px; object-fit: contain; border-radius: 6px; background-color: #444; }
+.cart-item-details { flex-grow: 1; }
+.cart-item-details h3 { margin: 0 0 5px; }
+.cart-item-details p { margin: 0; color: #ccc; }
+.empty-cart { font-size: 18px; color: #bbb; }

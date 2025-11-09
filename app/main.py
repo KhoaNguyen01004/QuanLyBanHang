@@ -9,10 +9,12 @@ from fastapi.templating import Jinja2Templates
 from starlette.middleware.sessions import SessionMiddleware
 from starlette.types import ASGIApp, Receive, Scope, Send
 
-from app.api import users, carts, items
+from app.api import users, carts, items, orders
 from app.core.config import settings
 from app.db.db import engine, Base, SessionLocal
 from app.models.item import Item
+from app.services.shop_services import get_user, get_user_by_username_or_email, get_or_create_cart
+from app.utils.images import resolve_picture_path  # NEW import
 
 # Create database tables
 Base.metadata.create_all(bind=engine)
@@ -60,7 +62,10 @@ DEBUG = os.environ.get("DEBUG", "False").lower() == "true"
 
 # Add SessionMiddleware with secure settings in production
 def get_session_middleware_settings():
-    if DEBUG:
+    # Allow forcing insecure session cookies for local/dev testing via INSECURE_SESSIONS env var.
+    # This keeps production behavior (https_only=True) unless DEBUG is True or INSECURE_SESSIONS is set.
+    force_insecure = os.environ.get("INSECURE_SESSIONS", "0").lower() in ("1", "true", "yes")
+    if DEBUG or force_insecure:
         return dict(secret_key=settings.secret_key, same_site="lax", https_only=False)
     else:
         # Railway/production: secure cookies
@@ -83,6 +88,7 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 app.include_router(users.router, prefix="/api/users", tags=["users"])
 app.include_router(carts.router, prefix="/api/carts", tags=["carts"])
 app.include_router(items.router, prefix="/api/items", tags=["items"])
+app.include_router(orders.router, prefix="/api/orders", tags=["orders"])
 
 @app.get("/", response_class=HTMLResponse)
 async def home(request: Request):
@@ -92,16 +98,7 @@ async def home(request: Request):
     # Convert items to dicts and split tags into lists
     items_dicts = []
     for item in items:
-        # Ensure correct image path
-        pic_path = item.picture_path or ''
-        if pic_path.startswith('images/'):
-            final_path = pic_path
-        elif pic_path.startswith('/static/images/'):
-            final_path = pic_path[len('/static/'):]
-        elif pic_path:
-            final_path = f"images/items/{pic_path}"
-        else:
-            final_path = "images/items/default.png"  # fallback image
+        final_path = resolve_picture_path(item.picture_path, item.name)
         item_dict = {
             "id": item.id,
             "name": item.name,
@@ -114,27 +111,35 @@ async def home(request: Request):
             "updated_at": item.updated_at.isoformat() if item.updated_at else None,
         }
         items_dicts.append(item_dict)
+
+    # Resolve the logged-in user's email (if available) so the template can show it in the user menu
+    email = None
+    if username:
+        try:
+            resolved_user = get_user_by_username_or_email(db, username)
+            if resolved_user:
+                email = resolved_user.email
+        except Exception:
+            email = None
+
     db.close()
-    return templates.TemplateResponse(request, "home.html", {"username": username, "items": items_dicts})
+    return templates.TemplateResponse(request, "home.html", {"username": username, "email": email, "items": items_dicts})
 
 @app.get("/cart")
 async def cart(request: Request):
     username = request.session.get("username")
     items = []
     db = SessionLocal()
-    from app.services.shop_services import get_user, get_user_by_username_or_email, get_or_create_cart
 
     try:
         user_id = None
         session_id = None
         if username:
-            # Try to resolve the session username to a DB user (could be stored as id or username/email)
             resolved_user = get_user(db, username)
             if not resolved_user:
                 resolved_user = get_user_by_username_or_email(db, username)
             if resolved_user:
                 user_id = resolved_user.id
-        # If no user_id, attempt to use or create a session_id stored in the server session
         if not user_id:
             session_id = request.session.get('session_id')
             if not session_id:
@@ -144,22 +149,11 @@ async def cart(request: Request):
 
         cart = get_or_create_cart(db, user_id=user_id, session_id=session_id)
         if cart:
-            # cart.items is the relationship on the Cart model
             for cart_item in cart.items:
                 item = cart_item.item
                 if not item:
                     continue
-                # Normalize picture path similar to home view
-                pic_path = item.picture_path or ''
-                if pic_path.startswith('images/'):
-                    final_path = pic_path
-                elif pic_path.startswith('/static/images/'):
-                    final_path = pic_path[len('/static/'):]
-                elif pic_path:
-                    final_path = f"images/items/{pic_path}"
-                else:
-                    final_path = "images/items/default.png"
-
+                final_path = resolve_picture_path(item.picture_path, item.name)
                 items.append({
                     "id": item.id,
                     "name": item.name,
@@ -173,6 +167,12 @@ async def cart(request: Request):
         db.close()
 
     return templates.TemplateResponse(request, "cart.html", {"username": username, "items": items})
+
+@app.get("/checkout", response_class=HTMLResponse)
+async def checkout(request: Request):
+    # Keep it simple: server renders the shell; client will fetch and display latest cart.
+    username = request.session.get("username")
+    return templates.TemplateResponse(request, "checkout.html", {"username": username})
 
 @app.get("/logout")
 def logout(request: Request):
@@ -204,6 +204,11 @@ async def websocket_endpoint(websocket: WebSocket):
                 await client.send_text(data)
     except WebSocketDisconnect:
         connected_clients.remove(websocket)
+
+@app.get("/purchases", response_class=HTMLResponse)
+async def purchases(request: Request):
+    username = request.session.get("username")
+    return templates.TemplateResponse(request, "purchases.html", {"username": username})
 
 # Export asgi_app for Uvicorn (ensures all middleware is applied)
 asgi_app = app

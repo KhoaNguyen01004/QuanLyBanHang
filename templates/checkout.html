@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Checkout - Payment</title>
+  <link rel="stylesheet" href="/static/css/themes.css" />
+  <style>
+    body { font-family: Arial, sans-serif; margin:0; background:#1a1a1a; color:#fff; }
+    header { background:#131921; padding:12px 20px; display:flex; align-items:center; gap:12px; }
+    header .logo { font-size:20px; font-weight:bold; cursor:pointer; }
+    header .spacer { flex:1; }
+    .btn { background:#febd69; border:none; padding:8px 16px; border-radius:4px; cursor:pointer; font-weight:700; color:#232f3e; }
+    .btn.secondary { background:#37475a; color:#fff; }
+    .btn:disabled { opacity:.6; cursor:not-allowed; }
+    main { max-width:960px; margin:20px auto; padding:0 20px; }
+    h1 { margin:0 0 20px; }
+    .section { background:#232f3e; padding:16px 18px; border-radius:8px; margin-bottom:20px; }
+    .cart-line { display:flex; gap:12px; align-items:center; padding:8px 0; border-bottom:1px solid #333; }
+    .cart-line:last-child { border-bottom:none; }
+    .cart-line img { width:60px; height:60px; object-fit:contain; background:#444; border-radius:6px; }
+    .cart-line .desc { flex:1; }
+    .price { color:#febd69; font-weight:bold; }
+    form label { display:block; margin:10px 0 4px; font-size:14px; }
+    form input { width:100%; padding:10px 12px; border-radius:6px; border:1px solid #444; background:#111; color:#fff; }
+    form .row { display:flex; gap:12px; }
+    form .row .col { flex:1; }
+    .summary-box { display:flex; align-items:center; gap:12px; }
+    .summary-box .spacer { flex:1; }
+    footer { text-align:center; color:#ccc; font-size:13px; margin:40px 0 10px; }
+    @media (max-width:600px){ .cart-line { flex-wrap:wrap; } .cart-line img { width:50px; height:50px; } }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo" onclick="window.location.href='/'">MyShop</div>
+    <button class="btn secondary" onclick="window.location.href='/cart'">← Back to Cart</button>
+    <div class="spacer"></div>
+    <button id="payBtnTop" class="btn" onclick="submitPayment()">Pay Now</button>
+  </header>
+  <main>
+    <h1>Checkout</h1>
+
+    <div id="toastContainer" aria-live="polite" style="position:fixed;bottom:16px;right:16px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none;align-items:flex-end;"></div>
+
+    <div class="section" id="orderSummarySection">
+      <h2 style="margin-top:0;">Order Summary</h2>
+      <div id="orderLines"></div>
+      <div class="summary-box" style="margin-top:10px;">
+        <strong id="itemCount">0 items</strong>
+        <div class="spacer"></div>
+        <strong>Total: <span id="orderTotal" style="color:#febd69;">$0.00</span></strong>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2 style="margin-top:0;">Payment Details</h2>
+      <form id="paymentForm" onsubmit="event.preventDefault(); submitPayment();">
+        <label for="fullName">Full Name</label>
+        <input id="fullName" required placeholder="John Doe" />
+        <label for="cardNumber">Card Number</label>
+        <input id="cardNumber" required maxlength="19" placeholder="1234 5678 9012 3456" />
+        <div class="row">
+          <div class="col">
+            <label for="expiry">Expiry (MM/YY)</label>
+            <input id="expiry" required maxlength="5" placeholder="08/27" />
+          </div>
+          <div class="col">
+            <label for="cvv">CVV</label>
+            <input id="cvv" required maxlength="4" placeholder="123" />
+          </div>
+        </div>
+        <label for="address">Billing Address</label>
+        <input id="address" required placeholder="123 Main St" />
+        <button id="payBtn" type="submit" class="btn" style="margin-top:14px; width:100%;">Pay Securely</button>
+      </form>
+    </div>
+
+    <div class="section" id="confirmationSection" style="display:none; text-align:center;">
+      <h2 style="margin-top:0;">Payment Successful</h2>
+      <p id="confirmationMsg">Thank you for your purchase!</p>
+      <button class="btn" onclick="window.location.href='/'">Return Home</button>
+    </div>
+    <footer>&copy; 2025 MyShop. All rights reserved.</footer>
+  </main>
+
+  <script>
+    function showToast(message, type = 'info', timeout = 4000) {
+      try {
+        const container = document.getElementById('toastContainer');
+        if (!container) return;
+        const toast = document.createElement('div');
+        toast.className = 'app-toast ' + type;
+        toast.style = 'background:#333;color:#fff;padding:10px 14px;border-radius:6px;box-shadow:0 2px 8px rgba(0,0,0,0.3);pointer-events:auto;max-width:320px;';
+        if (type === 'success') toast.style.background = '#2e7d32';
+        if (type === 'error') toast.style.background = '#c62828';
+        if (type === 'info') toast.style.background = '#1565c0';
+        toast.textContent = message;
+        toast.addEventListener('click', () => toast.remove());
+        container.appendChild(toast);
+        setTimeout(() => toast.remove(), timeout);
+      } catch (e) { console.error('showToast error', e); }
+    }
+    function fmtMoney(n){ try { return '$' + (Number(n||0)).toFixed(2); } catch { return '$0.00'; } }
+
+    async function fetchCartData() {
+      try {
+        const cartRes = await fetch('/api/carts/', { method:'POST', credentials:'include' });
+        if (!cartRes.ok) throw new Error('No cart');
+        const cart = await cartRes.json();
+        const detailRes = await fetch(`/api/carts/${cart.id}`, { credentials:'include' });
+        if (!detailRes.ok) throw new Error('No cart detail');
+        const cartDetail = await detailRes.json();
+        const items = await fetch('/api/items').then(r=>r.json()).catch(()=>[]);
+        return { cart: cartDetail, items, cartId: cart.id };
+      } catch (e) {
+        // fallback local
+        const local = JSON.parse(localStorage.getItem('cart')||'[]');
+        const items = await fetch('/api/items').then(r=>r.json()).catch(()=>[]);
+        return { cart: { items: local.map(ci => ({ item_id: ci.item_id, quantity: ci.quantity })) }, items, cartId: null };
+      }
+    }
+
+    function renderOrderSummary(cart, items) {
+      const lines = document.getElementById('orderLines');
+      const itemCountEl = document.getElementById('itemCount');
+      const totalEl = document.getElementById('orderTotal');
+      lines.innerHTML = '';
+      let total = 0, count = 0;
+      (cart.items||[]).forEach(ci => {
+        const it = items.find(i => i.id === ci.item_id);
+        if (!it) return;
+        const qty = Number(ci.quantity)||0;
+        if (qty <= 0) return;
+        count += qty; total += qty * Number(it.price||0);
+        const div = document.createElement('div');
+        div.className = 'cart-line';
+        div.innerHTML = `
+          <img src="/static/${it.picture_path}" alt="${it.name}" />
+          <div class="desc"><strong>${it.name}</strong><br><span style="color:#ccc;">${it.description}</span><br><span class="price">${fmtMoney(it.price)} x ${qty}</span></div>
+          <div style="min-width:80px; text-align:right;" class="price">${fmtMoney((it.price||0)*qty)}</div>
+        `;
+        lines.appendChild(div);
+      });
+      if (count === 0) {
+        lines.innerHTML = '<p style="color:#bbb;">Your cart is empty. <a href="/" style="color:#febd69;">Continue shopping</a>.</p>';
+        document.getElementById('payBtn').disabled = true;
+        document.getElementById('payBtnTop').disabled = true;
+      }
+      if (itemCountEl) itemCountEl.textContent = count + ' item' + (count!==1?'s':'');
+      if (totalEl) totalEl.textContent = fmtMoney(total);
+    }
+
+    async function loadCheckout() {
+      const { cart, items, cartId } = await fetchCartData();
+      window.__checkoutCartId = cartId; // may be null if guest
+      renderOrderSummary(cart, items);
+    }
+
+    function validatePaymentForm() {
+      const num = document.getElementById('cardNumber').value.trim();
+      const expiry = document.getElementById('expiry').value.trim();
+      const cvv = document.getElementById('cvv').value.trim();
+      if (num.replace(/\s+/g,'').length < 15) { showToast('Invalid card number.', 'error'); return false; }
+      if (!/^\d{2}\/\d{2}$/.test(expiry)) { showToast('Invalid expiry format.', 'error'); return false; }
+      if (cvv.length < 3) { showToast('Invalid CVV.', 'error'); return false; }
+      return true;
+    }
+
+    async function clearBackendCart(cartId){
+      try {
+        if (!cartId) return;
+        // Fetch detail to remove each item entirely
+        const detailRes = await fetch(`/api/carts/${cartId}`, { credentials:'include' });
+        if (!detailRes.ok) return;
+        const detail = await detailRes.json();
+        for (const ci of (detail.items||[])) {
+          const qty = ci.quantity||1;
+          await fetch(`/api/carts/${cartId}/items/${ci.item_id}?quantity=${qty}`, { method:'DELETE', credentials:'include' });
+        }
+      } catch(e){ console.warn('Failed to clear backend cart', e); }
+    }
+
+    async function submitPayment() {
+      const payBtn = document.getElementById('payBtn');
+      const topBtn = document.getElementById('payBtnTop');
+      if (payBtn) payBtn.disabled = true; if (topBtn) topBtn.disabled = true;
+      if (!validatePaymentForm()) { if (payBtn) payBtn.disabled = false; if (topBtn) topBtn.disabled = false; return; }
+      showToast('Processing payment...', 'info', 2500);
+      try {
+        // Call backend to create order from cart
+        const res = await fetch('/api/orders/checkout', { method:'POST', credentials:'include' });
+        if (!res.ok) {
+          const data = await res.json().catch(()=>({detail:'Payment failed'}));
+          showToast(data.detail || 'Payment failed', 'error');
+          if (payBtn) payBtn.disabled = false; if (topBtn) topBtn.disabled = false;
+          return;
+        }
+        const order = await res.json();
+        // Show receipt
+        document.getElementById('orderSummarySection').style.display = 'none';
+        document.getElementById('paymentForm').style.display = 'none';
+        const conf = document.getElementById('confirmationSection');
+        conf.style.display = 'block';
+        const msg = document.getElementById('confirmationMsg');
+        msg.innerHTML = `Thank you! Order <strong>#${order.id}</strong> placed.<br>Total: <strong style="color:#febd69;">$${(order.total_amount||0).toFixed(2)}</strong>`;
+        // Build receipt details below
+        let receipt = document.createElement('div');
+        receipt.style = 'text-align:left;margin-top:20px;background:#232f3e;padding:12px 16px;border-radius:8px;';
+        receipt.innerHTML = `<h3 style='margin-top:0;'>Receipt</h3>`;
+        order.items.forEach(it => {
+          const lineTotal = (it.unit_price||0) * (it.quantity||0);
+          receipt.innerHTML += `<div style='display:flex;gap:8px;justify-content:space-between;border-bottom:1px solid #333;padding:6px 0;'>
+            <span>${it.item.name} x ${it.quantity}</span>
+            <span style='color:#febd69;'>$${lineTotal.toFixed(2)}</span>
+          </div>`;
+        });
+        receipt.innerHTML += `<p style='text-align:right;font-weight:bold;'>Grand Total: <span style='color:#febd69;'>$${(order.total_amount||0).toFixed(2)}</span></p>`;
+        conf.appendChild(receipt);
+        showToast('Payment successful!', 'success');
+      } catch (e) {
+        console.error(e);
+        showToast('Network error processing payment', 'error');
+        if (payBtn) payBtn.disabled = false; if (topBtn) topBtn.disabled = false;
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', loadCheckout);
+  </script>
+</body>
+</html>

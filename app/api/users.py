@@ -44,7 +44,7 @@ def register_form(request: Request):
 import unicodedata
 
 @router.post("/register", response_class=HTMLResponse)
-def register(request: Request, db: Session = Depends(get_db), username: str = Form(...), email: str = Form(...), password: str = Form(...), role: str = Form("customer")):
+def register(request: Request, db: Session = Depends(get_db), username: str = Form(...), email: str = Form(...), password: str = Form(...)):
     # Normalize and strip whitespace from password to avoid extra bytes
     password = unicodedata.normalize('NFC', password.strip())
     # Check password length for bcrypt limitation (72 bytes)
@@ -56,7 +56,7 @@ def register(request: Request, db: Session = Depends(get_db), username: str = Fo
     if db_user:
         return templates.TemplateResponse(request, "register.html", {"error": "Email already registered"})
     # Create user
-    user_create = UserCreate(username=username, email=email, password=password, role=role)
+    user_create = UserCreate(username=username, email=email, password=password)
     create_user(db=db, user=user_create)
     # Redirect to login page after successful registration
     response = RedirectResponse(url="/login", status_code=303)

@@ -21,10 +21,13 @@ class TestWebRoutes(unittest.TestCase):
         response = client.get("/cart")
         self.assertIn(response.status_code, [200, 307, 302, 401])  # 401 if not logged in
 
+    def test_checkout_page(self):
+        response = client.get("/checkout")
+        self.assertIn(response.status_code, [200, 307, 302])
+
     def test_logout(self):
         response = client.get("/logout")
         self.assertIn(response.status_code, [200, 307, 302])
 
 if __name__ == '__main__':
     unittest.main()
-

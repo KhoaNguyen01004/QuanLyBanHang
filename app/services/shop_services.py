@@ -4,6 +4,8 @@ from app.models.item import Item
 from app.models.cart import Cart
 from app.models.cart_item import CartItem
 from app.models.user import User
+from app.models.order import Order
+from app.models.order_item import OrderItem
 from app.schemas.item import ItemCreate, ItemUpdate
 from app.schemas.user import UserCreate
 from app.core.security import get_password_hash
@@ -11,10 +13,26 @@ from typing import List, Optional
 import logging
 from app.websocket_manager import manager  # Import the WebSocket manager from the new module
 from sqlalchemy.orm import joinedload
+import re, os
 
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
+
+# New helper: slugify item names for deterministic image filenames
+_slug_regex = re.compile(r'[^a-z0-9]+')
+
+def slugify(name: str) -> str:
+    if not name:
+        return 'item'
+    name = name.lower().strip()
+    name = _slug_regex.sub('-', name)
+    name = re.sub(r'-{2,}', '-', name).strip('-')
+    return name or 'item'
+
+# Directory where item images live (relative to static/). We keep this centralized.
+ITEM_IMAGE_DIR = os.path.join('static', 'images', 'items')
+DEFAULT_IMAGE_REL = 'images/items/default.png'  # relative path used by templates
 
 
 # Item services
@@ -31,6 +49,16 @@ def create_item(db: Session, item: ItemCreate) -> Item:
     # If stock wasn't provided (defaults to None), set a sensible default so items can be added to carts in tests
     if not db_item.stock:
         db_item.stock = 100
+    # Auto assign picture_path if missing using slug convention <slug>.png under images/items/
+    if not db_item.picture_path:
+        slug = slugify(str(db_item.name or ''))
+        candidate_rel = f"images/items/{slug}.png"  # path relative to /static
+        # If the file actually exists, use it; else keep None (will resolve to default later in view layer)
+        if os.path.exists(os.path.join('static', candidate_rel)):
+            db_item.picture_path = candidate_rel
+        else:
+            # Leave as None so frontend can fallback; optionally could set to candidate regardless
+            db_item.picture_path = None
     db.add(db_item)
     db.commit()
     db.refresh(db_item)
@@ -41,8 +69,15 @@ def update_item(db: Session, item_id: int, item_update: ItemUpdate) -> Optional[
     db_item = db.query(Item).filter(Item.id == item_id).first()  # type: ignore
     if db_item:
         update_data = item_update.model_dump(exclude_unset=True)
+        name_changed = 'name' in update_data and update_data['name'] and update_data['name'] != db_item.name
         for field, value in update_data.items():
             setattr(db_item, field, value)
+        # If name changed and picture_path is empty / None, attempt to set new slug-based path
+        if name_changed and not getattr(db_item, 'picture_path', None):
+            slug = slugify(str(db_item.name or ''))
+            candidate_rel = f"images/items/{slug}.png"
+            if os.path.exists(os.path.join('static', candidate_rel)):
+                db_item.picture_path = candidate_rel
         db.commit()
         db.refresh(db_item)
     return db_item
@@ -65,19 +100,25 @@ def get_cart(db: Session, cart_id: int) -> Optional[Cart]:
 
 
 def get_or_create_cart(db: Session, user_id: Optional[str] = None, session_id: Optional[str] = None) -> Optional[Cart]:
+    # Always prefer user_id if present (for authenticated users)
     if user_id:
         cart = db.query(Cart).filter(Cart.user_id == user_id).first()  # type: ignore
+        if not cart:
+            cart = Cart(user_id=user_id)
+            db.add(cart)
+            db.commit()
+            db.refresh(cart)
+        return cart
     elif session_id:
         cart = db.query(Cart).filter(Cart.session_id == session_id).first()  # type: ignore
+        if not cart:
+            cart = Cart(session_id=session_id)
+            db.add(cart)
+            db.commit()
+            db.refresh(cart)
+        return cart
     else:
         return None
-
-    if not cart:
-        cart = Cart(user_id=user_id, session_id=session_id)
-        db.add(cart)
-        db.commit()
-        db.refresh(cart)
-    return cart
 
 
 async def add_item_to_cart(db: Session, cart_id: int, item_id: int, quantity: int = 1) -> Optional[str]:
@@ -198,8 +239,8 @@ def get_user_by_username_or_email(db: Session, identifier: str) -> Optional[User
 
 
 def create_user(db: Session, user: UserCreate) -> User:
-    # Generate custom 5-digit user ID with prefix based on role
-    prefix = "B" if user.role == "customer" else "V"
+    # Site is customer-only. Use fixed prefix 'B' for customer user IDs.
+    prefix = "B"
     # Get the max existing user id with the same prefix
     max_id_user = (
         db.query(User)
@@ -208,7 +249,8 @@ def create_user(db: Session, user: UserCreate) -> User:
         .first()
     )
     if max_id_user:
-        max_num = int(max_id_user.id[1:])
+        # Ensure we cast to str in case the ORM returns a ColumnElement; slicing requires a string
+        max_num = int(str(max_id_user.id)[1:])
         new_num = max_num + 1
     else:
         new_num = 1
@@ -219,9 +261,51 @@ def create_user(db: Session, user: UserCreate) -> User:
         username=user.username,
         email=user.email,
         hashed_password=get_password_hash(user.password),
-        role=user.role
     )
     db.add(db_user)
-    db.commit()
+    try:
+        db.commit()
+    except Exception:
+        # Ensure the session is rolled back so subsequent queries in the same request
+        # are not executed in an aborted transaction.
+        db.rollback()
+        raise
     db.refresh(db_user)
     return db_user
+
+
+def get_orders_for_user(db: Session, user_id: str):
+    return db.query(Order).filter(Order.user_id == user_id).order_by(Order.created_at.desc()).all()
+
+
+def get_order_for_user(db: Session, user_id: str, order_id: int):
+    return db.query(Order).filter(Order.user_id == user_id, Order.id == order_id).first()
+
+
+async def create_order_from_cart(db: Session, user_id: str):
+    # Ensure cart exists and has items
+    cart = get_or_create_cart(db, user_id=user_id)
+    if not cart or not cart.items:
+        return None, 'Cart is empty'
+    # Build order
+    total = 0.0
+    order = Order(user_id=user_id, total_amount=0.0, status='completed')
+    db.add(order)
+    db.flush()  # get order.id before adding items
+    for ci in cart.items:
+        item = ci.item
+        if not item:
+            continue
+        unit_price = float(item.price or 0.0)
+        quantity = int(ci.quantity or 0)
+        line_total = unit_price * quantity
+        total += line_total
+        oi = OrderItem(order_id=order.id, item_id=item.id, quantity=quantity, unit_price=unit_price)
+        db.add(oi)
+    order.total_amount = total
+    # Clear cart items (stock not restored because already decremented on add)
+    for ci in list(cart.items):
+        db.delete(ci)
+    db.commit()
+    db.refresh(order)
+    return order, None
