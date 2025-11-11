@@ -1,20 +1,25 @@
+import logging
+import uuid
+from typing import Optional
+
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from sqlalchemy.orm import Session
-from typing import Optional
+
+from app.api.auth import get_current_user
 from app.db.db import get_db
+from app.models.user import User
 from app.schemas.cart import Cart, CartItemCreate
 from app.services.shop_services import (
     get_cart, get_or_create_cart, add_item_to_cart,
     remove_item_from_cart, update_cart_item_quantity, remove_all_items_from_cart,
     get_user, get_user_by_username_or_email,
 )
-from fastapi.responses import JSONResponse
-from fastapi.encoders import jsonable_encoder
-import uuid
-from app.models.user import User
-from app.api.auth import get_current_user
 
 router = APIRouter()
+
+# Configure module logger
+logger = logging.getLogger("app.api.carts")
+logger.setLevel(logging.DEBUG)
 
 
 @router.get("/{cart_id}", response_model=Cart)
@@ -27,6 +32,13 @@ def read_cart(cart_id: int, db: Session = Depends(get_db)):
 
 @router.post("/", response_model=Cart)
 def create_cart(request: Request, user_id: Optional[str] = None, session_id: Optional[str] = None, db: Session = Depends(get_db)):
+    # Log incoming session and provided identifiers for debugging (harmless)
+    try:
+        sess_snapshot = dict(request.session) if hasattr(request, 'session') else {}
+    except Exception:
+        sess_snapshot = "<unavailable>"
+    logger.debug(f"[create_cart] incoming session: {sess_snapshot}, provided user_id={user_id}, session_id={session_id}")
+
     # If frontend provided a user_id, try to resolve it (it may be a username)
     if user_id:
         resolved_user = get_user(db, user_id)
@@ -74,6 +86,8 @@ def create_cart(request: Request, user_id: Optional[str] = None, session_id: Opt
             except Exception:
                 # As a fallback generate a session id for this request
                 session_id = uuid.uuid4().hex
+
+    logger.debug(f"[create_cart] resolved user_id={user_id}, session_id={session_id}")
 
     if not user_id and not session_id:
         raise HTTPException(status_code=400, detail="Either user_id or session_id must be provided")
