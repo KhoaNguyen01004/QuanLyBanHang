@@ -1,5 +1,6 @@
 import os
 from datetime import datetime, UTC
+import logging
 
 from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
@@ -25,6 +26,10 @@ app = FastAPI(
     description="A FastAPI application for managing shop items, carts, and users",
     version="1.0.0"
 )
+
+# Configure simple logging for startup messages
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("app.main")
 
 SESSION_TIMEOUT_SECONDS = 3600  # 1 hour
 
@@ -73,13 +78,28 @@ def get_session_middleware_settings():
 
 app.add_middleware(SessionMiddleware, **get_session_middleware_settings())
 
+# Configure CORS origins from environment variable ALLOWED_ORIGINS
+# - If ALLOWED_ORIGINS is provided (comma-separated), use that list (required when allow_credentials=True)
+# - If not provided, keep the original wildcard for backward compatibility but log a warning
+allowed_origins_env = os.environ.get("ALLOWED_ORIGINS", "").strip()
+if allowed_origins_env:
+    allowed_origins = [o.strip() for o in allowed_origins_env.split(",") if o.strip()]
+else:
+    allowed_origins = ["*"]
+    logger.warning("ALLOWED_ORIGINS not set. Using wildcard '*' for CORS. When sending credentials (cookies), browsers will refuse credentials with '*' — set ALLOWED_ORIGINS to your frontend origin(s) for cookies to work in production.")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # For local dev, allow all origins
+    allow_origins=allowed_origins,  # use env-driven list
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Log effective settings at startup (non-sensitive values only)
+@app.on_event("startup")
+def _log_startup():
+    logger.info(f"Startup config: ALLOWED_ORIGINS={allowed_origins}, DEBUG={DEBUG}, INSECURE_SESSIONS={os.environ.get('INSECURE_SESSIONS','0')}")
 
 templates = Jinja2Templates(directory="templates")
 
