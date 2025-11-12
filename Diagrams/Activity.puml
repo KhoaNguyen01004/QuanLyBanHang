@@ -21,7 +21,7 @@ else (No)
     :Redirect Home;
   else (No)
     :Show login error;
-    :Open Login Form again;
+    :Open Login Form (/login);
   endif
 endif
 
@@ -61,14 +61,22 @@ create or fetch with get_or_create_cart;
 
   if (Proceed to Checkout?) then (Yes)
     if (Authenticated?) then (Yes)
-      :Create Order from Cart;
-      :Clear cart items;
-      :Redirect to Purchases (/purchases);
-      :View Past Orders (GET /api/orders/my);
+      :Create Order from Cart
+(cart items copied & cleared);
+      :Show Confirmation + Render Receipt
+(on checkout page);
+      if (Print receipt?) then (Yes)
+        :Open print window (client-side window.print);
+      else (No)
+      endif
+      if (View Past Orders?) then (Yes)
+        :Open Purchases page (/purchases);
+      else (No)
+      endif
       if (Continue shopping after purchase?) then (Yes)
         :Redirect Home;
       else (No)
-        :Stay on Purchases page;
+        :Stay on Confirmation/Receipt;
       endif
     else (No)
       :Redirect to Login (must auth to checkout);
@@ -85,7 +93,6 @@ if (Logout?) then (Yes)
   stop
 else (No)
   :Return to Home / Potential new activity;
-  -> Browse / Filter Items;
 endif
 
 @enduml

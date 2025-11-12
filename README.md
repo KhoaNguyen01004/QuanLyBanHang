@@ -1,228 +1,183 @@
 # Shop Management Web Application
 
-**Shop Management Web Application** is a full-stack web application built with FastAPI, providing both a RESTful API and a user-friendly web interface for managing shop items, shopping carts, and users. It uses Supabase for PostgreSQL database hosting and is ready for deployment on Railway Cloudflare.
+A FastAPI web app for browsing items, managing a cart, and placing orders with a simple web UI. It exposes REST APIs, serves HTML templates, persists data (SQLite by default), and is deployable on Railway. Sessions are used for web auth; JWT is available for API token flows.
+
+**Key features**
+- Items: browse and CRUD via API
+- Cart: guest or user cart, quantity updates, stock tracking
+- Orders: checkout creates an order from cart and clears it
+- WebSockets: stock updates broadcast to connected clients
+- Auth: register/login via session; optional OAuth2 password/token endpoint
+- New: Print Receipt on checkout confirmation page
+
+**Tech stack**
+- FastAPI, Starlette Sessions, SQLAlchemy, Pydantic
+- Jinja2 templates, vanilla JS frontend
+- SQLite by default (DATABASE_URL configurable to Postgres, e.g. Supabase)
+
+**Repository layout** (trimmed)
+- app/
+  - main.py (FastAPI app, middleware, routes mounting)
+  - api/ (users, carts, items, orders)
+  - services/ (shop_services business logic)
+  - models/ (SQLAlchemy models)
+  - schemas/ (Pydantic schemas)
+  - core/ (config, security)
+  - db/ (engine/session)
+- templates/ (home, cart, checkout, purchases, login, register)
+- static/ (css, images)
+- scripts/ (populate_items.py)
+- Diagrams/ (PlantUML activity + state diagrams)
+- tests/ (pytest test suite)
 
 ---
 
-## 🟠 Workflow Status
+## Quickstart
 
-[![GitHub Actions Status](https://github.com/KhoaNguyen01004/QuanLyBanHang/actions/workflows/python-app.yml/badge.svg)](https://github.com/KhoaNguyen01004/QuanLyBanHang/actions/workflows/python-app.yml)
-> **Latest run:** [See latest run details](https://github.com/KhoaNguyen01004/QuanLyBanHang/actions/workflows/python-app.yml) on branch `master`
+### 1) Prerequisites
+- Python 3.10+
 
----
-
-## Features
-
-- **Item Management**: CRUD operations for shop items
-- **Cart Management**: Add/remove items from shopping carts
-- **User Management**: Basic user registration and authentication (extensible)
-- **RESTful API**: FastAPI with automatic OpenAPI documentation
-- **Web Interface**: User-friendly web pages for login, registration, and shopping
-- **Database**: PostgreSQL via Supabase
-- **Testing**: Comprehensive unit and integration tests
-
-## Repository Structure
-
-```
-├── app/
-│   ├── main.py              # FastAPI application entry point
-│   ├── models/              # SQLAlchemy ORM models
-│   ├── schemas/             # Pydantic request/response schemas
-│   ├── services/            # Business logic services
-│   ├── api/                 # API route handlers
-│   ├── db/                  # Database configuration
-│   └── core/                # Application configuration
-├── static/                  # Static files (CSS, JS, images)
-├── templates/               # Jinja2 HTML templates
-├── tests/
-│   └── test_everything.py   # Unit and integration tests
-├── requirements.txt         # Python dependencies
-├── .env                     # Environment variables (configure for your setup)
-├── alembic/                 # Database migrations (optional)
-├── scripts/                 # Utility scripts (e.g., database population)
-└── README.md
-```
-
-## Getting Started
-
-### Prerequisites
-
-- Python 3.8 or higher
-- Supabase account for database
-- Railway account for deployment (optional)
-
-### Installation
-
-1. **Clone the repository**
-   ```sh
-   git clone https://github.com/KhoaNguyen01004/QuanLyBanHang.git
-   cd QuanLyBanHang
-   ```
-
-2. **Create a virtual environment**
-   ```sh
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
-
-3. **Install dependencies**
-   ```sh
-   pip install -r requirements.txt
-   ```
-
-4. **Set up environment variables**
-   - Copy `.env` and update with your Supabase credentials:
-   ```env
-   DATABASE_URL=postgresql://postgres:[YOUR_PASSWORD]@db.[YOUR_PROJECT_REF].supabase.co:5432/postgres
-   SECRET_KEY=your-secret-key-here
-   DEBUG=True
-   ```
-
-### Database Setup
-
-1. Create a new project in [Supabase](https://supabase.com)
-2. Get your database URL from the project settings
-3. Update the `DATABASE_URL` in `.env`
-4. The application will automatically create tables on startup
-
-### Running the Application
-
-**Development:**
-```sh
-python -m uvicorn app.main:asgi_app --reload --host 127.0.0.1 --port 8000
-```
-
-**Production:**
-```sh
-uvicorn app.main:app --host 0.0.0.0 --port 8000
-```
-
-Visit `http://localhost:8000/docs` for interactive API documentation. Access the web interface at `http://localhost:8000`.
-
-### Running the Application (with Session Authentication)
-
-> **Important:** To ensure session-based authentication works for both web and API endpoints, you must run the app using the correct ASGI app object.
-
-```sh
-uvicorn app.main:asgi_app --reload
-```
-
-- Do **not** use `uvicorn app.main:app --reload` as this will bypass custom middleware and session logic for API endpoints.
-
-### Configuration Notes
-
-- **SessionMiddleware** is configured with `same_site="lax"` and `https_only=False` for local development. Adjust these settings for production as needed.
-- **CORS** is set to allow all origins and credentials for development. Restrict origins in production.
-
-### Troubleshooting Authentication Issues
-
-- If you see `Not authenticated` or `401 Unauthorized` when using the API (e.g., Add to Cart), ensure:
-  - You are running the app with `asgi_app` as shown above.
-  - You are logged in via the web interface (session cookie is set).
-  - If using JavaScript fetch/AJAX for API calls, set `credentials: 'include'` in your fetch options to send cookies.
-  - Your browser is not blocking cookies (check browser/site settings).
-- Check server logs for session and authentication debug output if issues persist.
-
-### Web Routes
-
-- `GET /` - Login page (redirects to home if logged in)
-- `GET /cart` - Shopping cart page (requires login)
-- `GET /logout` - Logout and redirect to login (clears session)
-- `GET /register` - Redirect to user registration API
-- `GET /login` - Redirect to user login API
-
-**Note:** There is no separate "welcome" page. After login, users are redirected to the home page (`home.html`).
-
-### API Endpoints
-
-#### Items
-- `GET /api/items/` - List all items
-- `GET /api/items/{item_id}` - Get specific item
-- `POST /api/items/` - Create new item
-- `PUT /api/items/{item_id}` - Update item
-- `DELETE /api/items/{item_id}` - Delete item
-
-#### Carts
-- `GET /api/carts/{cart_id}` - Get cart details
-- `POST /api/carts/` - Create new cart
-- `POST /api/carts/{cart_id}/items` - Add item to cart
-- `DELETE /api/carts/{cart_id}/items/{item_id}` - Remove item from cart
-- `PUT /api/carts/{cart_id}/items/{item_id}` - Update item quantity
-
-#### Users
-- `GET /api/users/{user_id}` - Get user details
-- `GET /api/users/email/{email}` - Get user by email
-- `POST /api/users/` - Create new user
-
-## Utility Scripts
-
-- All utility scripts (such as database population) are now located in the `scripts/` folder.
-
-### Populate demo items
-
-Ensure dependencies are installed and an app secret key is set (required by settings):
-
+### 2) Create and activate a virtualenv
 - Windows (cmd.exe):
+```bat
+python -m venv .venv
+.venv\Scripts\activate
 ```
+- PowerShell:
+```powershell
+python -m venv .venv
+. .venv\Scripts\Activate.ps1
+```
+- Linux/macOS:
+```bash
+python -m venv .venv
+source .venv/bin/activate
+```
+
+### 3) Install dependencies
+```bash
+pip install -r requirements.txt
+```
+
+### 4) Environment variables
+Create a `.env` at project root (or set these in your environment):
+```env
+# Required
+SECRET_KEY=change-me
+
+# Optional (SQLite used if not set)
+DATABASE_URL=sqlite:///./test.db
+
+# Dev convenience
+DEBUG=true
+INSECURE_SESSIONS=1         # use insecure cookies locally (http)
+COOKIE_SAMESITE=lax         # cookie SameSite (lax|none|strict)
+
+# CORS: must be explicit when sending credentials (cookies)
+ALLOWED_ORIGINS=http://localhost:8000
+
+# JWT (token login API)
+JWT_SECRET_KEY=test-secret-key-for-development
+JWT_ALGORITHM=HS256
+JWT_ACCESS_TOKEN_EXPIRE_MINUTES=30
+```
+**Notes**
+- When `allow_credentials` is true (default here), browsers refuse `"*"` for CORS. Set `ALLOWED_ORIGINS` to a comma-separated list of exact origins, e.g.:
+  - `ALLOWED_ORIGINS=https://your-app.up.railway.app,http://localhost:8000`
+- `INSECURE_SESSIONS=1` for local HTTP only. In production keep it off; cookies will be https-only.
+
+### 5) Run locally
+Use the ASGI app to ensure session middleware is active:
+```bash
+uvicorn app.main:asgi_app --reload --host 127.0.0.1 --port 8000
+```
+Open [http://localhost:8000](http://localhost:8000)
+- API docs: [http://localhost:8000/docs](http://localhost:8000/docs)
+- Home UI: home page with items
+- Cart and Checkout available from the UI
+
+### Populate demo items (optional)
+- Windows (cmd.exe):
+```bat
 set SECRET_KEY=dev-secret
 python -m scripts.populate_items
 ```
-- Windows (PowerShell):
-```
+- PowerShell:
+```powershell
 $env:SECRET_KEY='dev-secret'
 python -m scripts.populate_items
 ```
 - Linux/macOS:
-```
+```bash
 SECRET_KEY=dev-secret python -m scripts.populate_items
 ```
-
-Notes:
-- Run the command from the project root (the folder that contains `app/` and `scripts/`).
-- By default this uses `sqlite:///./test.db`. To target another DB, set `DATABASE_URL` before the command.
-- After running, the database contains 8 curated items and previous carts/items are cleared.
+Defaults to SQLite `test.db`. To target another DB, set `DATABASE_URL` before the command.
 
 ### Testing
-
-Run the test suite:
-```sh
-python -m unittest tests/test_everything.py
+Run the pytest test suite from project root:
+```bash
+pytest -q
 ```
 
-### Deployment to Railway
-
-1. Connect your GitHub repository to Railway
-2. Set environment variables in Railway dashboard:
-   - `DATABASE_URL`
-   - `SECRET_KEY`
-   - `DEBUG=False`
-3. Deploy automatically on push
-
-## Contributing
-
-Contributions are welcome! Please:
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests for new functionality
-5. Submit a pull request
-
-## License
-
-This project is licensed under the [MIT License](LICENSE).
-
-## Authors
-
-- [Khoa Nguyen](https://github.com/KhoaNguyen01004)
-- [Thao Nguyen](https://github.com/TyraJr1)
+### Deployment (Railway)
+- Start command: the included Procfile uses
+  - `web: python app/main.py`
+  which runs uvicorn with the correct app (`asgi_app`) inside `main.py`.
+- Set environment variables in your Railway service:
+  - `SECRET_KEY`: a strong secret
+  - `DATABASE_URL`: e.g., Postgres connection (optional if staying on SQLite)
+  - `DEBUG`: false
+  - `ALLOWED_ORIGINS`: https://your-app.up.railway.app (plus any allowed localhost origins)
+  - `COOKIE_SAMESITE`: lax (or none with https)
+  - `INSECURE_SESSIONS`: 0
+  - `JWT_*` if you plan to use token auth endpoints
+- CORS with cookies: Do not use `"*"` in `ALLOWED_ORIGINS` when `allow_credentials=true`. Use exact origins.
 
 ---
 
-## Future Features
+## Routes overview
+- **Web**
+  - `GET /`                Home (renders items; shows user if logged in)
+  - `GET /cart`            Cart page (guest carts supported via session_id)
+  - `GET /checkout`        Checkout page (prints receipt after success)
+  - `GET /purchases`       Past orders (after login)
+  - `GET /login`           Redirects to /api/users/login (form)
+  - `GET /register`        Redirects to /api/users/register (form)
+  - `GET /logout`          Clears session and redirects home
+  - `GET /health`          Health check
+  - `WS /ws/stock-updates` Broadcast stock updates
+- **API** (selection)
+  - Items:    `GET /api/items`, `GET/PUT/DELETE /api/items/{id}`, `POST /api/items`
+  - Carts:    `POST /api/carts` (ensure/create), `GET /api/carts/{id}`
+               `POST /api/carts/{id}/items` (add), `PUT /api/carts/{id}/items/{item_id}` (qty),
+               `DELETE /api/carts/{id}/items/{item_id}`
+  - Orders:   `POST /api/orders/checkout` (create order from current cart), `GET /api/orders/my`
+  - Users:    `GET /api/users/{user_id}`, `POST /api/users` (register), `POST /api/users/token` (JWT)
 
-More features will be added soon to enhance the functionality and user experience of the Shop Management Web Application.
+### New: Print Receipt
+- After a successful checkout on `/checkout`, the page renders a receipt and exposes a "Print Receipt" button.
+- The print function opens a new print-friendly window and invokes the browser print dialog.
+- Source: `templates/checkout.html` (`printReceipt` and `buildReceiptHTML` functions).
 
-## TODO / Known Issues
-- Implement show price tag
-- The show more detail still does not work
+---
+
+## Diagrams
+- PlantUML activity and state diagrams live in `Diagrams/Activity.puml` and `Diagrams/State.puml`.
+- Updated to include the Print Receipt flow (confirmation → print). 
+
+---
+
+## Troubleshooting
+- **401/Not authenticated on cart actions**:
+  - Run via `app.main:asgi_app` so SessionMiddleware applies.
+  - Ensure you’re logged in via the web UI; fetch calls must use `credentials: 'include'`.
+- **CORS/cookies not sent on Railway**:
+  - Set `ALLOWED_ORIGINS` to your exact Railway origin (no `"*"`).
+  - Keep `COOKIE_SAMESITE=lax` (or none with full https) and don’t set `INSECURE_SESSIONS` in production.
+- **307 redirects in Railway logs**:
+  - Railway/Cloudflare enforce HTTPS at the edge; the app supports it. Ensure browser uses https URL.
+
+---
+
+## License
+- MIT License (see LICENSE)

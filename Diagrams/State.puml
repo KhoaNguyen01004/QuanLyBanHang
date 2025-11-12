@@ -29,6 +29,8 @@ state Cart {
 state Order {
   [*] --> Building : create_order_from_cart (items copied)
   Building --> Completed : Commit transaction / cart cleared
+  Completed --> PrintableReceipt : User selects "Print Receipt" (frontend action)
+  PrintableReceipt --> Completed : Print dialog closed (no state change persisted)
   Completed --> Archived : (Not implemented yet) future retention
 }
 
