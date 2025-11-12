@@ -29,6 +29,11 @@
     .summary-box .spacer { flex:1; }
     footer { text-align:center; color:#ccc; font-size:13px; margin:40px 0 10px; }
     @media (max-width:600px){ .cart-line { flex-wrap:wrap; } .cart-line img { width:50px; height:50px; } }
+
+    /* Print styles to ensure only receipt content is printed when using window.print in the popup */
+    @media print {
+      body { background:#fff; color:#000; }
+    }
   </style>
 </head>
 <body>
@@ -79,7 +84,11 @@
     <div class="section" id="confirmationSection" style="display:none; text-align:center;">
       <h2 style="margin-top:0;">Payment Successful</h2>
       <p id="confirmationMsg">Thank you for your purchase!</p>
-      <button class="btn" onclick="window.location.href='/'">Return Home</button>
+      <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap;">
+        <button class="btn" onclick="printReceipt()">Print Receipt</button>
+        <button class="btn secondary" onclick="window.location.href='/'">Return Home</button>
+      </div>
+      <div id="receiptPrintArea" style="text-align:left;margin-top:20px;background:#232f3e;padding:12px 16px;border-radius:8px;"></div>
     </div>
     <footer>&copy; 2025 MyShop. All rights reserved.</footer>
   </main>
@@ -111,12 +120,12 @@
         const detailRes = await fetch(`/api/carts/${cart.id}`, { credentials:'include' });
         if (!detailRes.ok) throw new Error('No cart detail');
         const cartDetail = await detailRes.json();
-        const items = await fetch('/api/items').then(r=>r.json()).catch(()=>[]);
+        const items = await fetch('/api/items/').then(r=>r.json()).catch(()=>[]);
         return { cart: cartDetail, items, cartId: cart.id };
       } catch (e) {
         // fallback local
         const local = JSON.parse(localStorage.getItem('cart')||'[]');
-        const items = await fetch('/api/items').then(r=>r.json()).catch(()=>[]);
+        const items = await fetch('/api/items/').then(r=>r.json()).catch(()=>[]);
         return { cart: { items: local.map(ci => ({ item_id: ci.item_id, quantity: ci.quantity })) }, items, cartId: null };
       }
     }
@@ -181,6 +190,54 @@
       } catch(e){ console.warn('Failed to clear backend cart', e); }
     }
 
+    function buildReceiptHTML(order) {
+      const nowStr = (order.created_at ? new Date(order.created_at) : new Date()).toLocaleString();
+      let html = `
+        <div style="color:#fff">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <div><strong style="font-size:18px;">MyShop</strong><br><span style="color:#bbb">Order Receipt</span></div>
+            <div style="text-align:right; color:#bbb;">Order #${order.id}<br>${nowStr}</div>
+          </div>
+          <hr style="border-color:#444;">
+          <div>`;
+      (order.items||[]).forEach(it => {
+        const lineTotal = (it.unit_price||0) * (it.quantity||0);
+        html += `
+          <div style='display:flex;gap:8px;justify-content:space-between;border-bottom:1px solid #333;padding:6px 0;'>
+            <span>${it.item?.name || 'Item'} x ${it.quantity}</span>
+            <span style='color:#febd69;'>${fmtMoney(lineTotal)}</span>
+          </div>`;
+      });
+      html += `
+          </div>
+          <p style='text-align:right;font-weight:bold;'>Grand Total: <span style='color:#febd69;'>${fmtMoney(order.total_amount||0)}</span></p>
+          <p style='color:#bbb;'>Billing To: ${document.getElementById('fullName').value || '—'}<br>${document.getElementById('address').value || ''}</p>
+        </div>`;
+      return html;
+    }
+
+    function printReceipt() {
+      try {
+        if (!window.__lastOrder) { showToast('No receipt available to print.', 'error'); return; }
+        const content = buildReceiptHTML(window.__lastOrder);
+        const w = window.open('', '_blank', 'width=800,height=1000');
+        if (!w) { showToast('Please allow pop-ups to print receipt.', 'error'); return; }
+        const styles = `
+          <style>
+            body { font-family: Arial, sans-serif; margin:20px; color:#000; }
+            .tot { font-weight:bold; }
+            @media print { body { color:#000; } }
+          </style>`;
+        w.document.write(`<!DOCTYPE html><html><head><meta charset='utf-8'><title>Receipt #${window.__lastOrder.id}</title>${styles}</head><body>${content}</body></html>`);
+        w.document.close();
+        w.focus();
+        setTimeout(() => { w.print(); w.close(); }, 200);
+      } catch (e) {
+        console.error('printReceipt error', e);
+        showToast('Failed to open print dialog.', 'error');
+      }
+    }
+
     async function submitPayment() {
       const payBtn = document.getElementById('payBtn');
       const topBtn = document.getElementById('payBtnTop');
@@ -197,26 +254,16 @@
           return;
         }
         const order = await res.json();
-        // Show receipt
+        window.__lastOrder = order; // store for printing
+        // Show receipt on page as well
         document.getElementById('orderSummarySection').style.display = 'none';
         document.getElementById('paymentForm').style.display = 'none';
         const conf = document.getElementById('confirmationSection');
         conf.style.display = 'block';
         const msg = document.getElementById('confirmationMsg');
-        msg.innerHTML = `Thank you! Order <strong>#${order.id}</strong> placed.<br>Total: <strong style="color:#febd69;">$${(order.total_amount||0).toFixed(2)}</strong>`;
-        // Build receipt details below
-        let receipt = document.createElement('div');
-        receipt.style = 'text-align:left;margin-top:20px;background:#232f3e;padding:12px 16px;border-radius:8px;';
-        receipt.innerHTML = `<h3 style='margin-top:0;'>Receipt</h3>`;
-        order.items.forEach(it => {
-          const lineTotal = (it.unit_price||0) * (it.quantity||0);
-          receipt.innerHTML += `<div style='display:flex;gap:8px;justify-content:space-between;border-bottom:1px solid #333;padding:6px 0;'>
-            <span>${it.item.name} x ${it.quantity}</span>
-            <span style='color:#febd69;'>$${lineTotal.toFixed(2)}</span>
-          </div>`;
-        });
-        receipt.innerHTML += `<p style='text-align:right;font-weight:bold;'>Grand Total: <span style='color:#febd69;'>$${(order.total_amount||0).toFixed(2)}</span></p>`;
-        conf.appendChild(receipt);
+        msg.innerHTML = `Thank you! Order <strong>#${order.id}</strong> placed.<br>Total: <strong style="color:#febd69;">${fmtMoney(order.total_amount||0)}</strong>`;
+        const receiptArea = document.getElementById('receiptPrintArea');
+        receiptArea.innerHTML = buildReceiptHTML(order);
         showToast('Payment successful!', 'success');
       } catch (e) {
         console.error(e);

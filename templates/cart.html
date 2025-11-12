@@ -192,7 +192,7 @@
                     if (cartDetailRes && cartDetailRes.ok) {
                         const cartData = await cartDetailRes.json();
                         // Fetch all items for stock info
-                        const items = await fetch('/api/items').then(res => res.json()).catch(() => []);
+                        const items = await fetch('/api/items/').then(res => res.json()).catch(() => []);
                         return { cart: cartData, items, isGuest: false, cartId: cart.id };
                     }
                 }
@@ -203,7 +203,7 @@
             // Fallback: build cart from localStorage (guest/offline scenario)
             try {
                 const local = JSON.parse(localStorage.getItem('cart') || '[]');
-                const items = await fetch('/api/items').then(res => res.json()).catch(() => []);
+                const items = await fetch('/api/items/').then(res => res.json()).catch(() => []);
                 // Normalize local format to match backend cart detail shape
                 const cartData = { items: (local || []).map(ci => ({ item_id: ci.item_id, quantity: ci.quantity })) };
                 return { cart: cartData, items, isGuest: true, cartId: null };

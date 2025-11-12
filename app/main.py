@@ -66,15 +66,18 @@ class AutoLogoutASGIMiddleware:
 DEBUG = os.environ.get("DEBUG", "False").lower() == "true"
 
 # Add SessionMiddleware with secure settings in production
+# Allow overriding cookie SameSite via env var (COOKIE_SAMESITE), defaulting to 'lax'
+COOKIE_SAMESITE = os.environ.get("COOKIE_SAMESITE", "lax").lower()
+
 def get_session_middleware_settings():
     # Allow forcing insecure session cookies for local/dev testing via INSECURE_SESSIONS env var.
     # This keeps production behavior (https_only=True) unless DEBUG is True or INSECURE_SESSIONS is set.
     force_insecure = os.environ.get("INSECURE_SESSIONS", "0").lower() in ("1", "true", "yes")
     if DEBUG or force_insecure:
-        return dict(secret_key=settings.secret_key, same_site="lax", https_only=False)
+        return dict(secret_key=settings.secret_key, same_site=COOKIE_SAMESITE, https_only=False)
     else:
         # Railway/production: secure cookies
-        return dict(secret_key=settings.secret_key, same_site="lax", https_only=True)
+        return dict(secret_key=settings.secret_key, same_site=COOKIE_SAMESITE, https_only=True)
 
 app.add_middleware(SessionMiddleware, **get_session_middleware_settings())
 
@@ -99,7 +102,7 @@ app.add_middleware(
 # Log effective settings at startup (non-sensitive values only)
 @app.on_event("startup")
 def _log_startup():
-    logger.info(f"Startup config: ALLOWED_ORIGINS={allowed_origins}, DEBUG={DEBUG}, INSECURE_SESSIONS={os.environ.get('INSECURE_SESSIONS','0')}")
+    logger.info(f"Startup config: ALLOWED_ORIGINS={allowed_origins}, DEBUG={DEBUG}, INSECURE_SESSIONS={os.environ.get('INSECURE_SESSIONS','0')}, COOKIE_SAMESITE={COOKIE_SAMESITE}")
 
 templates = Jinja2Templates(directory="templates")
 

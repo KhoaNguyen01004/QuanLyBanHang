@@ -1,0 +1,40 @@
+@startuml
+title Core Domain State Diagram (Auth, Cart, Order)
+
+skinparam state {
+  BackgroundColor LightYellow
+  BorderColor Black
+  FontColor Black
+}
+
+' Authentication states
+state Auth {
+  [*] --> Anonymous
+  Anonymous --> Authenticated : Successful Login (/api/users/login or /api/users/token)
+  Authenticated --> Anonymous : Logout (/logout) or Session Timeout (>1h inactivity)
+}
+
+' Cart lifecycle (guest or user bound)
+state Cart {
+  [*] --> NonExistent
+  NonExistent --> Active : get_or_create_cart(user_id/session_id)
+  Active --> Active : Add Item (stock--) / Update Qty / Remove Item (stock++)
+  Active --> Empty : Remove All Items
+  Empty --> Active : Add First Item
+  Active --> CheckedOut : Checkout (create_order_from_cart)
+  Empty --> CheckedOut : (Invalid path - prevented) #red
+  CheckedOut --> Active : New shopping after order (new items added)
+}
+
+state Order {
+  [*] --> Building : create_order_from_cart (items copied)
+  Building --> Completed : Commit transaction / cart cleared
+  Completed --> Archived : (Not implemented yet) future retention
+}
+
+' Relations
+Auth.Authenticated --> Cart.Active : Identify user_id for persisted cart
+Auth.Anonymous --> Cart.Active : session_id (guest cart)
+Cart.CheckedOut --> Order.Completed : Order created
+
+@enduml

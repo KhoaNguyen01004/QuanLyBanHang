@@ -1,0 +1,91 @@
+@startuml
+title Shop Application - User Activity Flow
+
+start
+
+:Visit Home Page (/);
+:Load Items (GET /api/items or DB query);
+
+note right
+[Background] Middleware tracks last_activity.
+If inactive > 1h → session cleared → redirect to Home.
+(This happens outside the sequential user actions.)
+end note
+
+if (Already logged in?) then (Yes)
+  :Load username & email from session;
+else (No)
+  :Open Login Form (/login);
+  if (Credentials valid?) then (Yes)
+    :Create session (store username, session_id);
+    :Redirect Home;
+  else (No)
+    :Show login error;
+    :Open Login Form again;
+  endif
+endif
+
+while (Continue shopping?) is (Yes)
+  :Browse / Filter Items;
+
+  if (Add item to cart?) then (Yes)
+    :Ensure cart (user_id OR session_id)
+create or fetch with get_or_create_cart;
+    if (Enough stock?) then (Yes)
+      fork
+        :Decrement stock in DB;
+        :Add item to cart logic;
+      fork again
+        :Broadcast stock update (WebSocket);
+      end fork
+    else (No)
+      :Show Out-of-Stock Message;
+    endif
+  endif
+
+  if (View Cart page?) then (Yes)
+    if (Cart empty?) then (Yes)
+      :Show Empty Cart;
+    else (No)
+      :Render Cart Items with quantities;
+      if (Modify quantities?) then (Yes)
+        :Update / Remove Items;
+        note right
+        If removed → increment stock.
+        If added → decrement stock.
+        If qty set to 0 → remove item.
+        end note
+      endif
+    endif
+  endif
+
+  if (Proceed to Checkout?) then (Yes)
+    if (Authenticated?) then (Yes)
+      :Create Order from Cart;
+      :Clear cart items;
+      :Redirect to Purchases (/purchases);
+      :View Past Orders (GET /api/orders/my);
+      if (Continue shopping after purchase?) then (Yes)
+        :Redirect Home;
+      else (No)
+        :Stay on Purchases page;
+      endif
+    else (No)
+      :Redirect to Login (must auth to checkout);
+    endif
+  endif
+
+endwhile (No)
+
+:Idle (session retained; user not actively shopping);
+
+if (Logout?) then (Yes)
+  :Clear Session (session.clear);
+  :Redirect Home;
+  stop
+else (No)
+  :Return to Home / Potential new activity;
+  -> Browse / Filter Items;
+endif
+
+@enduml
