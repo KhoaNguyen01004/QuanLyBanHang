@@ -117,6 +117,8 @@ async def add_item_to_cart_endpoint(
     import logging
     logging.warning(f"[CART ENDPOINT] Session content: {dict(request.session) if hasattr(request, 'session') else 'No session'}")
     logging.warning(f"[CART ENDPOINT] Current user: {getattr(current_user, 'username', None)}")
+    if current_user is None:
+        raise HTTPException(status_code=401, detail="You must sign in to add items to your cart")
     cart = get_cart(db, cart_id=cart_id)
     if not cart:
         raise HTTPException(status_code=404, detail="Cart not found")
