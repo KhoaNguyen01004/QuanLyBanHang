@@ -407,7 +407,15 @@
             <p id="modalDescription"></p>
             <p><strong>Tags:</strong> <span id="modalTags"></span></p>
             <p id="modalStock" style="color:#febd69; font-weight:bold;"></p>
-            <button id="modalAddToCartBtn" onclick="addToCart(document.getElementById('modalTitle').dataset.id, document.getElementById('modalStock').dataset.stock)">Add to Cart</button>
+            <div id="modalQuantityWrapper" style="margin-top:12px;">
+                <label for="modalQuantity" style="display:block;font-weight:bold;margin-bottom:6px;">Quantity</label>
+                <div style="display:flex;gap:10px;align-items:center;">
+                    <button type="button" style="background:#1c2430;color:#fff;border:1px solid #444;padding:6px 12px;border-radius:4px;cursor:pointer;" onclick="adjustModalQuantity(-1)">-</button>
+                    <input type="number" id="modalQuantity" value="1" min="1" style="flex:1;padding:8px;border-radius:4px;border:1px solid #444;background:#1c2430;color:#fff;text-align:center;" />
+                    <button type="button" style="background:#1c2430;color:#fff;border:1px solid #444;padding:6px 12px;border-radius:4px;cursor:pointer;" onclick="adjustModalQuantity(1)">+</button>
+                </div>
+            </div>
+            <button id="modalAddToCartBtn" onclick="addToCart(document.getElementById('modalTitle').dataset.id, document.getElementById('modalStock').dataset.stock, document.getElementById('modalQuantity').value)">Add to Cart</button>
         </div>
     </div>
 
@@ -558,6 +566,41 @@
             performClientSideSearch('');
         }
 
+        function getModalQuantityInput() {
+            return document.getElementById('modalQuantity');
+        }
+
+        function configureModalQuantity(maxStock) {
+            const input = getModalQuantityInput();
+            const addBtn = document.getElementById('modalAddToCartBtn');
+            if (!input) return;
+            const stockValue = Number(maxStock);
+            const hasFiniteStock = Number.isFinite(stockValue);
+            const hasInventory = !hasFiniteStock || stockValue > 0;
+            input.disabled = !hasInventory;
+            input.min = hasInventory ? 1 : 0;
+            if (hasFiniteStock) {
+                input.max = Math.max(stockValue, 0);
+            } else {
+                input.removeAttribute('max');
+            }
+            input.value = hasInventory ? 1 : 0;
+            if (addBtn) addBtn.disabled = !hasInventory;
+        }
+
+        function adjustModalQuantity(delta) {
+            const input = getModalQuantityInput();
+            if (!input || input.disabled) return;
+            const min = Number(input.min) || 1;
+            const max = Number(input.max);
+            const hasMax = Number.isFinite(max) && max > 0;
+            const current = Number(input.value) || min;
+            let next = current + Number(delta || 0);
+            if (next < min) next = min;
+            if (hasMax && next > max) next = max;
+            input.value = next;
+        }
+
         // Cart functions
         function getCart() {
             const cart = localStorage.getItem('cart');
@@ -610,6 +653,7 @@
             tagsEl.innerHTML = (item.tags || []).map(tag => `<a href="#" class="tag-link" data-tag="${tag}" style="color:#febd69; text-decoration:underline; margin-right:6px;">${tag}</a>`).join(', ');
             stockEl.textContent = `Available: ${item.stock}`;
             stockEl.dataset.stock = item.stock;
+            configureModalQuantity(item.stock);
             document.getElementById('itemModal').style.display = 'block';
             console.log('Modal should now be visible');
             // attach tag link handlers inside modal
@@ -625,35 +669,60 @@
         function closeChangeUsernameModal() { document.getElementById('changeUsernameModal').style.display = 'none'; }
 
         // Add to cart via API (keeps local cart in sync)
-        async function addToCart(itemId, stock) {
+        async function addToCart(itemId, stock, requestedQty) {
             try {
                 if (!itemId) return;
-                if (Number(stock) === 0) { showToast('Item out of stock', 'error'); return; }
+                const availableStock = Number(stock);
+                const hasFiniteStock = Number.isFinite(availableStock);
+                const quantityInput = getModalQuantityInput();
+                let quantity = Number(requestedQty);
+                if (!Number.isFinite(quantity) || quantity < 1) {
+                    quantity = quantityInput ? Number(quantityInput.value) : 1;
+                }
+                if (!Number.isFinite(quantity) || quantity < 1) quantity = 1;
+                if (hasFiniteStock && availableStock <= 0) {
+                    showToast('Item out of stock', 'error');
+                    return;
+                }
+                if (hasFiniteStock && quantity > availableStock) {
+                    showToast(`Only ${availableStock} available. Adjust quantity.`, 'error');
+                    if (quantityInput) quantityInput.value = availableStock;
+                    return;
+                }
                 const cartRes = await fetch('/api/carts/', { method: 'POST', credentials: 'include' });
-                if (!cartRes.ok) { console.warn('Failed to create/get cart, status:', cartRes.status); return; }
+                if (!cartRes.ok) {
+                    if (cartRes.status === 401 || cartRes.status === 403) {
+                        showToast('You must login before add item to cart', 'error');
+                    }
+                    console.warn('Failed to create/get cart, status:', cartRes.status);
+                    return;
+                }
                 const cart = await cartRes.json();
                 const res = await fetch(`/api/carts/${cart.id}/items`, {
                     method: 'POST', headers: { 'Content-Type': 'application/json' },
                     credentials: 'include',
-                    body: JSON.stringify({ item_id: Number(itemId), quantity: 1 })
+                    body: JSON.stringify({ item_id: Number(itemId), quantity })
                 });
                 if (res.ok) {
-                    showToast('Item added to cart!', 'success');
-                    // Only keep localStorage cart for guest users; logged-in uses backend only
+                    const successMessage = quantity > 1 ? `Added ${quantity} items to cart!` : 'Item added to cart!';
+                    showToast(successMessage, 'success');
                     try {
                         if (!window.currentUser) {
                             const existing = getCart();
                             const itemIdNum = Number(itemId);
                             const found = existing.find(ci => ci.item_id === itemIdNum);
-                            if (found) { found.quantity = (found.quantity || 0) + 1; }
-                            else { existing.push({ item_id: itemIdNum, quantity: 1 }); }
-                            setCart(existing); // also sets cart_guest flag
+                            if (found) { found.quantity = (found.quantity || 0) + quantity; }
+                            else { existing.push({ item_id: itemIdNum, quantity }); }
+                            setCart(existing);
                         }
                     } catch (err) { console.error('Failed to update local cart in localStorage', err); }
-                    // Sync in background; then auto refresh page so UI reflects new state everywhere
-                    const info = await syncCartWithBackend();
+                    await syncCartWithBackend();
                     setTimeout(()=>{ window.location.reload(); }, 100);
                 } else {
+                    if (res.status === 401 || res.status === 403) {
+                        showToast('You must login before add item to cart', 'error');
+                        return;
+                    }
                     const data = await res.json().catch(()=>({}));
                     showToast(data.detail || 'Failed to add item to cart.', 'error');
                 }
@@ -770,6 +839,7 @@
             window.filterByTag = filterByTag;
             window.clearSearchFilter = clearSearchFilter;
             window.addToCart = addToCart;
+            window.adjustModalQuantity = adjustModalQuantity;
             window.openChangeUsernameModal = openChangeUsernameModal;
             window.closeChangeUsernameModal = closeChangeUsernameModal;
         } catch (e) { console.warn('Could not expose globals', e); }
@@ -971,20 +1041,3 @@
         // Use current host and proper ws/wss protocol so mobile devices reach the right server
         try {
             const wsProto = (location.protocol === 'https:') ? 'wss:' : 'ws:';
-            const socketUrl = `${wsProto}//${window.location.host}/ws/stock-updates`;
-            const socket = new WebSocket(socketUrl);
-            socket.onmessage = function(event) {
-                try {
-                    const data = JSON.parse(event.data);
-                    if (data.type === 'stock_update') {
-                        const itemElement = document.querySelector(`#item-stock-${data.item_id}`);
-                        if (itemElement) itemElement.textContent = `Stock: ${data.stock}`;
-                    }
-                } catch (e) { console.warn('Invalid WS message', e); }
-            };
-            socket.onclose = function() { console.log('WebSocket connection closed.'); };
-            socket.onerror = function(e) { console.warn('WebSocket error', e); };
-        } catch (e) { console.warn('WebSocket init failed', e); }
-    </script>
-</body>
-</html>

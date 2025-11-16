@@ -137,6 +137,8 @@
             <span>Items in cart: <strong id="cartCountText">0</strong></span>
             <div class="spacer"></div>
             <span>Total: <strong id="cartTotalText">$0.00</strong></span>
+            <button id="removeAllBtn" class="btn secondary" style="margin-left: 8px;" onclick="removeAllItems()">Remove
+                All</button>
             <button id="checkoutBtn" class="btn" style="margin-left: 8px;" onclick="goCheckout()">Checkout →</button>
         </div>
         <div id="cartItems"></div>
@@ -267,12 +269,15 @@
 
         async function renderCart(cart, items) {
             const container = document.getElementById('cartItems');
+            const removeAllBtn = document.getElementById('removeAllBtn');
             if (!cart.items || cart.items.length === 0) {
                 container.innerHTML = '<p class="empty-cart">Your cart is empty.</p>';
+                if (removeAllBtn) removeAllBtn.disabled = true;
                 updateSummary({ items: [] }, items || []);
                 return;
             }
             container.innerHTML = '';
+            if (removeAllBtn) removeAllBtn.disabled = false;
             cart.items.forEach(cartItem => {
                 const item = items.find(i => i.id === cartItem.item_id);
                 if (item) {
@@ -309,6 +314,33 @@
             await fetch(`/api/carts/${cartId}/items/${itemId}?quantity=${quantity}`, { method: 'DELETE', credentials: 'include' });
             // Auto refresh after remove
             window.location.reload();
+        }
+
+        async function removeAllItems() {
+            try {
+                const btn = document.getElementById('removeAllBtn');
+                if (btn && btn.disabled) return;
+                const confirmClear = confirm('Are you sure you want to remove all items from your cart?');
+                if (!confirmClear) return;
+                const { cartId } = await fetchCart();
+                if (!cartId) {
+                    localStorage.removeItem('cart');
+                    showToast('Local cart cleared.', 'success');
+                    window.location.reload();
+                    return;
+                }
+                const res = await fetch(`/api/carts/${cartId}/items`, { method: 'DELETE', credentials: 'include' });
+                if (!res.ok) {
+                    const text = await res.text();
+                    showToast(`Failed to clear cart: ${text}`, 'error');
+                    return;
+                }
+                showToast('All items removed from cart.', 'success');
+                window.location.reload();
+            } catch (e) {
+                console.error('removeAllItems failed', e);
+                showToast('Unexpected error clearing cart.', 'error');
+            }
         }
 
         function goCheckout() { window.location.href = '/checkout'; }

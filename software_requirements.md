@@ -13,6 +13,7 @@ Các yêu cầu dưới đây được tổng hợp sau khi rà soát mã nguồ
 | F-CUS-003 | Trang chủ (`/`) phải liệt kê sản phẩm lấy từ `/api/items`, kèm trạng thái đăng nhập hiện tại. | Functional |
 | F-CUS-004 | Người dùng có thể lọc/ tìm sản phẩm và xem tồn kho cập nhật theo thời gian thực (WebSocket). | Functional |
 | F-CUS-005 | Chỉ người dùng đã đăng nhập mới được phép thêm sản phẩm vào giỏ hàng. Nếu chưa đăng nhập, hệ thống sẽ báo lỗi và không thực hiện thao tác này. | Functional |
+| F-CUS-005b | Giỏ hàng phải cung cấp thao tác "Remove All" giúp người dùng xóa toàn bộ sản phẩm chỉ với một lần bấm và nhận phản hồi thành công/thất bại rõ ràng. | Functional |
 | F-CUS-006 | Cho phép chỉnh sửa số lượng, xóa mặt hàng khỏi giỏ; nếu giỏ rỗng phải hiển thị thông báo tương ứng. | Functional |
 | F-CUS-007 | Khi thêm/cập nhật giỏ, hệ thống phải kiểm tra tồn kho và báo lỗi nếu không đủ hàng. | Functional |
 | F-CUS-008 | Khi nhấn Checkout, hệ thống xác thực đăng nhập; nếu chưa đăng nhập phải chuyển đến trang login. | Functional |
