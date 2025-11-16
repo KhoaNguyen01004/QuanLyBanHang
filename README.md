@@ -1,4 +1,4 @@
-# Shop Management Web Application
+# Shop Management Web application
 
 A FastAPI web app for browsing items, managing a cart, and placing orders with a simple web UI. It exposes REST APIs, serves HTML templates, persists data (SQLite by default), and is deployable on Railway. Sessions are used for web auth; JWT is available for API token flows.
 
