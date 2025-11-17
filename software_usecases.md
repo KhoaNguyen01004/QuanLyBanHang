@@ -1,47 +1,45 @@
 # Bảng Use Case Phần Mềm (tiếng Việt)
 
-Bảng use case dưới đây được tổng hợp từ bảng yêu cầu trong file `software_requirements.md`. Các use case được phân nhóm chi tiết theo vai trò và ngữ cảnh sử dụng, bao gồm các yêu cầu chức năng và phi chức năng liên quan. Mỗi use case bao gồm mã định danh duy nhất, tên, mô tả chi tiết, các yêu cầu chính (bao gồm yêu cầu), và các yêu cầu mở rộng (extension requirements) nếu có.
+Tài liệu này liệt kê các Use Case theo góc nhìn nghiệp vụ, bám sát các yêu cầu trong `software_requirements.md` (phiên bản đã đơn giản hóa). Các bảng dưới đây trình bày mã, tên, mô tả nghiệp vụ, yêu cầu liên quan (tham chiếu ID) và mở rộng (extension) nếu có.
 
 ## 1. Use Case Chung (General Use Cases)
-Áp dụng cho tất cả người dùng, không phân biệt vai trò cụ thể.
+Áp dụng cho mọi người dùng.
 
-| Mã Use Case | Tên Use Case           | Mô tả                                                                                       | Bao gồm Yêu cầu                 | Extension Requirements                         |
-|-------------|------------------------|---------------------------------------------------------------------------------------------|---------------------------------|------------------------------------------------|
-| UC-GEN-001  | Đăng ký tài khoản      | Người dùng tạo tài khoản mới với thông tin cơ bản như email, username, password.            | F-CUS-001, NF-SYS-001           | Không có                                       |
-| UC-GEN-002  | Đăng nhập hệ thống     | Người dùng nhập thông tin đăng nhập để truy cập hệ thống, sử dụng session cookies hoặc JWT. | F-CUS-002, F-SYS-001, F-SYS-002 | NF-SYS-002 (HTTPS trong production)            |
-| UC-GEN-003  | Duy trì session        | Hệ thống quản lý session tự động hết hạn sau thời gian không hoạt động.                     | F-SYS-002                       | Không có                                       |
-| UC-GEN-004  | Health Check           | Kiểm tra trạng thái hệ thống để đảm bảo hoạt động bình thường.                              | F-SYS-008                       | NF-SYS-004 (chạy test trước deploy)            |
-| UC-GEN-005  | Cấu hình CORS          | Hệ thống kiểm soát nguồn gốc request dựa trên danh sách cho phép.                           | F-SYS-005                       | NF-SYS-003 (liệt kê domain chính xác)          |
-| UC-GEN-006  | Khởi chạy ứng dụng     | Sử dụng Procfile hoặc entrypoint để chạy ASGI app.                                          | F-SYS-006                       | Không có                                       |
-| UC-GEN-007  | Cấu hình cơ sở dữ liệu | Hệ thống hỗ trợ cấu hình DB qua biến môi trường.                                            | F-SYS-007                       | Không có                                       |
-| UC-GEN-008  | Logging và bảo mật     | Ghi log sự kiện mà không lộ thông tin bí mật.                                               | NF-SYS-005                      | F-ADM-006 (truy xuất log để kiểm tra gian lận) |
+| Mã Use Case | Tên Use Case           | Mô tả                                                                                              | Bao gồm Yêu cầu                 | Extension Requirements                         |
+|-------------|------------------------|----------------------------------------------------------------------------------------------------|---------------------------------|------------------------------------------------|
+| UC-GEN-001  | Đăng ký tài khoản      | Người dùng cung cấp email, tên và mật khẩu để tạo tài khoản mới.                                  | F-CUS-001, NF-SYS-001           | Không có                                       |
+| UC-GEN-002  | Đăng nhập hệ thống     | Người dùng nhập thông tin tài khoản để bắt đầu phiên làm việc.                                     | F-CUS-002, F-SYS-001, F-SYS-002 | NF-SYS-002 (kết nối an toàn trong triển khai)  |
+| UC-GEN-003  | Duy trì phiên           | Hệ thống tự động theo dõi thời gian hoạt động và kết thúc phiên sau thời gian quy định.           | F-SYS-002                       | Không có                                       |
+| UC-GEN-004  | Kiểm tra tình trạng    | Người dùng hoặc nền tảng có thể kiểm tra nhanh hệ thống còn hoạt động bình thường hay không.      | F-SYS-008                       | NF-SYS-004 (kiểm thử trước phát hành)          |
+| UC-GEN-006  | Khởi động hệ thống     | Hệ thống khởi chạy và kích hoạt các thành phần bảo mật, phiên, cập nhật tồn kho.                  | F-SYS-006                       | Không có                                       |
+| UC-GEN-007  | Cấu hình dữ liệu        | Thiết lập kết nối cơ sở dữ liệu phù hợp với môi trường (mặc định dạng nhẹ, có thể nâng cấp).      | F-SYS-007                       | Không có                                       |
+| UC-GEN-008  | Ghi nhật ký & giám sát  | Ghi lại sự kiện quan trọng mà không phơi bày thông tin nhạy cảm.                                  | NF-SYS-001, NF-SYS-002          | F-MER-006 (người bán xem nhật ký để phát hiện bất thường) |
 
-## 2. Use Case Dành Cho Khách Hàng (Customer Use Cases)
-Áp dụng cho người dùng cuối (khách hàng) khi tương tác với hệ thống mua bán.
+## 2. Use Case Dành Cho Khách Hàng
+Mô tả các tương tác chính của khách hàng trên giao diện.
 
-| Mã Use Case | Tên Use Case               | Mô tả                                                                                                      | Bao gồm Yêu cầu                                          | Extension Requirements                                                    |
-|-------------|----------------------------|------------------------------------------------------------------------------------------------------------|----------------------------------------------------------|---------------------------------------------------------------------------|
-| UC-CUS-001  | Xem trang chủ và sản phẩm  | Người dùng truy cập trang chủ để xem danh sách sản phẩm, lọc/tìm kiếm, và cập nhật tồn kho thời gian thực. | F-CUS-003, F-CUS-004, NF-SYS-006                         | F-SYS-004 (WebSocket cho cập nhật tồn kho)                                |
-| UC-CUS-002  | Thêm sản phẩm vào giỏ hàng | Người dùng đã đăng nhập thêm sản phẩm vào giỏ, hệ thống kiểm tra tồn kho và báo lỗi nếu không đủ.          | F-CUS-005, F-CUS-007, F-CUS-007b, NF-ADM-002, NF-CUS-001 | F-SYS-003 (không duy trì giỏ cho khách chưa đăng nhập; yêu cầu đăng nhập) |
-| UC-CUS-003  | Quản lý giỏ hàng           | Người dùng chỉnh sửa số lượng, xóa mặt hàng, hoặc xóa toàn bộ giỏ hàng.                                    | F-CUS-005b, F-CUS-006, NF-CUS-001                        | Không có                                                                  |
-| UC-CUS-004  | Checkout và thanh toán     | Người dùng xác nhận đơn hàng, hệ thống tạo hóa đơn và chuyển đến trang xác nhận.                           | F-CUS-008, F-CUS-009, F-CUS-012                          | NF-CUS-002 (tương thích mobile và in ấn)                                  |
-| UC-CUS-005  | In hóa đơn                 | Người dùng in hoặc lưu hóa đơn sau checkout.                                                               | F-CUS-010                                                | Không có                                                                  |
-| UC-CUS-006  | Xem lịch sử mua hàng       | Người dùng xem lại các đơn hàng đã mua, bao gồm chi tiết hóa đơn.                                          | F-CUS-011                                                | Không có                                                                  |
-| UC-CUS-007  | Đăng xuất                  | Người dùng chủ động đăng xuất để xóa session.                                                              | F-CUS-013                                                | Không có                                                                  |
+| Mã Use Case | Tên Use Case               | Mô tả                                                                                              | Bao gồm Yêu cầu                                          | Extension Requirements                                      |
+|-------------|----------------------------|----------------------------------------------------------------------------------------------------|----------------------------------------------------------|-------------------------------------------------------------|
+| UC-CUS-001  | Xem & tìm sản phẩm         | Khách hàng xem danh sách sản phẩm, tìm kiếm, lọc và nhận cập nhật tồn kho gần thời gian thực.     | F-CUS-003, F-CUS-004, NF-SYS-006                         | F-SYS-004 (kênh cập nhật tồn kho)                          |
+| UC-CUS-002  | Thêm vào giỏ hàng          | Khách hàng đã đăng nhập thêm sản phẩm; hệ thống kiểm tra tồn kho và xử lý tranh chấp đồng thời.  | F-CUS-005, F-CUS-007, F-CUS-007b, NF-CUS-001, NF-MER-002 | F-SYS-003 (chỉ cho phép giỏ với người đăng nhập)           |
+| UC-CUS-003  | Quản lý giỏ hàng           | Khách hàng điều chỉnh số lượng, xóa từng sản phẩm hoặc xóa toàn bộ.                               | F-CUS-005b, F-CUS-006, NF-CUS-001                        | Không có                                                    |
+| UC-CUS-004  | Thanh toán                 | Khách hàng xác nhận mua; nếu chưa đăng nhập bị yêu cầu đăng nhập; sau đó thấy hóa đơn chi tiết.   | F-CUS-008, F-CUS-009, F-CUS-012                          | NF-CUS-002 (tối ưu đa thiết bị & in ấn)                    |
+| UC-CUS-005  | In hóa đơn                 | Khách hàng in hoặc lưu hóa đơn sau khi thanh toán thành công.                                     | F-CUS-010                                                | Không có                                                    |
+| UC-CUS-006  | Xem lịch sử mua hàng       | Khách hàng xem lại danh sách đơn đã mua và mở chi tiết từng hóa đơn.                              | F-CUS-011                                                | Không có                                                    |
+| UC-CUS-007  | Đăng xuất                  | Khách hàng kết thúc phiên làm việc và trở về trạng thái chưa đăng nhập.                           | F-CUS-013                                                | Không có                                                    |
 
-## 3. Use Case Dành Cho Quản Trị Viên (Admin Use Cases)
-Áp dụng cho quản trị viên để quản lý hệ thống và dữ liệu.
+## 3. Use Case Dành Cho Người Bán (Merchant)
+Tương tác quản lý sản phẩm và đơn hàng.
 
-| Mã Use Case | Tên Use Case          | Mô tả                                                                 | Bao gồm Yêu cầu       | Extension Requirements          |
-|-------------|-----------------------|-----------------------------------------------------------------------|-----------------------|---------------------------------|
-| UC-ADM-001  | Quản lý sản phẩm      | Admin tạo, sửa, xóa, sao lưu sản phẩm qua API.                        | F-ADM-001, F-ADM-005  | NF-ADM-001 (bảo vệ server-side) |
-| UC-ADM-002  | Cập nhật tồn kho      | Admin thay đổi tồn kho trực tiếp và broadcast cập nhật qua WebSocket. | F-ADM-002, NF-ADM-002 | NF-SYS-007 (chịu tải đồng thời) |
-| UC-ADM-003  | Xem đơn hàng          | Admin truy cập toàn bộ đơn hàng của hệ thống.                         | F-ADM-003             | Không có                        |
-| UC-ADM-004  | Nạp dữ liệu hàng loạt | Admin sử dụng script để nạp sản phẩm khi triển khai.                  | F-ADM-004             | Không có                        |
-| UC-ADM-005  | Truy xuất log         | Admin xem log sự kiện để kiểm tra và bảo mật.                         | F-ADM-006             | NF-SYS-005 (logging an toàn)    |
+| Mã Use Case | Tên Use Case          | Mô tả                                                                            | Bao gồm Yêu cầu       | Extension Requirements                     |
+|-------------|-----------------------|----------------------------------------------------------------------------------|-----------------------|--------------------------------------------|
+| UC-MER-001  | Quản lý sản phẩm      | Người bán tạo, chỉnh sửa, xóa, hoặc ẩn sản phẩm; có thể sao lưu thông tin.       | F-MER-001, F-MER-005  | NF-MER-001 (kiểm tra quyền phía máy chủ)   |
+| UC-MER-002  | Cập nhật tồn kho      | Người bán thay đổi số lượng tồn và hệ thống gửi cập nhật cho người duyệt sản phẩm.| F-MER-002, NF-MER-002 | NF-SYS-007 (chịu tải kết nối đồng thời)    |
+| UC-MER-003  | Xem đơn hàng          | Người bán xem toàn bộ đơn phát sinh để theo dõi hoạt động bán hàng.              | F-MER-003             | Không có                                   |
+| UC-MER-004  | Nạp dữ liệu sản phẩm  | Người bán sử dụng biểu mẫu/CSV để cập nhật nhiều sản phẩm cùng lúc mà không cần thao tác kỹ thuật phức tạp. | F-MER-004             | Không có                                   |
+| UC-MER-005  | Giám sát & nhật ký     | Người bán xem nhật ký sự kiện quan trọng để phát hiện bất thường/gian lận.       | F-MER-006             | Không có                                   |
 
 ## 4. Ghi Chú
-- Các use case trên được suy ra từ yêu cầu chức năng trong `software_requirements.md`. Mỗi use case có thể bao gồm nhiều yêu cầu để mô tả luồng hoàn chỉnh.
-- Extension requirements là các yêu cầu bổ sung hoặc mở rộng, như bảo mật, hiệu suất, hoặc tích hợp.
-- Khi thêm tính năng mới, hãy cập nhật bảng này để duy trì tính nhất quán.
-- Tài liệu này hỗ trợ truy vết từ yêu cầu đến use case và ngược lại.
+- ID yêu cầu trong cột "Bao gồm Yêu cầu" phản ánh nguồn gốc chức năng hoặc ràng buộc chất lượng.
+- Extension Requirements thể hiện yêu cầu bổ trợ hoặc mở rộng ngoài luồng chính.
+- Khi có thay đổi nghiệp vụ, cập nhật trước bảng yêu cầu rồi đồng bộ lại use case.
