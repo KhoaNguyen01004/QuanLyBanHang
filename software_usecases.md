@@ -1,19 +1,19 @@
-# Bảng Use Case Phần Mềm (tiếng Việt)
+# Bảng Use Case Phần Mềm
 
-Tài liệu này liệt kê các Use Case theo góc nhìn nghiệp vụ, bám sát các yêu cầu trong `software_requirements.md`. Các bảng dưới đây trình bày mã, tên, mô tả nghiệp vụ, yêu cầu liên quan (tham chiếu ID) và mở rộng (extension) nếu có.
+Tài liệu này liệt kê các Use Case theo góc nhìn nghiệp vụ, bám sát các yêu cầu trong `software_requirements.md`.
 
 ## 1. Use Case Chung (General Use Cases)
 Áp dụng cho mọi người dùng.
 
-| Mã Use Case | Tên Use Case           | Mô tả                                                                                        | Bao gồm Yêu cầu                 | Extension Requirements                                    |
-|-------------|------------------------|----------------------------------------------------------------------------------------------|---------------------------------|-----------------------------------------------------------|
-| UC-GEN-001  | Đăng ký tài khoản      | Người dùng cung cấp email, tên và mật khẩu để tạo tài khoản mới.                             | F-CUS-001, NF-SYS-001           | Không có                                                  |
-| UC-GEN-002  | Đăng nhập hệ thống     | Người dùng nhập thông tin tài khoản để bắt đầu phiên đăng nhập.                              | F-CUS-002, F-SYS-001, F-SYS-002 | NF-SYS-002 (kết nối an toàn trong triển khai)             |
-| UC-GEN-003  | Duy trì phiên          | Hệ thống tự động theo dõi thời gian hoạt động và kết thúc phiên sau thời gian quy định.      | F-SYS-002                       | Không có                                                  |
-| UC-GEN-004  | Kiểm tra tình trạng    | Người dùng hoặc nền tảng có thể kiểm tra nhanh hệ thống còn hoạt động bình thường hay không. | F-SYS-008                       | NF-SYS-004 (kiểm thử trước phát hành)                     |
-| UC-GEN-006  | Khởi động hệ thống     | Hệ thống khởi chạy và kích hoạt các thành phần bảo mật, phiên, cập nhật tồn kho.             | F-SYS-006                       | Không có                                                  |
-| UC-GEN-007  | Cấu hình dữ liệu       | Thiết lập kết nối cơ sở dữ liệu phù hợp với môi trường (mặc định dạng nhẹ, có thể nâng cấp). | F-SYS-007                       | Không có                                                  |
-| UC-GEN-008  | Ghi nhật ký & giám sát | Ghi lại sự kiện quan trọng mà không phơi bày thông tin nhạy cảm.                             | NF-SYS-001, NF-SYS-002          | F-MER-006 (người bán xem nhật ký để phát hiện bất thường) |
+| Mã Use Case | Tên Use Case        | Mô tả                                                                                        | Bao gồm Yêu cầu                 | Extension Requirements                                |
+|-------------|---------------------|----------------------------------------------------------------------------------------------|---------------------------------|-------------------------------------------------------|
+| UC-GEN-001  | Đăng ký tài khoản   | Người dùng cung cấp email, tên và mật khẩu để tạo tài khoản mới.                             | F-CUS-001, NF-SYS-001           | Không có                                              |
+| UC-GEN-002  | Đăng nhập hệ thống  | Người dùng nhập thông tin tài khoản để bắt đầu phiên đăng nhập.                              | F-CUS-002, F-SYS-001, F-SYS-002 | NF-SYS-002 (kết nối an toàn trong triển khai)         |
+| UC-GEN-003  | Duy trì phiên       | Hệ thống tự động theo dõi thời gian hoạt động và kết thúc phiên sau thời gian quy định.      | F-SYS-002                       | Không có                                              |
+| UC-GEN-004  | Kiểm tra tình trạng | Người dùng hoặc nền tảng có thể kiểm tra nhanh hệ thống còn hoạt động bình thường hay không. | F-SYS-008                       | NF-SYS-004 (kiểm thử trước phát hành)                 |
+| UC-GEN-006  | Khởi động hệ thống  | Hệ thống khởi chạy và kích hoạt các thành phần bảo mật, phiên, cập nhật tồn kho.             | F-SYS-006                       | Không có                                              |
+| UC-GEN-007  | Cấu hình dữ liệu    | Thiết lập kết nối cơ sở dữ liệu phù hợp với môi trường (mặc định dạng nhẹ, có thể nâng cấp). | F-SYS-007                       | Không có                                              |
+| UC-GEN-008  | Ghi log & giám sát  | Ghi lại sự kiện quan trọng mà không phơi bày thông tin nhạy cảm.                             | NF-SYS-001, NF-SYS-002          | F-MER-006 (người bán xem log để phát hiện bất thường) |
 
 ## 2. Use Case Dành Cho Khách Hàng
 Mô tả các tương tác chính của khách hàng trên giao diện.
@@ -37,7 +37,7 @@ Tương tác quản lý sản phẩm và đơn hàng.
 | UC-MER-002  | Cập nhật tồn kho     | Người bán thay đổi số lượng tồn và hệ thống gửi cập nhật cho người duyệt sản phẩm.                          | F-MER-002, NF-MER-002 | NF-SYS-007 (chịu tải kết nối đồng thời)  |
 | UC-MER-003  | Xem đơn hàng         | Người bán xem toàn bộ đơn phát sinh để theo dõi hoạt động bán hàng.                                         | F-MER-003             | Không có                                 |
 | UC-MER-004  | Nạp dữ liệu sản phẩm | Người bán sử dụng biểu mẫu/CSV để cập nhật nhiều sản phẩm cùng lúc mà không cần thao tác kỹ thuật phức tạp. | F-MER-004             | Không có                                 |
-| UC-MER-005  | Giám sát & nhật ký   | Người bán xem log sự kiện quan trọng để phát hiện bất thường/gian lận.                                      | F-MER-006             | Không có                                 |
+| UC-MER-005  | Giám sát & log       | Người bán xem log sự kiện quan trọng để phát hiện bất thường/gian lận.                                      | F-MER-006             | Không có                                 |
 
 ## 4. Ghi Chú
 - ID yêu cầu trong cột "Bao gồm Yêu cầu" phản ánh nguồn gốc chức năng hoặc ràng buộc chất lượng.

@@ -1,7 +1,7 @@
 # Bảng Yêu Cầu Phần Mềm
 
 ## 1. Phạm vi & nguồn tham chiếu
-Tài liệu này mô tả các yêu cầu chức năng và phi chức năng ở góc nhìn nghiệp vụ cho một ứng dụng bán hàng trực tuyến. Ngôn ngữ sử dụng hướng tới người dùng và nhóm nghiệp vụ; không phụ thuộc chi tiết kỹ thuật hoặc tên file mã nguồn.
+Tài liệu này mô tả các yêu cầu chức năng và phi chức năng ở góc nhìn nghiệp vụ cho một ứng dụng bán hàng trực tuyến.
 
 ## 2. Yêu cầu theo phân hệ/ngữ cảnh
 
@@ -27,16 +27,16 @@ Tài liệu này mô tả các yêu cầu chức năng và phi chức năng ở 
 | NF-CUS-002 | Trang thanh toán và hóa đơn tối ưu cho cả màn hình máy tính và thiết bị di động, bố cục phù hợp chuẩn in A4.                                     | Non-functional |
 
 ### 2.2 Các chức năng dành cho vai trò **Người bán (Merchant)**
-| ID         | Mô tả yêu cầu                                                                                                               | Loại           |
-|------------|-----------------------------------------------------------------------------------------------------------------------------|----------------|
-| F-MER-001  | Người bán có thể tạo mới, chỉnh sửa, xóa hoặc sao lưu thông tin sản phẩm.                                                   | Functional     |
-| F-MER-002  | Người bán cập nhật số lượng tồn kho và các thay đổi sẽ được thông báo tới người xem sản phẩm.                               | Functional     |
-| F-MER-003  | Người bán có thể xem danh sách toàn bộ đơn hàng đã phát sinh trong hệ thống.                                                | Functional     |
+| ID         | Mô tả yêu cầu                                                                                                                                                         | Loại           |
+|------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------|
+| F-MER-001  | Người bán có thể tạo mới, chỉnh sửa, xóa hoặc sao lưu thông tin sản phẩm.                                                                                             | Functional     |
+| F-MER-002  | Người bán cập nhật số lượng tồn kho và các thay đổi sẽ được thông báo tới người xem sản phẩm.                                                                         | Functional     |
+| F-MER-003  | Người bán có thể xem danh sách toàn bộ đơn hàng đã phát sinh trong hệ thống.                                                                                          | Functional     |
 | F-MER-004  | Người bán có thể cập nhật nhiều sản phẩm cùng lúc thông qua phương thức đơn giản như tải lên tệp CSV/Excel hoặc biểu mẫu hàng loạt, không cần can thiệp kỹ thuật sâu. | Functional     |
-| F-MER-005  | Người bán có thể ẩn (vô hiệu hóa tạm thời) sản phẩm; sản phẩm ẩn sẽ không xuất hiện trong danh sách công khai.              | Functional     |
-| F-MER-006  | Người bán có thể xem nhật ký sự kiện quan trọng (đăng nhập, thanh toán) để kiểm tra dấu hiệu bất thường hoặc gian lận.      | Functional     |
-| NF-MER-001 | Các thao tác quản lý sản phẩm và đơn hàng phải được kiểm tra quyền trên máy chủ, không phụ thuộc kiểm tra phía trình duyệt. | Non-functional |
-| NF-MER-002 | Việc thay đổi tồn kho phải đảm bảo nhất quán dưới tải đồng thời.                                                            | Non-functional |
+| F-MER-005  | Người bán có thể ẩn (vô hiệu hóa tạm thời) sản phẩm; sản phẩm ẩn sẽ không xuất hiện trong danh sách công khai.                                                        | Functional     |
+| F-MER-006  | Người bán có thể xem log sự kiện quan trọng (đăng nhập, thanh toán) để kiểm tra dấu hiệu bất thường hoặc gian lận.                                                    | Functional     |
+| NF-MER-001 | Các thao tác quản lý sản phẩm và đơn hàng phải được kiểm tra quyền trên máy chủ, không phụ thuộc kiểm tra phía trình duyệt.                                           | Non-functional |
+| NF-MER-002 | Việc thay đổi tồn kho phải đảm bảo nhất quán dưới tải đồng thời.                                                                                                      | Non-functional |
 
 ### 2.3 Các yêu cầu chức năng chung của **Hệ thống**
 | ID        | Mô tả yêu cầu                                                                                                           | Loại       |
