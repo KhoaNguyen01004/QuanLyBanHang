@@ -1,4 +1,4 @@
-# Bảng Yêu Cầu Phần Mềm (tiếng Việt)
+# Bảng Yêu Cầu Phần Mềm
 
 ## 1. Phạm vi & nguồn tham chiếu
 Tài liệu này mô tả các yêu cầu chức năng và phi chức năng ở góc nhìn nghiệp vụ cho một ứng dụng bán hàng trực tuyến. Ngôn ngữ sử dụng hướng tới người dùng và nhóm nghiệp vụ; không phụ thuộc chi tiết kỹ thuật hoặc tên file mã nguồn.
