@@ -6,23 +6,26 @@ Tài liệu này mô tả các yêu cầu chức năng và phi chức năng ở 
 ## 2. Yêu cầu theo phân hệ/ngữ cảnh
 
 ### 2.1 Các chức năng dành cho vai trò **Khách hàng**
-| ID         | Mô tả yêu cầu                                                                                                                                                                  | Loại           |
-|------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------|
-| F-CUS-001  | Khách hàng có thể đăng ký tài khoản mới với email, tên người dùng và mật khẩu hợp lệ.                                                                                          | Functional     |
-| F-CUS-002  | Khách hàng có thể đăng nhập bằng thông tin đã đăng ký và nhận thông báo rõ ràng nếu sai thông tin.                                                                             | Functional     |
-| F-CUS-003  | Trang chủ hiển thị danh sách sản phẩm cùng trạng thái đăng nhập hiện tại của khách hàng.                                                                                       | Functional     |
-| F-CUS-004  | Khách hàng có thể tìm kiếm và lọc sản phẩm; thông tin tồn kho được cập nhật gần thời gian thực.                                                                                | Functional     |
-| F-CUS-005  | Khách hàng có thể thêm sản phẩm, thay đổi số lượng hoặc xóa từng sản phẩm, nếu chưa đăng nhập hệ thống hiển thị thông báo yêu cầu đăng nhập và không cho phép thao tác.        | Functional     |
-| F-CUS-006  | Giỏ hàng có chức năng "Xóa tất cả" để xóa toàn bộ sản phẩm trong một thao tác, với phản hồi thành công/thất bại rõ ràng.                                                       | Functional     |
-| F-CUS-007  | Khi thêm hoặc cập nhật giỏ, hệ thống kiểm tra tồn kho; nếu nhiều khách hàng cùng thao tác gần như đồng thời, hệ thống chỉ chấp nhận cho đến khi hết hàng và đảm bảo nhất quán. | Functional     |
-| F-CUS-008  | Khi tiến hành thanh toán, hệ thống kiểm tra trạng thái đăng nhập; nếu chưa đăng nhập sẽ chuyển hướng tới bước đăng nhập.                                                       | Functional     |
-| F-CUS-009  | Sau thanh toán thành công, khách hàng nhìn thấy hóa đơn chi tiết gồm các mục, giá, thuế và tổng cộng.                                                                          | Functional     |
-| F-CUS-010  | Khách hàng có thể in hoặc lưu hóa đơn dưới dạng PDF qua nút "In hóa đơn".                                                                                                      | Functional     |
-| F-CUS-011  | Khách hàng xem lại lịch sử mua hàng và mở lại chi tiết hóa đơn của từng đơn.                                                                                                   | Functional     |
-| F-CUS-012  | Sau khi thanh toán, khách hàng có thể tiếp tục mua sắm hoặc ở lại trang xác nhận.                                                                                              | Functional     |
-| F-CUS-013  | Khách hàng có thể đăng xuất để kết thúc phiên đăng nhập.                                                                                                                       | Functional     |
-| NF-CUS-001 | Các thao tác giỏ (thêm, sửa, xóa) phản hồi trong thời gian ngắn (< 500ms) để đảm bảo trải nghiệm mượt.                                                                         | Non-functional |
-| NF-CUS-002 | Trang thanh toán và hóa đơn tối ưu cho cả màn hình máy tính và thiết bị di động, bố cục phù hợp chuẩn in A4.                                                                   | Non-functional |
+| ID         | Mô tả yêu cầu                                                                                                                                | Loại           |
+|------------|----------------------------------------------------------------------------------------------------------------------------------------------|----------------|
+| F-CUS-001  | Khách hàng có thể đăng ký tài khoản mới với email, tên người dùng và mật khẩu hợp lệ.                                                        | Functional     |
+| F-CUS-002  | Khách hàng có thể đăng nhập bằng thông tin đã đăng ký và nhận thông báo rõ ràng nếu sai thông tin.                                           | Functional     |
+| F-CUS-003  | Trang chủ hiển thị danh sách sản phẩm cùng trạng thái đăng nhập hiện tại của khách hàng.                                                     | Functional     |
+| F-CUS-004  | Khách hàng có thể tìm kiếm và lọc sản phẩm; thông tin tồn kho được cập nhật gần thời gian thực.                                              | Functional     |
+| F-CUS-005  | Khách hàng có thể thêm sản phẩm, thay đổi số lượng hoặc xóa từng sản phẩm; nếu chưa đăng nhập hệ thống hiển thị thông báo yêu cầu đăng nhập. | Functional     |
+| F-CUS-006  | Giỏ hàng có chức năng "Xóa tất cả" để xóa toàn bộ sản phẩm trong một thao tác, với phản hồi thành công/thất bại rõ ràng.                     | Functional     |
+| F-CUS-007  | Khi thêm hoặc cập nhật giỏ, hệ thống kiểm tra tồn kho và từ chối nếu không đủ hàng.                                                          | Functional     |
+| F-CUS-008  | Khi tiến hành thanh toán, hệ thống kiểm tra trạng thái đăng nhập.                                                                            | Functional     |
+| F-CUS-008a | Nếu chưa đăng nhập khi thanh toán, hệ thống chuyển hướng người dùng tới bước đăng nhập.                                                      | Functional     |
+| F-CUS-009  | Sau thanh toán thành công, khách hàng nhìn thấy hóa đơn chi tiết gồm các mục, giá, thuế và tổng cộng.                                        | Functional     |
+| F-CUS-010  | Khách hàng có thể in hoặc lưu hóa đơn dưới dạng PDF qua nút "In hóa đơn".                                                                    | Functional     |
+| F-CUS-011  | Khách hàng xem lại lịch sử mua hàng và mở lại chi tiết hóa đơn của từng đơn.                                                                 | Functional     |
+| F-CUS-012  | Sau khi thanh toán, khách hàng có thể tiếp tục mua sắm hoặc ở lại trang xác nhận.                                                            | Functional     |
+| F-CUS-013  | Khách hàng có thể đăng xuất để kết thúc phiên đăng nhập.                                                                                     | Functional     |
+| NF-CUS-001 | Các thao tác giỏ (thêm, sửa, xóa) phản hồi trong thời gian ngắn (< 500ms) để đảm bảo trải nghiệm mượt.                                       | Non-functional |
+| NF-CUS-002 | Trang thanh toán và hóa đơn tối ưu cho cả màn hình máy tính và thiết bị di động, bố cục phù hợp chuẩn in A4.                                 | Non-functional |
+| NF-CUS-003 | Hệ thống đảm bảo tính nhất quán khi nhiều người thao tác giỏ hàng gần như đồng thời; chỉ chấp nhận cho đến khi hết hàng, tránh sai lệch.     | Non-functional |
+| NF-CUS-004 | Bố cục in hóa đơn rõ ràng (căn lề, phân trang, font chữ) để đảm bảo dễ đọc khi in, phù hợp khổ A4.                                           | Non-functional |
 
 ### 2.2 Các chức năng dành cho vai trò **Người bán (Merchant)**
 | ID         | Mô tả yêu cầu                                                                                                                                                         | Loại           |

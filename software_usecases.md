@@ -2,44 +2,41 @@
 
 Tài liệu này liệt kê các Use Case theo góc nhìn nghiệp vụ, bám sát các yêu cầu trong `software_requirements.md`.
 
+Lưu ý:
+- Use Case không phải là NFR, nhưng có thể liên quan đến NFR trong cột "Related Requirements".
+- Related Requirements có thể gồm cả FR (Functional) và NFR (Non-functional).
+
 ## 1. Use Case Chung (General Use Cases)
-Áp dụng cho mọi người dùng.
 
-| Mã Use Case | Tên Use Case        | Mô tả                                                                                        | Bao gồm Yêu cầu                 | Extension Requirements                                |
-|-------------|---------------------|----------------------------------------------------------------------------------------------|---------------------------------|-------------------------------------------------------|
-| UC-GEN-001  | Đăng ký tài khoản   | Người dùng cung cấp email, tên và mật khẩu để tạo tài khoản mới.                             | F-CUS-001, NF-SYS-001           | Không có                                              |
-| UC-GEN-002  | Đăng nhập hệ thống  | Người dùng nhập thông tin tài khoản để bắt đầu phiên đăng nhập.                              | F-CUS-002, F-SYS-001, F-SYS-002 | NF-SYS-002 (kết nối an toàn trong triển khai)         |
-| UC-GEN-003  | Duy trì phiên       | Hệ thống tự động theo dõi thời gian hoạt động và kết thúc phiên sau thời gian quy định.      | F-SYS-002                       | Không có                                              |
-| UC-GEN-004  | Kiểm tra tình trạng | Người dùng hoặc nền tảng có thể kiểm tra nhanh hệ thống còn hoạt động bình thường hay không. | F-SYS-008                       | NF-SYS-004 (kiểm thử trước phát hành)                 |
-| UC-GEN-005  | Khởi động hệ thống  | Hệ thống khởi chạy và kích hoạt các thành phần bảo mật, phiên, cập nhật tồn kho.             | F-SYS-006                       | Không có                                              |
-| UC-GEN-006  | Cấu hình dữ liệu    | Thiết lập kết nối cơ sở dữ liệu phù hợp với môi trường (mặc định dạng nhẹ, có thể nâng cấp). | F-SYS-007                       | Không có                                              |
-| UC-GEN-007  | Ghi log & giám sát  | Ghi lại sự kiện quan trọng mà không phơi bày thông tin nhạy cảm.                             | NF-SYS-001, NF-SYS-002          | F-MER-006 (người bán xem log để phát hiện bất thường) |
+| ID         | Use Case Name                    | Actor(s)              | Goal / Description                                                                        | Pre-condition                                         | Post-condition                                                               | Related Requirements (FR + NFR)             |
+|------------|----------------------------------|-----------------------|-------------------------------------------------------------------------------------------|-------------------------------------------------------|------------------------------------------------------------------------------|---------------------------------------------|
+| UC-GEN-001 | Đăng ký tài khoản                | Khách (Guest)         | Tạo tài khoản mới bằng email, tên và mật khẩu hợp lệ.                                     | Người dùng chưa đăng nhập; cung cấp thông tin hợp lệ. | Tài khoản mới được tạo; mật khẩu được lưu an toàn.                           | F-CUS-001; NF-SYS-001                       |
+| UC-GEN-002 | Đăng nhập hệ thống               | Khách hàng, Người bán | Bắt đầu phiên đăng nhập để sử dụng các chức năng cá nhân.                                 | Có tài khoản hợp lệ; chưa đăng nhập.                  | Phiên đăng nhập được thiết lập; nếu sai thông tin thì thông báo lỗi rõ ràng. | F-CUS-002; F-SYS-001; F-SYS-002; NF-SYS-002 |
+| UC-GEN-003 | Đăng xuất                        | Khách hàng, Người bán | Kết thúc phiên đăng nhập theo yêu cầu của người dùng.                                     | Đang đăng nhập.                                       | Phiên kết thúc; giao diện chuyển về trạng thái khách (guest).                | F-CUS-013; F-SYS-002                        |
+| UC-GEN-004 | Kiểm tra tình trạng (Monitoring) | Nền tảng giám sát     | Kiểm tra nhanh tình trạng hoạt động của hệ thống để giám sát.                             | Hệ thống đang chạy.                                   | Trả về trạng thái sức khỏe (healthy/unhealthy).                              | F-SYS-008; NF-SYS-004                       |
+| UC-GEN-005 | Khởi động hệ thống (Ops)         | Người vận hành (Ops)  | Khởi chạy và kích hoạt các thành phần bảo mật, phiên, cập nhật tồn kho khi ứng dụng chạy. | Ứng dụng được triển khai và được khởi động.           | Các thành phần cốt lõi được kích hoạt và sẵn sàng.                           | F-SYS-006                                   |
+| UC-GEN-006 | Cấu hình dữ liệu (Ops)           | Người vận hành (Ops)  | Thiết lập kết nối cơ sở dữ liệu phù hợp với môi trường, có thể chuyển đổi linh hoạt.      | Môi trường có cấu hình kết nối khả dụng.              | Hệ thống kết nối được cơ sở dữ liệu theo cấu hình.                           | F-SYS-007                                   |
 
-## 2. Use Case Dành Cho Khách Hàng
-Mô tả các tương tác chính của khách hàng trên giao diện.
+## 2. Use Case Dành Cho Khách Hàng (Customer)
 
-| Mã Use Case | Tên Use Case             | Mô tả                                                                                               | Bao gồm Yêu cầu                             | Extension Requirements                  |
-|-------------|--------------------------|-----------------------------------------------------------------------------------------------------|---------------------------------------------|-----------------------------------------|
-| UC-CUS-001  | Xem & tìm sản phẩm       | Khách hàng xem danh sách sản phẩm, tìm kiếm, lọc và nhận cập nhật tồn kho gần thời gian thực.       | F-CUS-003, F-CUS-004, NF-SYS-006            | F-SYS-004 (kênh cập nhật tồn kho)       |
-| UC-CUS-002  | Quản lý giỏ hàng         | Khách hàng đã đăng nhập có thể thêm sản phẩm, thay đổi số lượng, xóa từng sản phẩm hoặc xóa tất cả. | F-CUS-005, F-CUS-006, NF-CUS-001, F-SYS-003 | Không có                                |
-| UC-CUS-003  | Kiểm tra tồn & đồng thời | Khi cập nhật giỏ, hệ thống kiểm tra tồn kho và xử lý tranh chấp khi nhiều người cùng thao tác.      | F-CUS-007, NF-MER-002                       | Không có                                |
-| UC-CUS-004  | Thanh toán               | Khách hàng xác nhận mua; nếu chưa đăng nhập bị yêu cầu đăng nhập; sau đó thấy hóa đơn chi tiết.     | F-CUS-008, F-CUS-009, F-CUS-012             | NF-CUS-002 (tối ưu đa thiết bị & in ấn) |
-| UC-CUS-005  | In hóa đơn               | Khách hàng in hoặc lưu hóa đơn sau khi thanh toán thành công.                                       | F-CUS-010                                   | Không có                                |
-| UC-CUS-006  | Lịch sử mua hàng         | Khách hàng xem lại danh sách đơn đã mua và mở chi tiết từng hóa đơn.                                | F-CUS-011                                   | Không có                                |
-| UC-CUS-007  | Đăng xuất                | Khách hàng kết thúc phiên và trở về trạng thái chưa đăng nhập.                                      | F-CUS-013                                   | Không có                                |
+| ID         | Use Case Name        | Actor(s)   | Goal / Description                                                                                      | Pre-condition                                          | Post-condition                                                                                                           | Related Requirements (FR + NFR)                                                |
+|------------|----------------------|------------|---------------------------------------------------------------------------------------------------------|--------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------|
+| UC-CUS-001 | Xem & tìm sản phẩm   | Khách hàng | Xem danh sách sản phẩm, tìm kiếm và lọc; nhận thông tin tồn kho gần thời gian thực.                     | Hệ thống sẵn sàng.                                     | Danh sách/chi tiết sản phẩm hiển thị theo tiêu chí; tồn kho được cập nhật.                                               | F-CUS-003; F-CUS-004; F-SYS-004; NF-SYS-006; NF-SYS-007                        |
+| UC-CUS-002 | Quản lý giỏ hàng     | Khách hàng | Thêm sản phẩm, thay đổi số lượng, xóa từng sản phẩm hoặc xóa tất cả trong giỏ hàng (yêu cầu đăng nhập). | Khách hàng đã đăng nhập (theo chính sách giỏ hàng).    | Giỏ hàng được cập nhật; hệ thống kiểm tra tồn kho theo F-CUS-007 và duy trì nhất quán theo NF-CUS-003; phản hồi rõ ràng. | F-CUS-005; F-CUS-006; F-CUS-007; F-SYS-003; NF-CUS-001; NF-CUS-003; NF-SYS-007 |
+| UC-CUS-004 | Thanh toán           | Khách hàng | Xác nhận mua hàng; nếu chưa đăng nhập thì yêu cầu đăng nhập; hiển thị hóa đơn chi tiết sau thành công.  | Có sản phẩm trong giỏ; đăng nhập trước khi thanh toán. | Đơn hàng được tạo; hóa đơn chi tiết hiển thị; người dùng có thể tiếp tục mua sắm.                                        | F-CUS-008; F-CUS-008a; F-CUS-009; F-CUS-012; NF-CUS-002; NF-CUS-004            |
+| UC-CUS-005 | In hóa đơn           | Khách hàng | In hoặc lưu hóa đơn sau khi thanh toán thành công.                                                      | Có hóa đơn của đơn hàng đã thanh toán.                 | Hóa đơn được in hoặc lưu thành công.                                                                                     | F-CUS-010; NF-CUS-002; NF-CUS-004                                              |
+| UC-CUS-006 | Xem lịch sử mua hàng | Khách hàng | Xem danh sách các đơn đã mua và chi tiết từng hóa đơn.                                                  | Khách hàng đã đăng nhập; có lịch sử mua hàng.          | Danh sách đơn và chi tiết được hiển thị.                                                                                 | F-CUS-011                                                                      |
 
 ## 3. Use Case Dành Cho Người Bán (Merchant)
-Tương tác quản lý sản phẩm và đơn hàng.
 
-| Mã Use Case | Tên Use Case         | Mô tả                                                                                                       | Bao gồm Yêu cầu       | Extension Requirements                   |
-|-------------|----------------------|-------------------------------------------------------------------------------------------------------------|-----------------------|------------------------------------------|
-| UC-MER-001  | Quản lý sản phẩm     | Người bán tạo, chỉnh sửa, xóa, hoặc ẩn sản phẩm; có thể sao lưu thông tin.                                  | F-MER-001, F-MER-005  | NF-MER-001 (kiểm tra quyền phía máy chủ) |
-| UC-MER-002  | Cập nhật tồn kho     | Người bán thay đổi số lượng tồn và hệ thống gửi cập nhật cho người duyệt sản phẩm.                          | F-MER-002, NF-MER-002 | NF-SYS-007 (chịu tải kết nối đồng thời)  |
-| UC-MER-003  | Xem đơn hàng         | Người bán xem toàn bộ đơn phát sinh để theo dõi hoạt động bán hàng.                                         | F-MER-003             | Không có                                 |
-| UC-MER-004  | Nạp dữ liệu sản phẩm | Người bán sử dụng biểu mẫu/CSV để cập nhật nhiều sản phẩm cùng lúc mà không cần thao tác kỹ thuật phức tạp. | F-MER-004             | Không có                                 |
-| UC-MER-005  | Giám sát & log       | Người bán xem log sự kiện quan trọng để phát hiện bất thường/gian lận.                                      | F-MER-006             | Không có                                 |
+| ID         | Use Case Name      | Actor(s)  | Goal / Description                                                                                        | Pre-condition                                   | Post-condition                                                               | Related Requirements (FR + NFR)              |
+|------------|--------------------|-----------|-----------------------------------------------------------------------------------------------------------|-------------------------------------------------|------------------------------------------------------------------------------|----------------------------------------------|
+| UC-MER-001 | Quản lý sản phẩm   | Người bán | Tạo mới, chỉnh sửa, xóa hoặc ẩn sản phẩm; có thể sao lưu thông tin để dùng lại.                           | Người bán đã đăng nhập; có quyền quản lý hàng.  | Sản phẩm được tạo/cập nhật/xóa/ẩn theo thao tác; bản ghi được lưu lại.       | F-MER-001; F-MER-005; NF-MER-001             |
+| UC-MER-002 | Cập nhật tồn kho   | Người bán | Cập nhật số lượng tồn; thay đổi được phản ánh đến người xem sản phẩm.                                     | Người bán đã đăng nhập; sản phẩm tồn tại.       | Số lượng tồn được cập nhật; người dùng thấy thay đổi gần thời gian thực.     | F-MER-002; NF-MER-002; NF-SYS-007            |
+| UC-MER-003 | Xem đơn hàng       | Người bán | Xem danh sách các đơn hàng đã phát sinh để theo dõi hoạt động bán hàng.                                   | Người bán đã đăng nhập.                         | Danh sách đơn hàng hiển thị đầy đủ và có thể lọc/sắp xếp cơ bản.             | F-MER-003                                    |
+| UC-MER-004 | Cập nhật hàng loạt | Người bán | Cập nhật nhiều sản phẩm cùng lúc bằng tệp CSV/Excel hoặc biểu mẫu hàng loạt, quy trình đơn giản, dễ dùng. | Người bán đã đăng nhập; có tệp/biểu mẫu hợp lệ. | Sản phẩm được cập nhật hàng loạt; có bản tóm tắt kết quả và lỗi (nếu có).    | F-MER-004                                    |
+| UC-MER-005 | Xem log sự kiện    | Người bán | Xem log sự kiện quan trọng (đăng nhập, thanh toán) để phát hiện bất thường hoặc gian lận.                 | Người bán đã đăng nhập; có quyền xem log.       | Log sự kiện được hiển thị; người bán có thể phát hiện và báo cáo bất thường. | F-MER-006; NF-SYS-001; NF-SYS-002            |
 
-## 4. Ghi Chú
-- ID yêu cầu trong cột "Bao gồm Yêu cầu" phản ánh nguồn gốc chức năng hoặc ràng buộc chất lượng.
-- Extension Requirements thể hiện yêu cầu bổ trợ hoặc mở rộng ngoài luồng chính.
-- Khi có thay đổi nghiệp vụ, cập nhật trước bảng yêu cầu rồi đồng bộ lại use case.
+## 4. Ghi chú
+- Mọi Use Case ở trên là chức năng (Functional) và có thể liên quan đến NFR thông qua cột "Related Requirements".
+- Khi thay đổi yêu cầu nghiệp vụ, cập nhật `software_requirements.md` trước rồi đồng bộ lại bảng này.
