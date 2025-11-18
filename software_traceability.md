@@ -17,11 +17,11 @@ Tài liệu này liên kết các Yêu Cầu (Requirements) với các Use Case 
 | F-CUS-005   | Thêm / sửa số lượng / xóa từng sản phẩm (giỏ) | UC-CUS-002     | -                           |
 | F-CUS-006   | Xóa tất cả sản phẩm trong giỏ                 | UC-CUS-002     | -                           |
 | F-CUS-007   | Kiểm tra tồn kho & xử lý đồng thời            | UC-CUS-002     | -                           |
-| F-CUS-008   | Kiểm tra đăng nhập trước thanh toán           | UC-CUS-004     | -                           |
-| F-CUS-009   | Hiển thị hóa đơn chi tiết sau thanh toán      | UC-CUS-004     | UC-CUS-005 (in)             |
-| F-CUS-010   | In / lưu hóa đơn                              | UC-CUS-005     | UC-CUS-004 (sau thanh toán) |
-| F-CUS-011   | Xem lịch sử mua                               | UC-CUS-006     | -                           |
-| F-CUS-012   | Tiếp tục mua sắm sau thanh toán               | UC-CUS-004     | -                           |
+| F-CUS-008   | Kiểm tra đăng nhập trước thanh toán           | UC-CUS-003     | -                           |
+| F-CUS-009   | Hiển thị hóa đơn chi tiết sau thanh toán      | UC-CUS-003     | UC-CUS-004 (in)             |
+| F-CUS-010   | In / lưu hóa đơn                              | UC-CUS-004     | UC-CUS-003 (sau thanh toán) |
+| F-CUS-011   | Xem lịch sử mua                               | UC-CUS-005     | -                           |
+| F-CUS-012   | Tiếp tục mua sắm sau thanh toán               | UC-CUS-003     | -                           |
 | F-CUS-013   | Đăng xuất                                     | UC-GEN-003     | -                           |
 
 ## 3. Truy vết Yêu Cầu Chức Năng Người Bán (Merchant)
@@ -49,7 +49,7 @@ Tài liệu này liên kết các Yêu Cầu (Requirements) với các Use Case 
 | Requirement | Mô tả rút gọn                              | Use Case Chính | Use Case Extension     |
 |-------------|--------------------------------------------|----------------|------------------------|
 | NF-CUS-001  | Phản hồi giỏ nhanh (<500ms)                | UC-CUS-002     | -                      |
-| NF-CUS-002  | Giao diện thanh toán & hóa đơn đa thiết bị | UC-CUS-004     | UC-CUS-005             |
+| NF-CUS-002  | Giao diện thanh toán & hóa đơn đa thiết bị | UC-CUS-003     | UC-CUS-004             |
 | NF-MER-001  | Kiểm tra quyền phía máy chủ                | UC-MER-001     | UC-MER-002, UC-MER-005 |
 | NF-MER-002  | Nhất quán tồn kho dưới tải đồng thời       | UC-CUS-002     | UC-MER-002             |
 
@@ -73,9 +73,9 @@ Tài liệu này liên kết các Yêu Cầu (Requirements) với các Use Case 
 | UC-GEN-006 | F-SYS-007                        | -                           |
 | UC-CUS-001 | F-CUS-003, F-CUS-004             | F-SYS-004, NF-SYS-006       |
 | UC-CUS-002 | F-CUS-005, F-CUS-006, F-CUS-007, F-SYS-003 | NF-CUS-001, NF-MER-002     |
-| UC-CUS-004 | F-CUS-008, F-CUS-009, F-CUS-012  | NF-CUS-002                  |
-| UC-CUS-005 | F-CUS-010                        | NF-CUS-002 (in ấn)          |
-| UC-CUS-006 | F-CUS-011                        | -                           |
+| UC-CUS-003 | F-CUS-008, F-CUS-009, F-CUS-012  | NF-CUS-002                  |
+| UC-CUS-004 | F-CUS-010                        | NF-CUS-002 (in ấn)          |
+| UC-CUS-005 | F-CUS-011                        | -                           |
 | UC-MER-001 | F-MER-001, F-MER-005             | NF-MER-001                  |
 | UC-MER-002 | F-MER-002                        | NF-MER-002, NF-SYS-007      |
 | UC-MER-003 | F-MER-003                        | -                           |
@@ -84,7 +84,7 @@ Tài liệu này liên kết các Yêu Cầu (Requirements) với các Use Case 
 
 ## 8. Đánh giá Bao Phủ & Ghi chú
 - Mọi yêu cầu chức năng đều có ít nhất một Use Case Chính; không có yêu cầu bị bỏ trống.
-- UC-CUS-003 và UC-GEN-007 đã được loại bỏ để tránh trùng lặp và sai phạm định nghĩa Use Case; các yêu cầu liên quan đã được truy vết vào UC phù hợp.
+- UC-GEN-007 đã được loại bỏ để tránh trùng lặp và sai phạm định nghĩa Use Case; các yêu cầu liên quan đã được truy vết vào UC phù hợp.
 - UC-CUS-007 được gộp vào UC-GEN-003 để thống nhất điểm đăng xuất cho mọi vai trò.
 - Một số yêu cầu phi chức năng có phạm vi toàn hệ thống nên xuất hiện ở nhiều Use Case (NF-SYS-001, NF-SYS-002) — hợp lý.
 - Không phát hiện xung đột nội dung giữa yêu cầu và use case sau lần điều chỉnh này.
