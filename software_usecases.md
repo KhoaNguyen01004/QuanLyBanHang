@@ -18,15 +18,15 @@ Tài liệu này liệt kê các Use Case theo góc nhìn nghiệp vụ, bám s�
 ## 2. Use Case Dành Cho Khách Hàng
 Mô tả các tương tác chính của khách hàng trên giao diện.
 
-| Mã Use Case | Tên Use Case         | Mô tả                                                                                           | Bao gồm Yêu cầu                                          | Extension Requirements                           |
-|-------------|----------------------|-------------------------------------------------------------------------------------------------|----------------------------------------------------------|--------------------------------------------------|
-| UC-CUS-001  | Xem & tìm sản phẩm   | Khách hàng xem danh sách sản phẩm, tìm kiếm, lọc và nhận cập nhật tồn kho gần thời gian thực.   | F-CUS-003, F-CUS-004, NF-SYS-006                         | F-SYS-004 (kênh cập nhật tồn kho)                |
-| UC-CUS-002  | Thêm vào giỏ hàng    | Khách hàng đã đăng nhập thêm sản phẩm; hệ thống kiểm tra tồn kho và xử lý tranh chấp đồng thời. | F-CUS-005, F-CUS-007, F-CUS-007b, NF-CUS-001, NF-MER-002 | F-SYS-003 (chỉ cho phép giỏ với người đăng nhập) |
-| UC-CUS-003  | Quản lý giỏ hàng     | Khách hàng điều chỉnh số lượng, xóa từng sản phẩm hoặc xóa toàn bộ.                             | F-CUS-005b, F-CUS-006, NF-CUS-001                        | Không có                                         |
-| UC-CUS-004  | Thanh toán           | Khách hàng xác nhận mua; nếu chưa đăng nhập bị yêu cầu đăng nhập; sau đó thấy hóa đơn chi tiết. | F-CUS-008, F-CUS-009, F-CUS-012                          | NF-CUS-002 (tối ưu đa thiết bị & in ấn)          |
-| UC-CUS-005  | In hóa đơn           | Khách hàng in hoặc lưu hóa đơn sau khi thanh toán thành công.                                   | F-CUS-010                                                | Không có                                         |
-| UC-CUS-006  | Xem lịch sử mua hàng | Khách hàng xem lại danh sách đơn đã mua và mở chi tiết từng hóa đơn.                            | F-CUS-011                                                | Không có                                         |
-| UC-CUS-007  | Đăng xuất            | Khách hàng kết thúc phiên và trở về trạng thái chưa đăng nhập.                                  | F-CUS-013                                                | Không có                                         |
+| Mã Use Case | Tên Use Case             | Mô tả                                                                                               | Bao gồm Yêu cầu                             | Extension Requirements                  |
+|-------------|--------------------------|-----------------------------------------------------------------------------------------------------|---------------------------------------------|-----------------------------------------|
+| UC-CUS-001  | Xem & tìm sản phẩm       | Khách hàng xem danh sách sản phẩm, tìm kiếm, lọc và nhận cập nhật tồn kho gần thời gian thực.       | F-CUS-003, F-CUS-004, NF-SYS-006            | F-SYS-004 (kênh cập nhật tồn kho)       |
+| UC-CUS-002  | Quản lý giỏ hàng         | Khách hàng đã đăng nhập có thể thêm sản phẩm, thay đổi số lượng, xóa từng sản phẩm hoặc xóa tất cả. | F-CUS-005, F-CUS-006, NF-CUS-001, F-SYS-003 | Không có                                |
+| UC-CUS-003  | Kiểm tra tồn & đồng thời | Khi cập nhật giỏ, hệ thống kiểm tra tồn kho và xử lý tranh chấp khi nhiều người cùng thao tác.      | F-CUS-007, NF-MER-002                       | Không có                                |
+| UC-CUS-004  | Thanh toán               | Khách hàng xác nhận mua; nếu chưa đăng nhập bị yêu cầu đăng nhập; sau đó thấy hóa đơn chi tiết.     | F-CUS-008, F-CUS-009, F-CUS-012             | NF-CUS-002 (tối ưu đa thiết bị & in ấn) |
+| UC-CUS-005  | In hóa đơn               | Khách hàng in hoặc lưu hóa đơn sau khi thanh toán thành công.                                       | F-CUS-010                                   | Không có                                |
+| UC-CUS-006  | Lịch sử mua hàng         | Khách hàng xem lại danh sách đơn đã mua và mở chi tiết từng hóa đơn.                                | F-CUS-011                                   | Không có                                |
+| UC-CUS-007  | Đăng xuất                | Khách hàng kết thúc phiên và trở về trạng thái chưa đăng nhập.                                      | F-CUS-013                                   | Không có                                |
 
 ## 3. Use Case Dành Cho Người Bán (Merchant)
 Tương tác quản lý sản phẩm và đơn hàng.
