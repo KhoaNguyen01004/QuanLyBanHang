@@ -11,9 +11,9 @@ Tài liệu này liệt kê các Use Case theo góc nhìn nghiệp vụ, bám s�
 | UC-GEN-002  | Đăng nhập hệ thống  | Người dùng nhập thông tin tài khoản để bắt đầu phiên đăng nhập.                              | F-CUS-002, F-SYS-001, F-SYS-002 | NF-SYS-002 (kết nối an toàn trong triển khai)         |
 | UC-GEN-003  | Duy trì phiên       | Hệ thống tự động theo dõi thời gian hoạt động và kết thúc phiên sau thời gian quy định.      | F-SYS-002                       | Không có                                              |
 | UC-GEN-004  | Kiểm tra tình trạng | Người dùng hoặc nền tảng có thể kiểm tra nhanh hệ thống còn hoạt động bình thường hay không. | F-SYS-008                       | NF-SYS-004 (kiểm thử trước phát hành)                 |
-| UC-GEN-006  | Khởi động hệ thống  | Hệ thống khởi chạy và kích hoạt các thành phần bảo mật, phiên, cập nhật tồn kho.             | F-SYS-006                       | Không có                                              |
-| UC-GEN-007  | Cấu hình dữ liệu    | Thiết lập kết nối cơ sở dữ liệu phù hợp với môi trường (mặc định dạng nhẹ, có thể nâng cấp). | F-SYS-007                       | Không có                                              |
-| UC-GEN-008  | Ghi log & giám sát  | Ghi lại sự kiện quan trọng mà không phơi bày thông tin nhạy cảm.                             | NF-SYS-001, NF-SYS-002          | F-MER-006 (người bán xem log để phát hiện bất thường) |
+| UC-GEN-005  | Khởi động hệ thống  | Hệ thống khởi chạy và kích hoạt các thành phần bảo mật, phiên, cập nhật tồn kho.             | F-SYS-006                       | Không có                                              |
+| UC-GEN-006  | Cấu hình dữ liệu    | Thiết lập kết nối cơ sở dữ liệu phù hợp với môi trường (mặc định dạng nhẹ, có thể nâng cấp). | F-SYS-007                       | Không có                                              |
+| UC-GEN-007  | Ghi log & giám sát  | Ghi lại sự kiện quan trọng mà không phơi bày thông tin nhạy cảm.                             | NF-SYS-001, NF-SYS-002          | F-MER-006 (người bán xem log để phát hiện bất thường) |
 
 ## 2. Use Case Dành Cho Khách Hàng
 Mô tả các tương tác chính của khách hàng trên giao diện.
