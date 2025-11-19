@@ -40,4 +40,4 @@ Lưu ý:
 ## 4. Ghi chú
 - Mọi Use Case ở trên là chức năng (Functional) và có thể liên quan đến NFR thông qua cột "Related Requirements".
 - Khi thay đổi yêu cầu nghiệp vụ, cập nhật `software_requirements.md` trước rồi đồng bộ lại bảng này.
-- Một số ID được giữ trống do use case đã được loại bỏ (ví dụ: UC-CUS-003). Việc giữ ID giúp bảo toàn truy vết với tài liệu liên quan.
+- Legacy UC-CUS-007 (Đăng xuất khách hàng riêng) đã được gộp vào UC-GEN-003 để thống nhất hành vi Đăng xuất cho mọi vai trò; đánh số lại liên tục không giữ khoảng trống.

@@ -1,0 +1,82 @@
+@startuml
+' Use Case Diagram - Version 3 (Syntax and Logic Optimized)
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam usecaseBorderColor #333333
+skinparam usecaseBackgroundColor #F8F8F8
+skinparam actorStyle awesome
+hide empty members
+
+left to right direction
+
+actor Guest as Guest
+actor "Khách hàng" as Customer
+actor "Người bán" as Merchant
+actor "Người vận hành" as Ops
+actor "Nền tảng giám sát" as Monitor
+
+' Khối chức năng chung (General)
+rectangle General {
+  usecase "Đăng ký tài khoản" as UC_GEN_001
+  usecase "Đăng nhập hệ thống" as UC_GEN_002
+  usecase "Đăng xuất" as UC_GEN_003
+}
+
+' Khối chức năng vận hành hệ thống (System Operations)
+rectangle System_Ops {
+  usecase "Kiểm tra tình trạng" as UC_GEN_004
+  usecase "Khởi động hệ thống" as UC_GEN_005
+  usecase "Cấu hình dữ liệu" as UC_GEN_006
+}
+
+' Khối chức năng Khách hàng (Customer)
+rectangle Customer_Flow {
+  usecase "Xem & tìm sản phẩm" as UC_CUS_001
+  usecase "Quản lý giỏ hàng" as UC_CUS_002
+  usecase "Thanh toán" as UC_CUS_003
+  usecase "In hóa đơn" as UC_CUS_004
+  usecase "Xem lịch sử mua hàng" as UC_CUS_005
+
+  ' Mối quan hệ nghiệp vụ
+  UC_CUS_004 ..> UC_CUS_003 : «extend»
+  UC_CUS_002 .> UC_CUS_001 : «include»
+}
+
+' Khối chức năng Người bán (Merchant)
+rectangle Merchant_Flow {
+  usecase "Quản lý sản phẩm" as UC_MER_001
+  usecase "Cập nhật tồn kho" as UC_MER_002
+  usecase "Xem đơn hàng" as UC_MER_003
+  usecase "Cập nhật hàng loạt" as UC_MER_004
+  usecase "Xem log sự kiện" as UC_MER_005
+
+  ' Mối quan hệ nghiệp vụ
+  UC_MER_001 .> UC_MER_002 : «include»
+}
+
+' =========================================================
+' Actor associations
+' =========================================================
+Guest --> UC_GEN_001
+Customer --> UC_GEN_002
+Customer --> UC_GEN_003
+Customer --> UC_CUS_001
+Customer --> UC_CUS_002
+Customer --> UC_CUS_003
+Customer --> UC_CUS_004
+Customer --> UC_CUS_005
+Customer --> UC_MER_003
+
+Merchant --> UC_GEN_002
+Merchant --> UC_GEN_003
+Merchant --> UC_MER_001
+Merchant --> UC_MER_002
+Merchant --> UC_MER_003
+Merchant --> UC_MER_004
+Merchant --> UC_MER_005
+
+Ops --> UC_GEN_005
+Ops --> UC_GEN_006
+Monitor --> UC_GEN_004
+
+@enduml

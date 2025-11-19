@@ -1,0 +1,145 @@
+@startuml DFD_Level_0
+' DFD Level 0 (Context Diagram)
+' Shows the system as a single process and its external data flows.
+skinparam shadowing false
+skinparam defaultTextAlignment center
+left to right direction
+
+actor "Khách hàng" as Customer
+actor "Người bán" as Merchant
+actor "Người vận hành" as Ops
+actor "Nền tảng giám sát" as Monitor
+
+rectangle "Ứng dụng Bán Hàng" as System
+
+Customer --> System : Đăng ký / Đăng nhập\nDuyệt sản phẩm\nQuản lý giỏ\nThanh toán
+System --> Customer : Danh sách sản phẩm\nPhản hồi giỏ\nHóa đơn / Xác nhận\nLịch sử đơn
+
+Merchant --> System : Đăng nhập\nCRUD sản phẩm\nCập nhật tồn kho\nXem đơn / log
+System --> Merchant : Phản hồi CRUD\nTrạng thái tồn kho\nDanh sách đơn\nLog sự kiện
+
+Ops --> System : Khởi động / Cấu hình DB
+System --> Ops : Kết quả khởi động / Trạng thái
+
+Monitor --> System : Ping health
+System --> Monitor : Trạng thái sức khỏe
+
+legend right
+| Ký hiệu | Ý nghĩa |
+| Actor | Thực thể ngoài hệ thống |
+| Rectangle | Hệ thống (Level 0) |
+| Mũi tên | Luồng dữ liệu chính |
+endlegend
+@enduml
+
+@startuml DFD_Level_1
+' DFD Level 1 (System Decomposition)
+' Breaks the system into processes (P1..P9) and data stores (D1..D6)
+skinparam shadowing false
+left to right direction
+skinparam rectangle {
+  BackgroundColor #FFFFFF
+  BorderColor #333333
+}
+skinparam databaseBackgroundColor #F8F8F8
+skinparam databaseBorderColor #333333
+skinparam arrowColor #555555
+
+actor "Khách hàng" as Customer
+actor "Người bán" as Merchant
+actor "Người vận hành" as Ops
+actor "Nền tảng giám sát" as Monitor
+
+' Processes
+rectangle "P1 Đăng ký / Xác thực" as P1
+rectangle "P2 Duyệt & Tìm SP" as P2
+rectangle "P3 Quản lý Giỏ" as P3
+rectangle "P4 Thanh toán & Hóa đơn" as P4
+rectangle "P5 Quản lý Sản phẩm" as P5
+rectangle "P6 Cập nhật Tồn kho" as P6
+rectangle "P7 Đơn hàng & Lịch sử" as P7
+rectangle "P8 Log & Giám sát" as P8
+rectangle "P9 Khởi động & Cấu hình" as P9
+
+' Data Stores
+database "D1 Users" as D1
+database "D2 Items" as D2
+database "D3 Inventory" as D3
+database "D4 Carts" as D4
+database "D5 Orders" as D5
+database "D6 Logs" as D6
+
+' External Interactions
+Customer --> P1 : Thông tin đăng ký / đăng nhập
+P1 --> Customer : Token / Trạng thái phiên
+Merchant --> P1 : Đăng nhập
+P1 --> Merchant : Token
+
+Customer --> P2 : Tiêu chí tìm kiếm / Lọc
+P2 --> Customer : Danh sách SP + tồn
+
+Customer --> P3 : Thao tác giỏ (thêm/sửa/xóa)
+P3 --> Customer : Phản hồi giỏ
+
+Customer --> P4 : Yêu cầu thanh toán
+P4 --> Customer : Hóa đơn / Xác nhận
+
+Customer --> P7 : Yêu cầu lịch sử đơn
+P7 --> Customer : Lịch sử / Chi tiết
+
+Merchant --> P5 : CRUD sản phẩm
+P5 --> Merchant : Phản hồi CRUD
+
+Merchant --> P6 : Cập nhật tồn / Hàng loạt
+P6 --> Merchant : Kết quả cập nhật
+
+Merchant --> P7 : Xem danh sách đơn
+P7 --> Merchant : Danh sách đơn
+
+Merchant --> P8 : Xem log
+P8 --> Merchant : Log sự kiện
+
+Ops --> P9 : Khởi động / Cấu hình
+P9 --> Ops : Kết quả khởi động
+
+Monitor --> P8 : Health check
+P8 --> Monitor : Trạng thái sức khỏe
+
+' Data Store Access
+P1 --> D1 : Ghi / Đọc người dùng
+P5 --> D2 : Ghi / Đọc sản phẩm
+P6 --> D3 : Ghi / Đọc tồn kho
+P3 --> D4 : Ghi / Đọc giỏ
+P4 --> D5 : Tạo đơn hàng
+P7 --> D5 : Truy vấn đơn hàng
+P8 --> D6 : Ghi / Đọc log
+P4 --> D6 : Ghi log thanh toán
+P1 --> D6 : Ghi log đăng nhập
+P5 --> D6 : Ghi log sản phẩm
+P6 --> D6 : Ghi log tồn kho
+
+' Cross-process flows
+P6 --> P2 : Sự kiện thay đổi tồn
+P1 --> P3 : Xác thực phiên
+P1 --> P4 : Xác thực phiên
+P5 --> P2 : Sản phẩm mới / ẩn
+P4 --> P7 : Đơn mới vào lịch sử
+
+note right of P3
+Kiểm tra tồn kho đồng thời
+đảm bảo nhất quán.
+end note
+
+note right of P4
+Bao gồm kiểm tra đăng nhập
+và sinh hóa đơn chi tiết.
+end note
+
+legend right
+| Ký hiệu | Ý nghĩa |
+| Rectangle | Tiến trình nghiệp vụ (Process) |
+| Database | Kho dữ liệu |
+| Actor | Tác nhân ngoài |
+| Arrow | Luồng dữ liệu |
+endlegend
+@enduml

@@ -67,7 +67,7 @@ Tài liệu này liên kết các Yêu Cầu (Requirements) với các Use Case 
 |------------|----------------------------------|-----------------------------|
 | UC-GEN-001 | F-CUS-001                        | NF-SYS-001                  |
 | UC-GEN-002 | F-CUS-002, F-SYS-001, F-SYS-002  | NF-SYS-002                  |
-| UC-GEN-003 | F-CUS-013, F-SYS-002            | -                           |
+| UC-GEN-003 | F-CUS-013, F-SYS-002             | -                           |
 | UC-GEN-004 | F-SYS-008                        | NF-SYS-004                  |
 | UC-GEN-005 | F-SYS-006                        | -                           |
 | UC-GEN-006 | F-SYS-007                        | -                           |
@@ -83,9 +83,8 @@ Tài liệu này liên kết các Yêu Cầu (Requirements) với các Use Case 
 | UC-MER-005 | F-MER-006                        | NF-SYS-001, NF-SYS-002      |
 
 ## 8. Đánh giá Bao Phủ & Ghi chú
-- Mọi yêu cầu chức năng đều có ít nhất một Use Case Chính; không có yêu cầu bị bỏ trống.
-- UC-GEN-007 đã được loại bỏ để tránh trùng lặp và sai phạm định nghĩa Use Case; các yêu cầu liên quan đã được truy vết vào UC phù hợp.
-- UC-CUS-007 được gộp vào UC-GEN-003 để thống nhất điểm đăng xuất cho mọi vai trò.
+- Mỗi yêu cầu chức năng đều có ít nhất một Use Case Chính; không có yêu cầu bị bỏ trống.
+- Legacy UC-CUS-007 (Đăng xuất riêng cho khách) đã được gộp vào UC-GEN-003 để thống nhất điểm kết thúc phiên cho mọi vai trò.
 - Một số yêu cầu phi chức năng có phạm vi toàn hệ thống nên xuất hiện ở nhiều Use Case (NF-SYS-001, NF-SYS-002) — hợp lý.
 - Không phát hiện xung đột nội dung giữa yêu cầu và use case sau lần điều chỉnh này.
 
