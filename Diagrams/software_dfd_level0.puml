@@ -1,15 +1,12 @@
 @startuml DFD_Level_0
 actor "Khách hàng" as Customer
 actor "Người bán" as Merchant
-actor "Người vận hành" as Ops
 actor "Nền tảng giám sát" as Monitor
 rectangle "Ứng dụng Bán Hàng" as System
 Customer --> System : Đăng ký / Đăng nhập / Đăng xuất\nDuyệt sản phẩm\nQuản lý giỏ\nThanh toán\nXem lịch sử
 System --> Customer : Danh sách SP + tồn\nPhản hồi giỏ\nHóa đơn / Xác nhận (In/PDF)\nLịch sử đơn\nTrạng thái phiên
 Merchant --> System : Đăng nhập / Đăng xuất\nCRUD + Ẩn SP\nCập nhật tồn\nCập nhật hàng loạt (CSV/Excel)\nXem đơn / log
 System --> Merchant : Phản hồi CRUD\nTrạng thái tồn\nKết quả hàng loạt\nDanh sách đơn\nLog sự kiện\nTrạng thái phiên
-Ops --> System : Khởi động / Cấu hình DB
-System --> Ops : Kết quả khởi động / Trạng thái
 Monitor --> System : Ping health
 System --> Monitor : Trạng thái sức khỏe
 @enduml

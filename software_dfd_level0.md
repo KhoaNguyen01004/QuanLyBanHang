@@ -18,12 +18,11 @@ Level 0 giúp:
 |-------------------|---------------------------------|------------------------------------------------|----------------|---------------------------------------------------------------------------------|
 | Khách hàng        | Người dùng cuối mua sản phẩm    | Tìm, thêm giỏ, thanh toán, xem lịch sử         | Cao            | Cần phiên đã xác thực cho hầu hết thao tác (trừ duyệt công khai nếu sau này mở) |
 | Người bán         | Quản trị nội dung & tồn kho     | Quản lý danh mục, điều chỉnh tồn, theo dõi đơn | Trung bình/Cao | Có thể có phân quyền nâng cao (ROLE_MERCHANT)                                   |
-| Người vận hành    | Khởi tạo & bảo trì hệ thống     | Khởi động, cấu hình DB, giám sát cơ bản        | Thấp           | Tác vụ không thường xuyên                                                       |
 | Nền tảng giám sát | Công cụ/agent kiểm tra sức khỏe | Gửi ping health, thu thập trạng thái           | Thấp           | Chỉ đọc, không thay đổi dữ liệu                                                 |
 
 ---
 ## 3. Tổng quan tiến trình trung tâm
-"Ứng dụng Bán Hàng" tại Level 0 đại diện cho toàn bộ logic nghiệp vụ bên trong (các tiến trình P1..P9 ở Level 1). Nó thực hiện:
+"Ứng dụng Bán Hàng" tại Level 0 đại diện cho toàn bộ logic nghiệp vụ bên trong (các tiến trình P1..P8 ở Level 1). Nó thực hiện:
 - Xác thực danh tính và phiên.
 - Cung cấp thông tin sản phẩm & tồn kho.
 - Quản lý giỏ hàng và tạo đơn.
@@ -47,7 +46,6 @@ Mỗi luồng gán một mã DF-XXX để truy vết:
 | DF-009 | Người bán         | Ứng dụng     | Cập nhật tồn kho (số lượng, batch)        | Điều chỉnh tồn         | F-MER-002                                  |
 | DF-010 | Người bán         | Ứng dụng     | Yêu cầu xem danh sách đơn                 | Theo dõi bán hàng      | F-MER-003                                  |
 | DF-011 | Người bán         | Ứng dụng     | Yêu cầu xem log                           | Audit / kiểm tra       | F-MER-006                                  |
-| DF-012 | Người vận hành    | Ứng dụng     | Yêu cầu khởi động/cấu hình                | Deploy / restart       | F-SYS-006, F-SYS-007                       |
 | DF-013 | Nền tảng giám sát | Ứng dụng     | Ping health                               | Định kỳ                | F-SYS-008                                  |
 | DF-014 | Khách hàng        | Ứng dụng     | Yêu cầu đăng xuất                         | Kết thúc phiên         | F-CUS-013, F-SYS-002                       |
 | DF-015 | Người bán         | Ứng dụng     | Yêu cầu đăng xuất                         | Kết thúc phiên         | F-SYS-002                                  |
@@ -67,7 +65,6 @@ Luồng ra từ hệ thống:
 | DF-108 | Ứng dụng    | Người bán         | Trạng thái tồn kho mới                  | F-MER-002                       | Có thể push realtime          |
 | DF-109 | Ứng dụng    | Người bán         | Danh sách đơn                           | F-MER-003                       | Có phân trang & lọc           |
 | DF-110 | Ứng dụng    | Người bán         | Log sự kiện                             | F-MER-006, F-SYS-008            | Mask dữ liệu nhạy cảm         |
-| DF-111 | Ứng dụng    | Người vận hành    | Kết quả khởi động / cấu hình            | F-SYS-006, F-SYS-007            | Gồm lỗi nếu DB không khả dụng |
 | DF-112 | Ứng dụng    | Nền tảng giám sát | Trạng thái sức khỏe (status, timestamp) | F-SYS-008, NF-SYS-002           | Không trả dữ liệu người dùng  |
 | DF-113 | Ứng dụng    | Người bán         | Kết quả cập nhật hàng loạt              | F-MER-004                       | Tổng hợp thành công/lỗi       |
 
@@ -105,7 +102,6 @@ Luồng ra từ hệ thống:
 | UC-MER-003 Quản lý tồn kho     | DF-009, DF-108            |
 | UC-MER-004 Xem đơn bán         | DF-010, DF-109            |
 | UC-MER-005 Xem log             | DF-011, DF-110            |
-| UC-SYS-001 Khởi động hệ thống  | DF-012, DF-111            |
 | UC-SYS-002 Health check        | DF-013, DF-112            |
 
 ---
@@ -135,7 +131,7 @@ Luồng ra từ hệ thống:
 
 ---
 ## 11. Tóm tắt
-Level 0 xác định 4 tác nhân chính và 12 luồng vào / 12 luồng ra cốt lõi. Những luồng này bảo đảm bao phủ các use case chức năng trọng tâm: đăng ký, đăng nhập, duyệt sản phẩm, quản lý giỏ, thanh toán, quản trị sản phẩm & tồn kho, giám sát hệ thống. Các quyết định thiết kế đặt nền cho phân rã chi tiết ở Level 1: mỗi nhóm chức năng sẽ trở thành tiến trình (P1..P9) cùng các kho dữ liệu.
+Level 0 xác định 4 tác nhân chính và 12 luồng vào / 12 luồng ra cốt lõi. Những luồng này bảo đảm bao phủ các use case chức năng trọng tâm: đăng ký, đăng nhập, duyệt sản phẩm, quản lý giỏ, thanh toán, quản trị sản phẩm & tồn kho, giám sát hệ thống. Các quyết định thiết kế đặt nền cho phân rã chi tiết ở Level 1: mỗi nhóm chức năng sẽ trở thành tiến trình (P1..P8) cùng các kho dữ liệu.
 
 ---
 ## 12. Tham chiếu Diagram
@@ -145,15 +141,12 @@ PlantUML context nằm trong: `Diagrams/software_dfd_level0.puml` khối `@start
 @startuml DFD_Level_0
 actor "Khách hàng" as Customer
 actor "Người bán" as Merchant
-actor "Người vận hành" as Ops
 actor "Nền tảng giám sát" as Monitor
 rectangle "Ứng dụng Bán Hàng" as System
 Customer --> System : Đăng ký / Đăng nhập / Đăng xuất\nDuyệt sản phẩm\nQuản lý giỏ\nThanh toán\nXem lịch sử
 System --> Customer : Danh sách SP + tồn\nPhản hồi giỏ\nHóa đơn / Xác nhận (In/PDF)\nLịch sử đơn\nTrạng thái phiên
 Merchant --> System : Đăng nhập / Đăng xuất\nCRUD + Ẩn SP\nCập nhật tồn\nCập nhật hàng loạt (CSV/Excel)\nXem đơn / log
 System --> Merchant : Phản hồi CRUD\nTrạng thái tồn\nKết quả hàng loạt\nDanh sách đơn\nLog sự kiện\nTrạng thái phiên
-Ops --> System : Khởi động / Cấu hình DB
-System --> Ops : Kết quả khởi động / Trạng thái
 Monitor --> System : Ping health
 System --> Monitor : Trạng thái sức khỏe
 @enduml
