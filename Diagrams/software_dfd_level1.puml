@@ -1,0 +1,84 @@
+@startuml DFD_Level_1
+hide stereotype
+left to right direction
+' Legend: P# = Process, D# = Data Store
+
+actor "Khách hàng" as Customer
+actor "Người bán" as Merchant
+actor "Nền tảng giám sát" as Monitor
+
+package "Ứng dụng Bán Hàng" as System {
+  rectangle "P1\nĐăng ký / Xác thực" as P1
+  rectangle "P2\nDuyệt & Tìm SP" as P2
+  rectangle "P3\nQuản lý Giỏ" as P3
+  rectangle "P4\nThanh toán & Hóa đơn" as P4
+  rectangle "P5\nQuản lý Sản phẩm" as P5
+  rectangle "P6\nCập nhật Tồn kho" as P6
+  rectangle "P7\nXem Đơn & Lịch sử" as P7
+  rectangle "P8\nLog & Giám sát" as P8
+}
+
+' Data Stores
+database "D1\nUsers" as D1
+database "D2\nItems" as D2
+database "D3\nInventory" as D3
+database "D4\nCarts" as D4
+database "D5\nOrders" as D5
+database "D6\nLogs" as D6
+
+' External interactions
+Customer --> P1 : DF-001 / DF-002 / DF-014
+Customer --> P2 : DF-003
+Customer --> P3 : DF-004
+Customer --> P4 : DF-005
+Customer --> P7 : DF-006
+Merchant --> P1 : DF-007 / DF-015
+Merchant --> P5 : DF-008 / DF-016
+Merchant --> P6 : DF-009
+Merchant --> P7 : DF-010
+Merchant --> P8 : DF-011
+Monitor --> P8 : DF-013
+
+' Process-to-process
+P1 --> P3 : Phiên hợp lệ
+P1 --> P4 : Phiên hợp lệ
+P1 --> P5 : Quyền quản lý SP
+P1 --> P6 : Quyền tồn kho
+P4 --> P7 : Đơn mới
+P6 --> P2 : Sự kiện tồn thay đổi
+P5 --> P2 : Sự kiện danh mục
+
+' Process ↔ Data Store
+P1 --> D1 : C/U/R Users
+P1 --> D6 : Log auth
+P2 --> D2 : Read Items
+P2 --> D3 : Read Inventory
+P3 --> D4 : CRUD Cart
+P3 --> D3 : Check Stock
+P3 --> D6 : Log cart
+P4 --> D4 : Read Cart
+P4 --> D5 : Create Order
+P4 --> D3 : Update Inventory
+P4 --> D6 : Log payment
+P5 --> D2 : CRUD Items
+P5 --> D6 : Log product mgmt
+P6 --> D3 : Update Inventory
+P6 --> D6 : Log inventory
+P7 --> D5 : Read Orders
+P7 --> D6 : Log order query
+P8 --> D6 : Log health
+
+' Process responses
+P1 --> Customer : DF-101
+P2 --> Customer : DF-102
+P3 --> Customer : DF-103
+P4 --> Customer : DF-104
+P7 --> Customer : DF-105
+P1 --> Merchant : DF-106
+P5 --> Merchant : DF-107 / DF-113
+P6 --> Merchant : DF-108
+P7 --> Merchant : DF-109
+P8 --> Merchant : DF-110
+P8 --> Monitor : DF-112
+
+@enduml
