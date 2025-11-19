@@ -32,38 +32,44 @@ Level 0 giúp:
 
 ---
 ## 4. Danh sách luồng dữ liệu (Data Flows) chính
-Mỗi luồng gán một mã DF-XXX để truy vết.
-| Mã | Từ Actor | Đến Hệ thống | Dữ liệu vào | Khi nào | Yêu cầu liên quan |
-|----|----------|--------------|------------|--------|------------------|
-| DF-001 | Khách hàng | Ứng dụng | Thông tin đăng ký (email, mật khẩu) | Tạo tài khoản | F-CUS-001 |
-| DF-002 | Khách hàng | Ứng dụng | Thông tin đăng nhập (email, mật khẩu) | Bắt đầu phiên | F-CUS-002 |
-| DF-003 | Khách hàng | Ứng dụng | Yêu cầu duyệt / lọc sản phẩm | Truy vấn danh sách | F-CUS-003, F-CUS-004 |
-| DF-004 | Khách hàng | Ứng dụng | Thao tác giỏ (thêm/xóa/cập nhật) | Trong phiên mua | F-CUS-005, F-CUS-006, F-CUS-007, F-SYS-003 |
-| DF-005 | Khách hàng | Ứng dụng | Yêu cầu thanh toán | Checkout | F-CUS-008..010, F-CUS-012 |
-| DF-006 | Khách hàng | Ứng dụng | Yêu cầu xem lịch sử đơn | Sau mua / tra cứu | F-CUS-011 |
-| DF-007 | Người bán | Ứng dụng | Thông tin đăng nhập | Bắt đầu phiên quản trị | F-MER-001 |
-| DF-008 | Người bán | Ứng dụng | CRUD sản phẩm (create/update/delete/hide) | Quản lý danh mục | F-MER-001, F-MER-005 |
-| DF-009 | Người bán | Ứng dụng | Cập nhật tồn kho (số lượng, batch) | Điều chỉnh tồn | F-MER-002 |
-| DF-010 | Người bán | Ứng dụng | Yêu cầu xem danh sách đơn | Theo dõi bán hàng | F-MER-003 |
-| DF-011 | Người bán | Ứng dụng | Yêu cầu xem log | Audit / kiểm tra | F-MER-006 |
-| DF-012 | Người vận hành | Ứng dụng | Yêu cầu khởi động/cấu hình | Deploy / restart | F-SYS-006, F-SYS-007 |
-| DF-013 | Nền tảng giám sát | Ứng dụng | Ping health | Định kỳ | F-SYS-008 |
+Mỗi luồng gán một mã DF-XXX để truy vết:
+
+| Mã     | Từ Actor          | Đến Hệ thống | Dữ liệu vào                               | Khi nào                | Yêu cầu liên quan                          |
+|--------|-------------------|--------------|-------------------------------------------|------------------------|--------------------------------------------|
+| DF-001 | Khách hàng        | Ứng dụng     | Thông tin đăng ký (email, mật khẩu)       | Tạo tài khoản          | F-CUS-001                                  |
+| DF-002 | Khách hàng        | Ứng dụng     | Thông tin đăng nhập (email, mật khẩu)     | Bắt đầu phiên          | F-CUS-002                                  |
+| DF-003 | Khách hàng        | Ứng dụng     | Yêu cầu duyệt / lọc sản phẩm              | Truy vấn danh sách     | F-CUS-003, F-CUS-004                       |
+| DF-004 | Khách hàng        | Ứng dụng     | Thao tác giỏ (thêm/xóa/cập nhật)          | Trong phiên mua        | F-CUS-005, F-CUS-006, F-CUS-007, F-SYS-003 |
+| DF-005 | Khách hàng        | Ứng dụng     | Yêu cầu thanh toán                        | Checkout               | F-CUS-008..010, F-CUS-012                  |
+| DF-006 | Khách hàng        | Ứng dụng     | Yêu cầu xem lịch sử đơn                   | Sau mua / tra cứu      | F-CUS-011                                  |
+| DF-007 | Người bán         | Ứng dụng     | Thông tin đăng nhập                       | Bắt đầu phiên quản trị | F-MER-001                                  |
+| DF-008 | Người bán         | Ứng dụng     | CRUD sản phẩm (create/update/delete/hide) | Quản lý danh mục       | F-MER-001, F-MER-005                       |
+| DF-009 | Người bán         | Ứng dụng     | Cập nhật tồn kho (số lượng, batch)        | Điều chỉnh tồn         | F-MER-002                                  |
+| DF-010 | Người bán         | Ứng dụng     | Yêu cầu xem danh sách đơn                 | Theo dõi bán hàng      | F-MER-003                                  |
+| DF-011 | Người bán         | Ứng dụng     | Yêu cầu xem log                           | Audit / kiểm tra       | F-MER-006                                  |
+| DF-012 | Người vận hành    | Ứng dụng     | Yêu cầu khởi động/cấu hình                | Deploy / restart       | F-SYS-006, F-SYS-007                       |
+| DF-013 | Nền tảng giám sát | Ứng dụng     | Ping health                               | Định kỳ                | F-SYS-008                                  |
+| DF-014 | Khách hàng        | Ứng dụng     | Yêu cầu đăng xuất                         | Kết thúc phiên         | F-CUS-013, F-SYS-002                       |
+| DF-015 | Người bán         | Ứng dụng     | Yêu cầu đăng xuất                         | Kết thúc phiên         | F-SYS-002                                  |
+| DF-016 | Người bán         | Ứng dụng     | Cập nhật hàng loạt (CSV/Excel)            | Quản lý danh mục       | F-MER-004                                  |
 
 Luồng ra từ hệ thống:
-| Mã | Từ Hệ thống | Đến Actor | Dữ liệu trả về | Yêu cầu liên quan | Ghi chú |
-|----|-------------|-----------|---------------|------------------|--------|
-| DF-101 | Ứng dụng | Khách hàng | Token / trạng thái phiên | F-CUS-002, F-CUS-013, F-SYS-002 | Đảm bảo hết hạn tự động |
-| DF-102 | Ứng dụng | Khách hàng | Danh sách sản phẩm + tồn | F-CUS-003, F-CUS-004 | Có thể phân trang |
-| DF-103 | Ứng dụng | Khách hàng | Phản hồi giỏ (trạng thái, lỗi tồn) | F-CUS-005..007, NF-CUS-001 | Thời gian phản hồi <500ms |
-| DF-104 | Ứng dụng | Khách hàng | Hóa đơn / xác nhận đơn | F-CUS-008..010, F-CUS-012 | Ghi log kèm ID đơn |
-| DF-105 | Ứng dụng | Khách hàng | Lịch sử / chi tiết đơn | F-CUS-011 | Có thể lọc theo thời gian |
-| DF-106 | Ứng dụng | Người bán | Token / trạng thái phiên | F-MER-001, F-SYS-002 | Giới hạn quyền theo role |
-| DF-107 | Ứng dụng | Người bán | Phản hồi CRUD sản phẩm | F-MER-001, F-MER-005 | Bao gồm lỗi xác thực |
-| DF-108 | Ứng dụng | Người bán | Trạng thái tồn kho mới | F-MER-002 | Có thể push realtime |
-| DF-109 | Ứng dụng | Người bán | Danh sách đơn | F-MER-003 | Có phân trang & lọc |
-| DF-110 | Ứng dụng | Người bán | Log sự kiện | F-MER-006, F-SYS-008 | Mask dữ liệu nhạy cảm |
-| DF-111 | Ứng dụng | Người vận hành | Kết quả khởi động / cấu hình | F-SYS-006, F-SYS-007 | Gồm lỗi nếu DB không khả dụng |
-| DF-112 | Ứng dụng | Nền tảng giám sát | Trạng thái sức khỏe (status, timestamp) | F-SYS-008, NF-SYS-002 | Không trả dữ liệu người dùng |
+
+| Mã     | Từ Hệ thống | Đến Actor         | Dữ liệu trả về                          | Yêu cầu liên quan               | Ghi chú                       |
+|--------|-------------|-------------------|-----------------------------------------|---------------------------------|-------------------------------|
+| DF-101 | Ứng dụng    | Khách hàng        | Token / trạng thái phiên                | F-CUS-002, F-CUS-013, F-SYS-002 | Đảm bảo hết hạn tự động       |
+| DF-102 | Ứng dụng    | Khách hàng        | Danh sách sản phẩm + tồn                | F-CUS-003, F-CUS-004            | Có thể phân trang             |
+| DF-103 | Ứng dụng    | Khách hàng        | Phản hồi giỏ (trạng thái, lỗi tồn)      | F-CUS-005..007, NF-CUS-001      | Thời gian phản hồi <500ms     |
+| DF-104 | Ứng dụng    | Khách hàng        | Hóa đơn / xác nhận đơn                  | F-CUS-008..010, F-CUS-012       | Ghi log kèm ID đơn            |
+| DF-105 | Ứng dụng    | Khách hàng        | Lịch sử / chi tiết đơn                  | F-CUS-011                       | Có thể lọc theo thời gian     |
+| DF-106 | Ứng dụng    | Người bán         | Token / trạng thái phiên                | F-MER-001, F-SYS-002            | Giới hạn quyền theo role      |
+| DF-107 | Ứng dụng    | Người bán         | Phản hồi CRUD sản phẩm                  | F-MER-001, F-MER-005            | Bao gồm lỗi xác thực          |
+| DF-108 | Ứng dụng    | Người bán         | Trạng thái tồn kho mới                  | F-MER-002                       | Có thể push realtime          |
+| DF-109 | Ứng dụng    | Người bán         | Danh sách đơn                           | F-MER-003                       | Có phân trang & lọc           |
+| DF-110 | Ứng dụng    | Người bán         | Log sự kiện                             | F-MER-006, F-SYS-008            | Mask dữ liệu nhạy cảm         |
+| DF-111 | Ứng dụng    | Người vận hành    | Kết quả khởi động / cấu hình            | F-SYS-006, F-SYS-007            | Gồm lỗi nếu DB không khả dụng |
+| DF-112 | Ứng dụng    | Nền tảng giám sát | Trạng thái sức khỏe (status, timestamp) | F-SYS-008, NF-SYS-002           | Không trả dữ liệu người dùng  |
+| DF-113 | Ứng dụng    | Người bán         | Kết quả cập nhật hàng loạt              | F-MER-004                       | Tổng hợp thành công/lỗi       |
 
 ---
 ## 5. Biên hệ thống & Quyết định thiết kế chính
@@ -133,7 +139,7 @@ Level 0 xác định 4 tác nhân chính và 12 luồng vào / 12 luồng ra c�
 
 ---
 ## 12. Tham chiếu Diagram
-PlantUML context nằm trong: `Diagrams/software_dfd.puml` khối `@startuml DFD_Level_0`.
+PlantUML context nằm trong: `Diagrams/software_dfd_level0.puml` khối `@startuml DFD_Level_0`.
 
 ```plantuml
 @startuml DFD_Level_0
@@ -142,10 +148,10 @@ actor "Người bán" as Merchant
 actor "Người vận hành" as Ops
 actor "Nền tảng giám sát" as Monitor
 rectangle "Ứng dụng Bán Hàng" as System
-Customer --> System : Đăng ký / Đăng nhập\nDuyệt sản phẩm\nQuản lý giỏ\nThanh toán
-System --> Customer : Danh sách SP\nPhản hồi giỏ\nHóa đơn / Xác nhận\nLịch sử đơn
-Merchant --> System : Đăng nhập\nCRUD sản phẩm\nCập nhật tồn\nXem đơn / log
-System --> Merchant : Phản hồi CRUD\nTrạng thái tồn\nDanh sách đơn\nLog sự kiện
+Customer --> System : Đăng ký / Đăng nhập / Đăng xuất\nDuyệt sản phẩm\nQuản lý giỏ\nThanh toán\nXem lịch sử
+System --> Customer : Danh sách SP + tồn\nPhản hồi giỏ\nHóa đơn / Xác nhận (In/PDF)\nLịch sử đơn\nTrạng thái phiên
+Merchant --> System : Đăng nhập / Đăng xuất\nCRUD + Ẩn SP\nCập nhật tồn\nCập nhật hàng loạt (CSV/Excel)\nXem đơn / log
+System --> Merchant : Phản hồi CRUD\nTrạng thái tồn\nKết quả hàng loạt\nDanh sách đơn\nLog sự kiện\nTrạng thái phiên
 Ops --> System : Khởi động / Cấu hình DB
 System --> Ops : Kết quả khởi động / Trạng thái
 Monitor --> System : Ping health
@@ -155,4 +161,3 @@ System --> Monitor : Trạng thái sức khỏe
 
 ---
 Nếu cần bản tiếng Anh hoặc phân rã bổ sung, hãy yêu cầu tiếp.
-
