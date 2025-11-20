@@ -153,3 +153,17 @@ Xem file `Diagrams/software_dfd_level1.puml` (hiện dùng D1 Users, D2 Items, D
 ---
 ## 12. Kết luận
 DFD Level 1 hiện bám sát Level 0, lược bỏ các phạm vi chưa triển khai (trả hàng, khuyến mãi, khởi động hệ thống) và mô tả rõ trách nhiệm từng tiến trình. Khi cần chi tiết hơn (ví dụ P4 hoặc P6), có thể tiếp tục phân rã Level 2 dựa trên bảng luồng dữ liệu ở trên.
+
+---
+## 13. Định hướng Level 2
+| Tiến trình Level 1 | Lý do cần Level 2                        | Nhóm subprocess gợi ý                                  |
+|--------------------|-----------------------------------------|-------------------------------------------------------|
+| P1 Auth            | Nhiều bước (đăng ký, đăng nhập, cấp token)| P1.1 Validate input, P1.2 Lookup user, P1.3 Issue token|
+| P3 Cart            | CRUD giỏ + kiểm tồn                     | P3.1 Fetch cart, P3.2 Validate stock, P3.3 Persist cart|
+| P4 Checkout        | Chốt giỏ → đơn → cập nhật tồn          | P4.1 Validate cart, P4.2 Create order, P4.3 Adjust stock|
+| P5 Items CRUD      | CRUD + upload hàng loạt                 | P5.1 Create/Update, P5.2 Delete/Hide, P5.3 Bulk import|
+| P6 Stock Ops       | Batch cập nhật, broadcast event         | P6.1 Manual adjust, P6.2 Batch upload, P6.3 Publish event|
+| P7 Orders Read     | Khác vai trò (customer vs merchant)     | P7.1 Customer history, P7.2 Merchant list, P7.3 Detail view|
+| P2, P8             | Đã đủ chi tiết ở Level 1                | —                                                     |
+
+Chi tiết Level 2 được mô tả trong `software_dfd_level2.md` và các sơ đồ tương ứng trong `Diagrams/software_dfd_level2_*.puml`.

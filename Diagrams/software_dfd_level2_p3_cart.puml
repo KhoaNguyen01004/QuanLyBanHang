@@ -1,0 +1,24 @@
+@startuml DFD_Level2_P3_Cart
+hide stereotype
+left to right direction
+
+actor "Khách hàng" as Customer
+
+rectangle "P3.1\nLoad Cart Context" as P31
+rectangle "P3.2\nValidate & Price" as P32
+rectangle "P3.3\nPersist Cart" as P33
+
+database "D2\nItems" as D2
+database "D5\nCarts" as D5
+database "D6\nCart Items" as D6
+
+Customer --> P31 : DF-004
+P31 --> D5 : Read cart
+P31 --> D6 : Read cart items
+P31 --> P32 : Giỏ tạm
+P32 --> D2 : Check stock + price
+P32 --> P33 : Kết quả hợp lệ
+P33 --> D5 : Write cart
+P33 --> D6 : Write cart items
+P33 --> Customer : DF-103
+@enduml

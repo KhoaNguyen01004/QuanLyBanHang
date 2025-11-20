@@ -1,0 +1,27 @@
+@startuml DFD_Level2_P7_Orders
+hide stereotype
+left to right direction
+
+actor "Khách hàng" as Customer
+actor "Người bán" as Merchant
+
+rectangle "P7.1\nCustomer History" as P71
+rectangle "P7.2\nMerchant View" as P72
+rectangle "P7.3\nOrder Detail" as P73
+
+database "D3\nOrders" as D3
+database "D4\nOrder Items" as D4
+
+Customer --> P71 : DF-006
+P71 --> D3 : Query orders by user
+P71 --> Customer : DF-105
+Merchant --> P72 : DF-010
+P72 --> D3 : Query orders by filters
+P72 --> Merchant : DF-109
+Customer --> P73 : DF-104
+Merchant --> P73 : DF-109 detail
+P73 --> D3 : Read order
+P73 --> D4 : Read order items
+P73 --> Customer : DF-104 detail
+P73 --> Merchant : DF-109 detail
+@enduml

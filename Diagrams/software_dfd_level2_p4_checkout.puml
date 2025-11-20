@@ -1,0 +1,29 @@
+@startuml DFD_Level2_P4_Checkout
+hide stereotype
+left to right direction
+
+actor "Khách hàng" as Customer
+
+rectangle "P4.1\nValidate Cart Snapshot" as P41
+rectangle "P4.2\nReserve & Price" as P42
+rectangle "P4.3\nCreate Order" as P43
+rectangle "P4.4\nFinalize Payment & Stock" as P44
+
+database "D2\nItems" as D2
+database "D3\nOrders" as D3
+database "D4\nOrder Items" as D4
+database "D5\nCarts" as D5
+database "D6\nCart Items" as D6
+
+Customer --> P41 : DF-005
+P41 --> D5 : Read cart
+P41 --> D6 : Read cart items
+P41 --> P42 : Snapshot giỏ
+P42 --> D2 : Check stock final
+P42 --> P43 : Dòng hàng hợp lệ
+P43 --> D3 : Create order
+P43 --> D4 : Create order items
+P43 --> P44 : Thông tin đơn
+P44 --> D2 : Update stock
+P44 --> Customer : DF-104
+@enduml

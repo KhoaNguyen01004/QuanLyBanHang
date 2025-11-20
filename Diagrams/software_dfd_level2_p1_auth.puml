@@ -1,0 +1,24 @@
+@startuml DFD_Level2_P1_Auth
+hide stereotype
+left to right direction
+
+actor "Khách hàng" as Customer
+actor "Người bán" as Merchant
+
+rectangle "P1.1\nCapture & Validate" as P11
+rectangle "P1.2\nLookup / Persist" as P12
+rectangle "P1.3\nVerify Credential" as P13
+rectangle "P1.4\nIssue / Revoke Session" as P14
+
+database "D1\nUsers" as D1
+
+Customer --> P11 : DF-001 / DF-002 / DF-014
+Merchant --> P11 : DF-007 / DF-015
+P11 --> P12 : DF-L2-P1-02
+P12 --> D1 : CRUD Users
+P12 --> P13 : Hồ sơ người dùng
+P13 --> P14 : Quyết định xác thực
+P14 --> Customer : DF-101
+P14 --> Merchant : DF-106
+P14 --> P12 : Revoke token
+@enduml

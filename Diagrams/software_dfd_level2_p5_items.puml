@@ -1,0 +1,18 @@
+@startuml DFD_Level2_P5_Items
+hide stereotype
+left to right direction
+
+actor "Người bán" as Merchant
+
+rectangle "P5.1\nCapture Request" as P51
+rectangle "P5.2\nApply CRUD" as P52
+rectangle "P5.3\nBatch Summary" as P53
+
+database "D2\nItems" as D2
+
+Merchant --> P51 : DF-008 / DF-016
+P51 --> P52 : Lệnh CRUD chuẩn hóa
+P52 --> D2 : CRUD Items
+P52 --> P53 : Kết quả từng bản ghi
+P53 --> Merchant : DF-107 / DF-113
+@enduml
