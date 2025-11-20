@@ -70,13 +70,14 @@ Luồng ra từ hệ thống:
 
 ---
 ## 5. Biên hệ thống & Quyết định thiết kế chính
-| Chủ đề           | Quyết định                           | Lý do                                     |
-|------------------|--------------------------------------|-------------------------------------------|
-| Xác thực         | Thực hiện nội bộ (password hash)     | Đơn giản, tránh phụ thuộc sớm             |
-| Thanh toán       | Nội bộ giả lập, chưa tách gateway    | Giảm phức tạp giai đoạn đầu               |
-| Log & Health     | Một điểm cuối chung (P8 nội bộ)      | Tối thiểu để giám sát                     |
-| Tồn kho realtime | Đẩy sự kiện khi thay đổi (ở Level 1) | Trải nghiệm người dùng & tránh dữ liệu cũ |
-| Session          | Token cấp ở DF-101/106               | Chuẩn REST/SPA và dễ mở rộng              |
+| Chủ đề           | Quyết định                                            | Lý do                                            |
+|------------------|-------------------------------------------------------|--------------------------------------------------|
+| Xác thực         | Thực hiện nội bộ (password hash)                      | Đơn giản, tránh phụ thuộc sớm                    |
+| Thanh toán       | Nội bộ giả lập, chưa tách gateway                     | Giảm phức tạp giai đoạn đầu                      |
+| Log & Health     | Một điểm cuối chung (P8 nội bộ)                       | Tối thiểu để giám sát                            |
+| Tồn kho realtime | Đẩy sự kiện khi thay đổi (ở Level 1)                  | Trải nghiệm người dùng & tránh dữ liệu cũ        |
+| Session          | Token cấp ở DF-101/106                                | Chuẩn REST/SPA và dễ mở rộng                     |
+| Khởi động/Ops    | Gom vào các tiến trình nội bộ, không tách actor riêng | Tránh vi phạm cân bằng với Level 1 sau khi bỏ P9 |
 
 ---
 ## 6. Bảo mật & Phi chức năng tại Level 0
@@ -110,6 +111,7 @@ Luồng ra từ hệ thống:
 - Không hỗ trợ khách vãng lai checkout (giỏ yêu cầu đăng nhập – F-SYS-003).
 - Health check không bao gồm metric chi tiết (CPU/memory) – chỉ trạng thái tổng hợp.
 - Log trả về cho người bán được lọc theo quyền, không chứa dữ liệu người dùng khác.
+- Các hoạt động khởi động & cấu hình (preload, log startup) được xử lý nội bộ nên không vẽ thành luồng riêng ở Level 0/1.
 
 ---
 ## 9. Rủi ro & Hướng giảm thiểu (Context Level)
