@@ -1,0 +1,60 @@
+Table users {
+  id varchar(5) [primary key, not null]
+  username varchar [not null, unique]
+  email varchar [not null, unique]
+  hashed_password varchar [not null]
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
+}
+
+Table items {
+  id integer [primary key, not null]
+  name varchar [not null]
+  description text
+  price float [not null, check: price > 0]
+  stock integer [not null, check: stock >= 0]
+  picture_path varchar
+  tags varchar
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
+}
+
+Table carts {
+  id integer [primary key, not null]
+  user_id varchar(5) [ref: > users.id]
+  session_id varchar
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
+  check: (user_id is not null or session_id is not null)
+}
+
+Table cart_items {
+  id integer [primary key, not null]
+  cart_id integer [not null, ref: > carts.id]
+  item_id integer [not null, ref: > items.id]
+  quantity integer [not null, check: quantity > 0]
+}
+
+Table orders {
+  id integer [primary key, not null]
+  user_id varchar(5) [not null, ref: > users.id]
+  total_amount float [not null, check: total_amount > 0]
+  status varchar [not null]
+  created_at timestamp [default: `now()`]
+  updated_at timestamp [default: `now()`]
+}
+
+Table order_items {
+  id integer [primary key, not null]
+  order_id integer [not null, ref: > orders.id]
+  item_id integer [not null, ref: > items.id]
+  quantity integer [not null, check: quantity > 0]
+  price float [not null, check: price > 0]
+}
+
+Ref: carts.user_id > users.id // many-to-one
+Ref: cart_items.cart_id > carts.id // many-to-one
+Ref: cart_items.item_id > items.id // many-to-one
+Ref: orders.user_id > users.id // many-to-one
+Ref: order_items.order_id > orders.id // many-to-one
+Ref: order_items.item_id > items.id // many-to-one

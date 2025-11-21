@@ -5,25 +5,45 @@ Các yêu cầu dưới đây được tổng hợp sau khi rà soát mã nguồ
 
 ## 2. Yêu cầu theo phân hệ/ngữ cảnh
 
-### 2.1 Các chức năng cần có dành cho vai trò **Khách hàng**
-| ID | Mô tả yêu cầu | Loại |
-| --- | --- | --- |
-| F-CUS-001 | Cho phép tạo tài khoản tại `/register`/`/api/users` với các trường bắt buộc (email, username, password). | Functional |
-| F-CUS-002 | Cho phép đăng nhập qua form `/login` (session cookies) và nhận thông báo lỗi khi sai thông tin. | Functional |
-| F-CUS-003 | Trang chủ (`/`) phải liệt kê sản phẩm lấy từ `/api/items`, kèm trạng thái đăng nhập hiện tại. | Functional |
-| F-CUS-004 | Người dùng có thể lọc/ tìm sản phẩm và xem tồn kho cập nhật theo thời gian thực (WebSocket). | Functional |
-| F-CUS-005 | Chỉ người dùng đã đăng nhập mới được phép thêm sản phẩm vào giỏ hàng. Nếu chưa đăng nhập, hệ thống sẽ báo lỗi và không thực hiện thao tác này. | Functional |
-| F-CUS-005b | Giỏ hàng phải cung cấp thao tác "Remove All" giúp người dùng xóa toàn bộ sản phẩm chỉ với một lần bấm và nhận phản hồi thành công/thất bại rõ ràng. | Functional |
-| F-CUS-006 | Cho phép chỉnh sửa số lượng, xóa mặt hàng khỏi giỏ; nếu giỏ rỗng phải hiển thị thông báo tương ứng. | Functional |
-| F-CUS-007 | Khi thêm/cập nhật giỏ, hệ thống phải kiểm tra tồn kho và báo lỗi nếu không đủ hàng. | Functional |
-| F-CUS-008 | Khi nhấn Checkout, hệ thống xác thực đăng nhập; nếu chưa đăng nhập phải chuyển đến trang login. | Functional |
-| F-CUS-009 | Sau Checkout thành công, trang `/checkout` phải hiển thị hóa đơn chi tiết (mục, giá, thuế, tổng). | Functional |
-| F-CUS-010 | Nút "In hóa đơn" phải gọi `window.print` với mẫu HTML tối ưu để người dùng in hoặc lưu PDF. | Functional |
-| F-CUS-011 | Người dùng xem lại lịch sử mua hàng tại `/purchases`, bao gồm đường dẫn mở lại hóa đơn. | Functional |
-| F-CUS-012 | Người dùng có thể tiếp tục mua sắm sau checkout (quay lại `/`) hoặc ở lại trang xác nhận. | Functional |
-| F-CUS-013 | Người dùng chủ động đăng xuất (/logout) để xóa session và quay về trang chủ. | Functional |
-| NF-CUS-001 | Thao tác giỏ (thêm, sửa, xóa) phải phản hồi < 500ms để đảm bảo trải nghiệm mượt trên web. | Non-functional |
-| NF-CUS-002 | Trang checkout + in hóa đơn phải hiển thị tốt trên desktop/mobile và tương thích khổ giấy A4. | Non-functional |
+### 2.1 Yêu cầu chức năng
+
+#### 2.1.1 Các yêu cầu chức năng cần có
+
+Hệ thống phải đáp ứng các yêu cầu chức năng sau đây để đảm bảo hoạt động hiệu quả cho vai trò khách hàng:
+
+- **F-CUS-001**: Hệ thống cho phép người dùng tạo tài khoản mới thông qua trang `/register` hoặc API `/api/users`, với các trường bắt buộc bao gồm email, username và password.
+
+- **F-CUS-002**: Người dùng có thể đăng nhập vào hệ thống qua form trên trang `/login` sử dụng session cookies, và hệ thống sẽ hiển thị thông báo lỗi nếu thông tin đăng nhập không chính xác.
+
+- **F-CUS-003**: Trang chủ (`/`) phải hiển thị danh sách sản phẩm được lấy từ API `/api/items`, kèm theo trạng thái đăng nhập hiện tại của người dùng.
+
+- **F-CUS-004**: Người dùng có thể thực hiện chức năng lọc và tìm kiếm sản phẩm, đồng thời xem cập nhật tồn kho theo thời gian thực thông qua WebSocket.
+
+- **F-CUS-005**: Chỉ những người dùng đã đăng nhập mới được phép thêm sản phẩm vào giỏ hàng; nếu chưa đăng nhập, hệ thống sẽ báo lỗi và không thực hiện thao tác.
+
+- **F-CUS-005b**: Giỏ hàng phải cung cấp chức năng "Remove All" để người dùng có thể xóa toàn bộ sản phẩm chỉ với một lần nhấn, và nhận được phản hồi rõ ràng về thành công hoặc thất bại.
+
+- **F-CUS-006**: Hệ thống cho phép chỉnh sửa số lượng sản phẩm, xóa từng mặt hàng khỏi giỏ hàng; nếu giỏ hàng trống, phải hiển thị thông báo phù hợp.
+
+- **F-CUS-007**: Khi thêm hoặc cập nhật giỏ hàng, hệ thống phải kiểm tra tồn kho và báo lỗi nếu số lượng hàng không đủ.
+
+- **F-CUS-008**: Khi nhấn nút Checkout, hệ thống sẽ xác thực trạng thái đăng nhập; nếu chưa đăng nhập, người dùng sẽ được chuyển hướng đến trang login.
+
+- **F-CUS-009**: Sau khi checkout thành công, trang `/checkout` phải hiển thị hóa đơn chi tiết bao gồm các mục, giá cả, thuế và tổng tiền.
+
+- **F-CUS-010**: Nút "In hóa đơn" phải kích hoạt `window.print` với mẫu HTML được tối ưu hóa để người dùng có thể in hoặc lưu hóa đơn dưới dạng PDF.
+
+- **F-CUS-011**: Người dùng có thể xem lại lịch sử mua hàng tại trang `/purchases`, bao gồm các đường dẫn để mở lại hóa đơn.
+
+- **F-CUS-012**: Sau checkout, người dùng có thể chọn tiếp tục mua sắm bằng cách quay lại trang chủ (`/`) hoặc ở lại trang xác nhận.
+
+- **F-CUS-013**: Người dùng có thể chủ động đăng xuất thông qua đường dẫn `/logout`, dẫn đến việc xóa session và chuyển hướng về trang chủ.
+
+Ngoài ra, hệ thống phải đáp ứng các yêu cầu phi chức năng sau:
+
+- **NF-CUS-001**: Các thao tác trên giỏ hàng (thêm, sửa, xóa) phải phản hồi trong thời gian dưới 500ms để đảm bảo trải nghiệm mượt mà trên web.
+
+- **NF-CUS-002**: Trang checkout và chức năng in hóa đơn phải hiển thị tốt trên cả desktop và mobile, đồng thời tương thích với khổ giấy A4.
 
 ### 2.2 Các chức năng cần có dành cho vai trò **Quản trị viên (Admin)**
 | ID | Mô tả yêu cầu | Loại |

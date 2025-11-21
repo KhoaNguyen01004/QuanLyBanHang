@@ -1,0 +1,50 @@
+@startuml
+title Activity_Mua hang
+
+|Khách Hàng|
+start
+
+:Truy cập trang chủ;
+:Duyệt sản phẩm;
+:Chọn sản phẩm;
+
+if (Thêm vào giỏ hàng?) then (Có)
+  :Thêm sản phẩm vào giỏ;
+else (Không)
+  :Tiếp tục duyệt sản phẩm;
+  -> Duyệt sản phẩm
+endif
+
+:Xem giỏ hàng;
+
+if (Tiếp tục thanh toán?) then (Có)
+
+  :Nhập thông tin giao hàng\nvà thanh toán;
+
+  |Hệ Thống|
+  :Xác nhận thanh toán;
+
+  if (Thanh toán thành công?) then (Có)
+    :Tạo đơn hàng;
+    :Gửi email/xác nhận hóa đơn;
+    
+    |Khách Hàng|
+    :Hiển thị hóa đơn;
+    
+  else (Không)
+    |Hệ Thống|
+    :Thông báo lỗi thanh toán;
+
+    |Khách Hàng|
+    :Thử lại hoặc chỉnh sửa giỏ hàng;
+    -> Xem giỏ hàng
+  endif
+
+else (Không)
+  :Tiếp tục mua sắm;
+  -> Duyệt sản phẩm
+endif
+
+|Khách Hàng|
+stop
+@enduml
