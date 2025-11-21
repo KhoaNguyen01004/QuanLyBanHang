@@ -34,38 +34,38 @@ Tệp PlantUML: `Diagrams/software_erd.puml`
 ---
 ## 4. Thuộc tính chính
 ### User (`users`)
-- `id` (PK, char(5)): sinh từ quy tắc nội bộ, dùng làm FK cho carts/orders.
-- `username`, `email` (unique): phục vụ login và phân biệt người dùng.
-- `hashed_password`: lưu hash, tuân thủ NF-SYS-001.
-- `created_at`, `updated_at`: audit thô.
+- `id` (PK, varchar).
+- `username`, `email`: không đặt unique constraint trong schema hiện tại.
+- `hashed_password`: lưu hash.
+- `created_at`, `updated_at`: audit.
 
 ### Item (`items`)
 - `id` (PK, serial).
-- `name`, `description`, `price`: thông tin niêm yết.
-- `stock`: số lượng còn lại, được cập nhật bởi UC-MER-004/P6.
-- `picture_path`, `tags`: metadata hiển thị.
-- `created_at`, `updated_at`: phục vụ đồng bộ cache.
+- `name`, `description`, `price` (`double precision`).
+- `stock`: tồn kho.
+- `picture_path`, `tags` (nullable).
+- `created_at`, `updated_at`.
 
 ### Cart (`carts`)
 - `id` (PK, serial).
-- `user_id` (FK `users.id`, nullable) + `session_id`: cho phép giỏ đăng nhập và guest.
-- `created_at`, `updated_at`: theo dõi thời điểm chỉnh sửa lần cuối.
+- `user_id` (FK `users.id`, nullable) + `session_id` (nullable).
+- `created_at`, `updated_at`.
 
 ### CartItem (`cart_items`)
 - `id` (PK, serial).
 - `cart_id` (FK `carts.id`), `item_id` (FK `items.id`).
-- `quantity`: số lượng hợp lệ (>=1) kiểm soát tại dịch vụ.`
+- `quantity`: số lượng (int, mặc định >0 theo logic ứng dụng).
 
 ### Order (`orders`)
 - `id` (PK, serial).
-- `user_id` (FK `users.id`): chỉ hỗ trợ checkout khi đã đăng nhập (F-SYS-003).
-- `total_amount`, `status`: đồng bộ với logic thanh toán P4.
-- `created_at`, `updated_at`: phục vụ theo dõi SLA xử lý.
+- `user_id` (FK `users.id`).
+- `total_amount` (`double precision`), `status` (varchar).
+- `created_at`, `updated_at`.
 
 ### OrderItem (`order_items`)
 - `id` (PK, serial).
 - `order_id` (FK `orders.id`), `item_id` (FK `items.id`).
-- `quantity`, `unit_price`: chốt snapshot giá lúc mua, giữ lịch sử ngay cả khi `items.price` thay đổi.
+- `quantity`, `unit_price` (`double precision`).
 
 ---
 ## 5. Quan hệ & Bội số
@@ -108,4 +108,3 @@ Sơ đồ nằm trong `Diagrams/software_erd.puml` và có thể xuất hình (
 ````
 
 Tài liệu này sẽ được cập nhật song song mỗi khi model SQLAlchemy thay đổi để đảm bảo truy vết dữ liệu ↔ yêu cầu ↔ sơ đồ.
-

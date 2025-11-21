@@ -8,10 +8,10 @@ skinparam class {
 }
 
 entity "User\n(users)" as User {
-  *id : char(5)
+  *id : varchar
   --
-  username : varchar (unique)
-  email : varchar (unique)
+  username : varchar
+  email : varchar
   hashed_password : varchar
   created_at : timestamptz
   updated_at : timestamptz
@@ -20,7 +20,7 @@ entity "User\n(users)" as User {
 entity "Cart\n(carts)" as Cart {
   *id : serial
   --
-  user_id : char(5) (FK users.id, nullable)
+  user_id : varchar (FK users.id, nullable)
   session_id : varchar (nullable)
   created_at : timestamptz
   updated_at : timestamptz
@@ -31,7 +31,7 @@ entity "CartItem\n(cart_items)" as CartItem {
   --
   cart_id : int (FK carts.id)
   item_id : int (FK items.id)
-  quantity : int (>=1)
+  quantity : int
 }
 
 entity "Item\n(items)" as Item {
@@ -39,7 +39,7 @@ entity "Item\n(items)" as Item {
   --
   name : varchar
   description : text (nullable)
-  price : decimal
+  price : double precision
   stock : int
   picture_path : varchar (nullable)
   tags : varchar (nullable)
@@ -50,8 +50,8 @@ entity "Item\n(items)" as Item {
 entity "Order\n(orders)" as Order {
   *id : serial
   --
-  user_id : char(5) (FK users.id)
-  total_amount : decimal
+  user_id : varchar (FK users.id)
+  total_amount : double precision
   status : varchar
   created_at : timestamptz
   updated_at : timestamptz
@@ -62,8 +62,8 @@ entity "OrderItem\n(order_items)" as OrderItem {
   --
   order_id : int (FK orders.id)
   item_id : int (FK items.id)
-  quantity : int (>=1)
-  unit_price : decimal
+  quantity : int
+  unit_price : double precision
 }
 
 note bottom of Cart
@@ -78,4 +78,3 @@ User ||--o{ Order : "đặt"
 Order ||--o{ OrderItem : "bao gồm"
 Item ||--o{ OrderItem : "được bán"
 @enduml
-
