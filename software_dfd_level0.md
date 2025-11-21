@@ -14,11 +14,11 @@ Level 0 giúp:
 
 ---
 ## 2. Tác nhân bên ngoài (Actor)
-| Actor      | Mô tả vai trò                    | Động cơ chính                                  | Mức tương tác  | Ghi chú                                                                         |
-|------------|----------------------------------|------------------------------------------------|----------------|---------------------------------------------------------------------------------|
-| Khách hàng | Người dùng cuối mua sản phẩm     | Tìm, thêm giỏ, thanh toán, xem lịch sử         | Cao            | Cần phiên đã xác thực cho hầu hết thao tác (trừ duyệt công khai nếu sau này mở) |
-| Người bán  | Quản trị nội dung & tồn kho      | Quản lý danh mục, điều chỉnh tồn, theo dõi đơn | Trung bình/Cao | Có thể có phân quyền nâng cao (ROLE_MERCHANT)                                   |
-| Monitor    | Agent kiểm tra sức khỏe hệ thống | Gửi ping health, nhận realtime metrics, xác nhận cảnh báo, tải báo cáo vận hành | Thấp/Trung bình | Bao gồm SOC/Ops; không thay đổi dữ liệu nghiệp vụ                              |
+| Actor      | Mô tả vai trò                    | Động cơ chính                                                                   | Mức tương tác   | Ghi chú                                                                         |
+|------------|----------------------------------|---------------------------------------------------------------------------------|-----------------|---------------------------------------------------------------------------------|
+| Khách hàng | Người dùng cuối mua sản phẩm     | Tìm, thêm giỏ, thanh toán, xem lịch sử                                          | Cao             | Cần phiên đã xác thực cho hầu hết thao tác (trừ duyệt công khai nếu sau này mở) |
+| Người bán  | Quản trị nội dung & tồn kho      | Quản lý danh mục, điều chỉnh tồn, theo dõi đơn                                  | Trung bình/Cao  | Có thể có phân quyền nâng cao (ROLE_MERCHANT)                                   |
+| Monitor    | Agent kiểm tra sức khỏe hệ thống | Gửi ping health, nhận realtime metrics, xác nhận cảnh báo, tải báo cáo vận hành | Thấp/Trung bình | Bao gồm SOC/Ops; không thay đổi dữ liệu nghiệp vụ                               |
 
 ---
 ## 3. Tổng quan tiến trình trung tâm

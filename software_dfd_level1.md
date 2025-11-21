@@ -22,35 +22,35 @@ Tài liệu này mô tả DFD Level 1 (phân rã) dựa trên Level 0 đã hoàn
 
 ---
 ## 3. Tác nhân & cân bằng từ Level 0
-| Actor             | Luồng Level 0 liên quan                                | Tiến trình Level 1 tham gia | Ghi chú cân bằng                                                |
-|-------------------|--------------------------------------------------------|-----------------------------|-----------------------------------------------------------------|
-| Khách hàng        | DF-001, DF-002, DF-003, DF-004, DF-005, DF-006, DF-014 | P1, P2, P3, P4, P7          | Toàn bộ luồng vào/ra đã được gán cho tiến trình tương ứng.      |
-| Người bán         | DF-007, DF-008, DF-009, DF-010, DF-011, DF-015, DF-016 | P1, P5, P6, P7, P8          | CRUD sản phẩm, tồn kho, xem đơn/log đều có tiến trình đại diện. |
-| Monitor           | DF-013, DF-017, DF-018, DF-114, DF-115, DF-116         | P8                          | Health, realtime metric, cảnh báo và báo cáo được gom vào cùng tiến trình. |
+| Actor      | Luồng Level 0 liên quan                                | Tiến trình Level 1 tham gia | Ghi chú cân bằng                                                           |
+|------------|--------------------------------------------------------|-----------------------------|----------------------------------------------------------------------------|
+| Khách hàng | DF-001, DF-002, DF-003, DF-004, DF-005, DF-006, DF-014 | P1, P2, P3, P4, P7          | Toàn bộ luồng vào/ra đã được gán cho tiến trình tương ứng.                 |
+| Người bán  | DF-007, DF-008, DF-009, DF-010, DF-011, DF-015, DF-016 | P1, P5, P6, P7, P8          | CRUD sản phẩm, tồn kho, xem đơn/log đều có tiến trình đại diện.            |
+| Monitor    | DF-013, DF-017, DF-018, DF-114, DF-115, DF-116         | P8                          | Health, realtime metric, cảnh báo và báo cáo được gom vào cùng tiến trình. |
 
 ---
 ## 4. Danh sách Tiến trình
-| Mã | Tên                              | Trách nhiệm chính                                              | Input từ Actor        | Output đến Actor      | Data Stores                 |
-|----|----------------------------------|----------------------------------------------------------------|-----------------------|-----------------------|-----------------------------|
-| P1 | Đăng ký / Xác thực               | Đăng ký, đăng nhập, đăng xuất, cấp token, xác thực quyền.      | Khách hàng, Người bán | Khách hàng, Người bán | D1 Người dùng               |
-| P2 | Duyệt & Tìm Sản phẩm             | Trả danh sách, lọc, kết hợp giá/tồn từ bảng sản phẩm.          | Khách hàng            | Khách hàng            | D2 Sản phẩm                 |
-| P3 | Quản lý Giỏ                      | Thêm/sửa/xóa mục giỏ, kiểm tra tồn trực tiếp từ bảng sản phẩm. | Khách hàng            | Khách hàng            | D5 Giỏ hàng, D6 Chi tiết giỏ, D2 Sản phẩm |
-| P4 | Thanh toán & Hóa đơn             | Chốt giỏ, tạo đơn + order items, cập nhật tồn kho, sinh hóa đơn.| Khách hàng            | Khách hàng            | D5 Giỏ hàng, D6 Chi tiết giỏ, D3 Đơn hàng, D4 Chi tiết đơn, D2 Sản phẩm |
-| P5 | Quản lý Sản phẩm                 | CRUD thông tin sản phẩm, ẩn/hiện danh mục.                     | Người bán             | Người bán             | D2 Sản phẩm                 |
-| P6 | Cập nhật Tồn kho                 | Điều chỉnh số lượng, xử lý batch trên bảng sản phẩm.           | Người bán             | Người bán             | D2 Sản phẩm                 |
-| P7 | Quản lý Đơn hàng (Read)          | Khách & người bán xem đơn, lịch sử mua bán.                    | Khách hàng, Người bán | Khách hàng, Người bán | D3 Đơn hàng, D4 Chi tiết đơn|
-| P8 | Log & Giám sát                   | Trả health snapshot, streaming log runtime (không lưu DB), gửi cảnh báo và tổng hợp báo cáo vận hành.      | Người bán, Monitor    | Người bán, Monitor    | —                           |
+| Mã | Tên                     | Trách nhiệm chính                                                                                     | Input từ Actor        | Output đến Actor      | Data Stores                                                             |
+|----|-------------------------|-------------------------------------------------------------------------------------------------------|-----------------------|-----------------------|-------------------------------------------------------------------------|
+| P1 | Đăng ký / Xác thực      | Đăng ký, đăng nhập, đăng xuất, cấp token, xác thực quyền.                                             | Khách hàng, Người bán | Khách hàng, Người bán | D1 Người dùng                                                           |
+| P2 | Duyệt & Tìm Sản phẩm    | Trả danh sách, lọc, kết hợp giá/tồn từ bảng sản phẩm.                                                 | Khách hàng            | Khách hàng            | D2 Sản phẩm                                                             |
+| P3 | Quản lý Giỏ             | Thêm/sửa/xóa mục giỏ, kiểm tra tồn trực tiếp từ bảng sản phẩm.                                        | Khách hàng            | Khách hàng            | D5 Giỏ hàng, D6 Chi tiết giỏ, D2 Sản phẩm                               |
+| P4 | Thanh toán & Hóa đơn    | Chốt giỏ, tạo đơn + order items, cập nhật tồn kho, sinh hóa đơn.                                      | Khách hàng            | Khách hàng            | D5 Giỏ hàng, D6 Chi tiết giỏ, D3 Đơn hàng, D4 Chi tiết đơn, D2 Sản phẩm |
+| P5 | Quản lý Sản phẩm        | CRUD thông tin sản phẩm, ẩn/hiện danh mục.                                                            | Người bán             | Người bán             | D2 Sản phẩm                                                             |
+| P6 | Cập nhật Tồn kho        | Điều chỉnh số lượng, xử lý batch trên bảng sản phẩm.                                                  | Người bán             | Người bán             | D2 Sản phẩm                                                             |
+| P7 | Quản lý Đơn hàng (Read) | Khách & người bán xem đơn, lịch sử mua bán.                                                           | Khách hàng, Người bán | Khách hàng, Người bán | D3 Đơn hàng, D4 Chi tiết đơn                                            |
+| P8 | Log & Giám sát          | Trả health snapshot, streaming log runtime (không lưu DB), gửi cảnh báo và tổng hợp báo cáo vận hành. | Người bán, Monitor    | Người bán, Monitor    | —                                                                       |
 
 ---
 ## 5. Kho dữ liệu (Data Stores)
-| Mã | Tên          | Nội dung                                                   | CRUD bởi                             |
-|----|--------------|------------------------------------------------------------|--------------------------------------|
-| D1 | Người dùng   | email, password_hash, role, metadata                       | P1                                   |
-| D2 | Sản phẩm     | item_id, name, description, price, stock, picture_path     | P2 (R), P3 (R), P4 (U), P5 (CRUD), P6 (U) |
-| D3 | Đơn hàng     | order_id, user_id, total_amount, status, timestamps        | P4 (C), P7 (R)                       |
-| D4 | Chi tiết đơn | order_item_id, order_id, item_id, quantity, unit_price     | P4 (C), P7 (R)                       |
-| D5 | Giỏ hàng     | cart_id, user_id/session_id, timestamps                     | P3 (CRUD), P4 (R)                    |
-| D6 | Chi tiết giỏ | cart_item_id, cart_id, item_id, quantity                    | P3 (CRUD), P4 (R)                    |
+| Mã | Tên          | Nội dung                                               | CRUD bởi                                  |
+|----|--------------|--------------------------------------------------------|-------------------------------------------|
+| D1 | Người dùng   | email, password_hash, role, metadata                   | P1                                        |
+| D2 | Sản phẩm     | item_id, name, description, price, stock, picture_path | P2 (R), P3 (R), P4 (U), P5 (CRUD), P6 (U) |
+| D3 | Đơn hàng     | order_id, user_id, total_amount, status, timestamps    | P4 (C), P7 (R)                            |
+| D4 | Chi tiết đơn | order_item_id, order_id, item_id, quantity, unit_price | P4 (C), P7 (R)                            |
+| D5 | Giỏ hàng     | cart_id, user_id/session_id, timestamps                | P3 (CRUD), P4 (R)                         |
+| D6 | Chi tiết giỏ | cart_item_id, cart_id, item_id, quantity               | P3 (CRUD), P4 (R)                         |
 
 ---
 ## 6. Luồng dữ liệu chính
@@ -70,7 +70,7 @@ Tài liệu này mô tả DFD Level 1 (phân rã) dựa trên Level 0 đã hoàn
 | DF-011 | Người bán     | P8             | Tham số truy vấn log/metric realtime                       | Nhận log/metric thời gian thực (không lưu DB)  |
 | DF-013 | Monitor       | P8             | Ping health payload (heartbeat token)                      | Nhận status + metric                           |
 | DF-017 | Monitor       | P8             | Tham số báo cáo vận hành (kỳ, định dạng)                   | Sinh báo cáo vận hành                          |
-| DF-018 | Monitor       | P8             | Xác nhận cảnh báo / phản hồi xử lý                        | Ghi nhận xử lý cảnh báo                        |
+| DF-018 | Monitor       | P8             | Xác nhận cảnh báo / phản hồi xử lý                         | Ghi nhận xử lý cảnh báo                        |
 | DF-014 | Khách hàng    | P1             | Token cần hủy                                              | Hủy token                                      |
 | DF-015 | Người bán     | P1             | Token merchant cần hủy                                     | Hủy token                                      |
 | DF-016 | Người bán     | P5             | Tệp batch sản phẩm (danh sách item + thao tác)             | Batch CRUD trên D2                             |
