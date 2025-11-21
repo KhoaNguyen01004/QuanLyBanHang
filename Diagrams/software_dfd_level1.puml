@@ -27,54 +27,54 @@ database "D5\nCarts" as D5
 database "D6\nCart Items" as D6
 
 ' External interactions
-Customer --> P1 : DF-001 / DF-002 / DF-014
-Customer --> P2 : DF-003
-Customer --> P3 : DF-004
-Customer --> P4 : DF-005
-Customer --> P7 : DF-006
-Merchant --> P1 : DF-007 / DF-015
-Merchant --> P5 : DF-008 / DF-016
-Merchant --> P6 : DF-009
-Merchant --> P7 : DF-010
-Merchant --> P8 : DF-011
-Monitor --> P8 : DF-013
+Customer --> P1 : DF-001 / DF-002 / DF-014 \n(Thông tin đăng ký/đăng nhập/token)
+Customer --> P2 : DF-003 \n(Bộ lọc sản phẩm)
+Customer --> P3 : DF-004 \n(Yêu cầu cập nhật giỏ)
+Customer --> P4 : DF-005 \n(Payload checkout)
+Customer --> P7 : DF-006 \n(Tham số truy vấn lịch sử)
+Merchant --> P1 : DF-007 / DF-015 \n(Payload đăng nhập/đăng xuất)
+Merchant --> P5 : DF-008 / DF-016 \n(Payload CRUD/batch sản phẩm)
+Merchant --> P6 : DF-009 \n(Danh sách điều chỉnh tồn)
+Merchant --> P7 : DF-010 \n(Bộ lọc đơn bán)
+Merchant --> P8 : DF-011 \n(Tham số log/metric)
+Monitor --> P8 : DF-013 \n(Ping health)
 
 ' Process-to-process
-P1 --> P3 : Phiên hợp lệ
-P1 --> P4 : Phiên hợp lệ
+P1 --> P3 : Thông tin phiên
+P1 --> P4 : Thông tin phiên
 P1 --> P5 : Quyền quản lý SP
 P1 --> P6 : Quyền tồn kho
-P4 --> P7 : Đơn mới
-P6 --> P2 : Sự kiện tồn thay đổi
-P5 --> P2 : Sự kiện danh mục
+P4 --> P7 : ID đơn mới
+P6 --> P2 : Sự kiện tồn (item_id, stock mới)
+P5 --> P2 : Sự kiện danh mục (metadata)
 
 ' Process ↔ Data Store
-P1 --> D1 : C/U/R Users
-P2 --> D2 : Read SP + tồn
-P3 --> D5 : CRUD Cart
-P3 --> D6 : CRUD Cart Items
-P3 --> D2 : Check stock
-P4 --> D5 : Read Cart
-P4 --> D6 : Read Cart Items
-P4 --> D3 : Create Order
-P4 --> D4 : Create Order Items
-P4 --> D2 : Update stock
-P5 --> D2 : CRUD Items
-P6 --> D2 : Bulk cập nhật tồn
-P7 --> D3 : Read Orders
-P7 --> D4 : Read Order Items
+P1 --> D1 : Hồ sơ người dùng
+P2 --> D2 : Danh mục SP + tồn
+P3 --> D5 : Bản ghi giỏ
+P3 --> D6 : Cart items
+P3 --> D2 : Thông tin tồn cần kiểm tra
+P4 --> D5 : Snapshot giỏ
+P4 --> D6 : Cart items cho checkout
+P4 --> D3 : Bản ghi đơn
+P4 --> D4 : Order items
+P4 --> D2 : Danh sách item cần giảm tồn
+P5 --> D2 : Dữ liệu sản phẩm
+P6 --> D2 : Batch điều chỉnh tồn
+P7 --> D3 : Tiêu chí truy vấn đơn
+P7 --> D4 : Tiêu chí truy vấn order items
 
 ' Process responses
-P1 --> Customer : DF-101
-P2 --> Customer : DF-102
-P3 --> Customer : DF-103
-P4 --> Customer : DF-104
-P7 --> Customer : DF-105
-P1 --> Merchant : DF-106
-P5 --> Merchant : DF-107 / DF-113
-P6 --> Merchant : DF-108
-P7 --> Merchant : DF-109
-P8 --> Merchant : DF-110
-P8 --> Monitor : DF-112
+P1 --> Customer : DF-101 \n(Token + trạng thái phiên)
+P2 --> Customer : DF-102 \n(Danh sách sản phẩm)
+P3 --> Customer : DF-103 \n(Ảnh chụp giỏ)
+P4 --> Customer : DF-104 \n(Hóa đơn)
+P7 --> Customer : DF-105 \n(Lịch sử đơn)
+P1 --> Merchant : DF-106 \n(Token + quyền)
+P5 --> Merchant : DF-107 / DF-113 \n(Kết quả CRUD/batch)
+P6 --> Merchant : DF-108 \n(Trạng thái tồn mới)
+P7 --> Merchant : DF-109 \n(Danh sách đơn)
+P8 --> Merchant : DF-110 \n(Log/metric realtime)
+P8 --> Monitor : DF-112 \n(Health snapshot)
 
 @enduml

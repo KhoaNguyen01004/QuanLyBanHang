@@ -1,8 +1,8 @@
-# DFD Level 0 (Context Diagram) Chi Tiết – Ứng Dụng Bán Hàng
+# DFD Level 0 (Sơ đồ ngữ cảnh) – Ứng dụng Bán Hàng
 
 Phiên bản: 1.0  
 Ngày cập nhật: 2025-11-19  
-Tài liệu này mô tả chi tiết sơ đồ DFD Level 0 (Context Diagram) cho hệ thống bán hàng trong repository. Level 0 xem hệ thống như một tiến trình duy nhất "Ứng dụng Bán Hàng" và mô tả các dòng dữ liệu qua biên hệ thống với các tác nhân bên ngoài.
+Tài liệu này mô tả chi tiết sơ đồ DFD Level 0 (Sơ đồ ngữ cảnh) cho hệ thống bán hàng trong repository. Level 0 xem hệ thống như một tiến trình duy nhất "Ứng dụng Bán Hàng" và mô tả các dòng dữ liệu qua biên hệ thống với các tác nhân bên ngoài.
 
 ---
 ## 1. Mục đích của Level 0
@@ -10,15 +10,15 @@ Level 0 giúp:
 - Xác định rõ ranh giới hệ thống (boundary) so với môi trường bên ngoài.
 - Thống nhất các luồng dữ liệu chính được hỗ trợ trong phạm vi phiên bản hiện tại.
 - Cung cấp nền tảng cho việc phân rã xuống Level 1/2 và thiết kế API hoặc event.
-- Là điểm kiểm tra đối chiếu với use case và yêu cầu chức năng (functional requirements).
+- Là điểm kiểm tra đối chiếu với use case và yêu cầu chức năng.
 
 ---
-## 2. Tác nhân bên ngoài (External Entities)
-| Actor             | Mô tả vai trò                   | Động cơ chính                                  | Mức tương tác  | Ghi chú                                                                         |
-|-------------------|---------------------------------|------------------------------------------------|----------------|---------------------------------------------------------------------------------|
-| Khách hàng        | Người dùng cuối mua sản phẩm    | Tìm, thêm giỏ, thanh toán, xem lịch sử         | Cao            | Cần phiên đã xác thực cho hầu hết thao tác (trừ duyệt công khai nếu sau này mở) |
-| Người bán         | Quản trị nội dung & tồn kho     | Quản lý danh mục, điều chỉnh tồn, theo dõi đơn | Trung bình/Cao | Có thể có phân quyền nâng cao (ROLE_MERCHANT)                                   |
-| Nền tảng giám sát | Công cụ/agent kiểm tra sức khỏe | Gửi ping health, thu thập trạng thái           | Thấp           | Chỉ đọc, không thay đổi dữ liệu                                                 |
+## 2. Tác nhân bên ngoài (Actor)
+| Actor      | Mô tả vai trò                    | Động cơ chính                                  | Mức tương tác  | Ghi chú                                                                         |
+|------------|----------------------------------|------------------------------------------------|----------------|---------------------------------------------------------------------------------|
+| Khách hàng | Người dùng cuối mua sản phẩm     | Tìm, thêm giỏ, thanh toán, xem lịch sử         | Cao            | Cần phiên đã xác thực cho hầu hết thao tác (trừ duyệt công khai nếu sau này mở) |
+| Người bán  | Quản trị nội dung & tồn kho      | Quản lý danh mục, điều chỉnh tồn, theo dõi đơn | Trung bình/Cao | Có thể có phân quyền nâng cao (ROLE_MERCHANT)                                   |
+| Monitor    | Agent kiểm tra sức khỏe hệ thống | Gửi ping health, thu thập trạng thái           | Thấp           | Chỉ đọc, không thay đổi dữ liệu                                                 |
 
 ---
 ## 3. Tổng quan tiến trình trung tâm
@@ -46,7 +46,7 @@ Mỗi luồng gán một mã DF-XXX để truy vết:
 | DF-009 | Người bán         | Ứng dụng     | Cập nhật tồn kho (số lượng, batch)        | Điều chỉnh tồn         | F-MER-002                                  |
 | DF-010 | Người bán         | Ứng dụng     | Yêu cầu xem danh sách đơn                 | Theo dõi bán hàng      | F-MER-003                                  |
 | DF-011 | Người bán         | Ứng dụng     | Yêu cầu xem log                           | Audit / kiểm tra       | F-MER-006                                  |
-| DF-013 | Nền tảng giám sát | Ứng dụng     | Ping health                               | Định kỳ                | F-SYS-008                                  |
+| DF-013 | Monitor           | Ứng dụng     | Ping health                               | Định kỳ                | F-SYS-008                                  |
 | DF-014 | Khách hàng        | Ứng dụng     | Yêu cầu đăng xuất                         | Kết thúc phiên         | F-CUS-013, F-SYS-002                       |
 | DF-015 | Người bán         | Ứng dụng     | Yêu cầu đăng xuất                         | Kết thúc phiên         | F-SYS-002                                  |
 | DF-016 | Người bán         | Ứng dụng     | Cập nhật hàng loạt (CSV/Excel)            | Quản lý danh mục       | F-MER-004                                  |
@@ -65,7 +65,7 @@ Luồng ra từ hệ thống:
 | DF-108 | Ứng dụng    | Người bán         | Trạng thái tồn kho mới                  | F-MER-002                       | Có thể push realtime          |
 | DF-109 | Ứng dụng    | Người bán         | Danh sách đơn                           | F-MER-003                       | Có phân trang & lọc           |
 | DF-110 | Ứng dụng    | Người bán         | Log sự kiện                             | F-MER-006, F-SYS-008            | Mask dữ liệu nhạy cảm         |
-| DF-112 | Ứng dụng    | Nền tảng giám sát | Trạng thái sức khỏe (status, timestamp) | F-SYS-008, NF-SYS-002           | Không trả dữ liệu người dùng  |
+| DF-112 | Ứng dụng    | Monitor           | Trạng thái sức khỏe (status, timestamp) | F-SYS-008, NF-SYS-002           | Không trả dữ liệu người dùng  |
 | DF-113 | Ứng dụng    | Người bán         | Kết quả cập nhật hàng loạt              | F-MER-004                       | Tổng hợp thành công/lỗi       |
 
 ---

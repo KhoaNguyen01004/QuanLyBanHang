@@ -12,13 +12,13 @@ rectangle "P1.4\nIssue / Revoke Session" as P14
 
 database "D1\nUsers" as D1
 
-Customer --> P11 : DF-001 / DF-002 / DF-014
-Merchant --> P11 : DF-007 / DF-015
-P11 --> P12 : DF-L2-P1-02
-P12 --> D1 : CRUD Users
-P12 --> P13 : Hồ sơ người dùng
-P13 --> P14 : Quyết định xác thực
-P14 --> Customer : DF-101
-P14 --> Merchant : DF-106
-P14 --> P12 : Revoke token
+Customer --> P11 : DF-001 / DF-002 / DF-014 \n(Payload đăng ký/đăng nhập/token)
+Merchant --> P11 : DF-007 / DF-015 \n(Payload đăng nhập/đăng xuất)
+P11 --> P12 : DF-L2-P1-02 \n(Thông tin người dùng đã chuẩn hóa)
+P12 --> D1 : Hồ sơ người dùng cần lưu/cập nhật
+P12 --> P13 : Hồ sơ người dùng đã tra cứu
+P13 --> P14 : Kết quả xác thực + quyền
+P14 --> Customer : DF-101 \n(Token + trạng thái phiên)
+P14 --> Merchant : DF-106 \n(Token + quyền)
+P14 --> P12 : Thông tin phiên cần revoke
 @enduml

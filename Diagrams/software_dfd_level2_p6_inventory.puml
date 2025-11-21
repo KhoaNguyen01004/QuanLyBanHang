@@ -10,11 +10,11 @@ rectangle "P6.3\nApply & Broadcast" as P63
 
 database "D2\nItems" as D2
 
-Merchant --> P61 : DF-009
-P61 --> P62 : Danh sách điều chỉnh
-P62 --> D2 : Read stock
+Merchant --> P61 : DF-009 \n(Payload điều chỉnh tồn)
+P61 --> P62 : Danh sách điều chỉnh đã chuẩn hóa
+P62 --> D2 : Tồn hiện tại cần tham chiếu
 P62 --> P63 : Điều chỉnh hợp lệ
-P63 --> D2 : Update stock
-P63 --> Merchant : DF-108
-P63 --> P2 : Sự kiện tồn thay đổi
+P63 --> D2 : Bản cập nhật tồn kho
+P63 --> Merchant : DF-108 \n(Trạng thái tồn mới)
+P63 --> P2 : Sự kiện tồn mới (item_id, stock hiện tại)
 @enduml

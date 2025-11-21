@@ -27,107 +27,107 @@ Tài liệu này mở rộng DFD Level 1 bằng cách phân rã các tiến trì
 ## 3. P1 – Đăng ký / Xác thực
 - Diagram: `Diagrams/software_dfd_level2_p1_auth.puml`
 - Subprocesses: P1.1 Capture & Validate, P1.2 Lookup / Persist, P1.3 Verify Credential, P1.4 Issue / Revoke Session.
-- Actors: Khách hàng, Người bán.
-- Data Store: D1 Users.
+- Actor: Khách hàng, Người bán.
+- Data Store: D1 Người dùng.
 
-| Flow ID        | Nguồn            | Đích              | Nội dung chính                                  |
-|----------------|------------------|-------------------|-------------------------------------------------|
-| DF-L2-P1-01    | Actor            | P1.1              | Đăng ký / đăng nhập / đăng xuất input raw       |
-| DF-L2-P1-02    | P1.1             | P1.2              | Yêu cầu tra cứu / tạo người dùng                |
-| DF-L2-P1-03    | P1.2             | D1                | CRUD người dùng                                 |
-| DF-L2-P1-04    | P1.2             | P1.3              | Hồ sơ người dùng đã tra cứu                     |
-| DF-L2-P1-05    | P1.3             | P1.4              | Quyết định xác thực / chính sách                |
-| DF-L2-P1-06    | P1.4             | Actor             | Token, trạng thái phiên (DF-101/106 tổng hợp)   |
-| DF-L2-P1-07    | P1.4             | P1.2              | Lệnh revoke khi đăng xuất (nếu cần phục hồi)    |
+| Flow ID     | Nguồn | Đích  | Nội dung chính                                                   |
+|-------------|-------|-------|------------------------------------------------------------------|
+| DF-L2-P1-01 | Actor | P1.1  | Payload đăng ký / đăng nhập / đăng xuất (email, mật khẩu, token) |
+| DF-L2-P1-02 | P1.1  | P1.2  | Thông tin người dùng đã chuẩn hóa                                |
+| DF-L2-P1-03 | P1.2  | D1    | Hồ sơ người dùng cần lưu/cập nhật                                |
+| DF-L2-P1-04 | P1.2  | P1.3  | Hồ sơ người dùng đã tra cứu                                      |
+| DF-L2-P1-05 | P1.3  | P1.4  | Kết quả xác thực + quyền                                         |
+| DF-L2-P1-06 | P1.4  | Actor | Token, trạng thái phiên                                          |
+| DF-L2-P1-07 | P1.4  | P1.2  | Thông tin phiên cần revoke                                       |
 
 ---
 ## 4. P3 – Quản lý Giỏ
 - Diagram: `Diagrams/software_dfd_level2_p3_cart.puml`
 - Subprocesses: P3.1 Load Cart Context, P3.2 Validate & Price Items, P3.3 Persist Cart.
-- Actors: Khách hàng.
-- Data Stores: D5 Carts, D6 Cart Items, D2 Items.
+- Actor: Khách hàng.
+- Data Store: D5 Giỏ hàng, D6 Chi tiết giỏ, D2 Sản phẩm.
 
-| Flow ID     | Nguồn    | Đích     | Nội dung                               |
-|-------------|----------|----------|----------------------------------------|
-| DF-L2-P3-01 | Customer | P3.1     | Thao tác giỏ (add/update/remove/clear) |
-| DF-L2-P3-02 | P3.1     | D5/D6    | Đọc giỏ hiện tại                       |
-| DF-L2-P3-03 | P3.1     | P3.2     | Giỏ tạm thời                           |
-| DF-L2-P3-04 | P3.2     | D2       | Đọc tồn kho & giá                      |
-| DF-L2-P3-05 | P3.2     | P3.3     | Kết quả kiểm tồn / giỏ đã chuẩn hóa    |
-| DF-L2-P3-06 | P3.3     | D5/D6    | Ghi giỏ mới                            |
-| DF-L2-P3-07 | P3.3     | Customer | Phản hồi giỏ (DF-103)                  |
+| Flow ID     | Nguồn      | Đích       | Nội dung                                                  |
+|-------------|------------|------------|-----------------------------------------------------------|
+| DF-L2-P3-01 | Khách hàng | P3.1       | Payload thao tác giỏ (cart_id, item_id, quantity, action) |
+| DF-L2-P3-02 | P3.1       | D5/D6      | Khóa giỏ và danh sách cart item hiện tại                  |
+| DF-L2-P3-03 | P3.1       | P3.2       | Ảnh chụp giỏ hiện tại                                     |
+| DF-L2-P3-04 | P3.2       | D2         | Danh sách item cần đối chiếu tồn và giá                   |
+| DF-L2-P3-05 | P3.2       | P3.3       | Giỏ đã chuẩn hóa + thông tin tồn/giá hợp lệ               |
+| DF-L2-P3-06 | P3.3       | D5/D6      | Bản ghi giỏ/carte item mới                                |
+| DF-L2-P3-07 | P3.3       | Khách hàng | Ảnh chụp giỏ sau thao tác (DF-103)                        |
 
 ---
 ## 5. P4 – Thanh toán & Hóa đơn
 - Diagram: `Diagrams/software_dfd_level2_p4_checkout.puml`
 - Subprocesses: P4.1 Validate Cart Snapshot, P4.2 Reserve & Price, P4.3 Create Order & Items, P4.4 Finalize Payment & Stock.
-- Actors: Khách hàng.
-- Data Stores: D5, D6, D3, D4, D2.
+- Actor: Khách hàng.
+- Data Store: D5 Giỏ hàng, D6 Chi tiết giỏ, D3 Đơn hàng, D4 Chi tiết đơn, D2 Sản phẩm.
 
-| Flow ID     | Nguồn    | Đích            | Nội dung                            |
-|-------------|----------|-----------------|-------------------------------------|
-| DF-L2-P4-01 | Customer | P4.1            | Yêu cầu thanh toán (DF-005)         |
-| DF-L2-P4-02 | P4.1     | D5/D6           | Đọc giỏ và cart items               |
-| DF-L2-P4-03 | P4.1     | P4.2            | Snapshot giỏ đã xác thực            |
-| DF-L2-P4-04 | P4.2     | D2              | Kiểm tồn cuối + giá                 |
-| DF-L2-P4-05 | P4.2     | P4.3            | Dòng hàng hợp lệ                    |
-| DF-L2-P4-06 | P4.3     | D3              | Tạo bản ghi order                   |
-| DF-L2-P4-07 | P4.3     | D4              | Tạo order items                     |
-| DF-L2-P4-08 | P4.3     | P4.4            | Thông tin đơn + tổng tiền           |
-| DF-L2-P4-09 | P4.4     | D2              | Trừ tồn                             |
-| DF-L2-P4-10 | P4.4     | Customer        | Hóa đơn / xác nhận (DF-104)         |
-| DF-L2-P4-11 | P4.4     | P3.3 (implicit) | Tín hiệu dọn giỏ / invalidate cache |
+| Flow ID     | Nguồn      | Đích            | Nội dung                                           |
+|-------------|------------|-----------------|----------------------------------------------------|
+| DF-L2-P4-01 | Khách hàng | P4.1            | Payload checkout (cart_id, phương thức thanh toán) |
+| DF-L2-P4-02 | P4.1       | D5/D6           | Snapshot giỏ và cart items đã khóa                 |
+| DF-L2-P4-03 | P4.1       | P4.2            | Giỏ hợp lệ + thông tin khách hàng                  |
+| DF-L2-P4-04 | P4.2       | D2              | Danh sách item cần kiểm tồn cuối                   |
+| DF-L2-P4-05 | P4.2       | P4.3            | Dòng hàng đủ tồn + giá cuối                        |
+| DF-L2-P4-06 | P4.3       | D3              | Bản ghi đơn mới                                    |
+| DF-L2-P4-07 | P4.3       | D4              | Bản ghi order item mới                             |
+| DF-L2-P4-08 | P4.3       | P4.4            | Thông tin đơn hoàn chỉnh + tổng số tiền            |
+| DF-L2-P4-09 | P4.4       | D2              | Danh sách item cần giảm tồn                        |
+| DF-L2-P4-10 | P4.4       | Khách hàng      | Hóa đơn/biên nhận với chi tiết thanh toán          |
+| DF-L2-P4-11 | P4.4       | P3.3 (implicit) | Thông tin dọn giỏ / invalidate cache               |
 
 ---
 ## 6. P5 – Quản lý Sản phẩm
 - Diagram: `Diagrams/software_dfd_level2_p5_items.puml`
 - Subprocesses: P5.1 Capture Request, P5.2 Apply CRUD, P5.3 Batch Import Summary.
-- Actors: Người bán.
-- Data Store: D2 Items.
+- Actor: Người bán.
+- Data Store: D2 Sản phẩm.
 
-| Flow ID     | Nguồn    | Đích     | Nội dung                           |
-|-------------|----------|----------|------------------------------------|
-| DF-L2-P5-01 | Merchant | P5.1     | CRUD đơn lẻ hoặc upload hàng loạt  |
-| DF-L2-P5-02 | P5.1     | P5.2     | Lệnh CRUD đã chuẩn hóa             |
-| DF-L2-P5-03 | P5.2     | D2       | Create/Update/Delete/Hide sản phẩm |
-| DF-L2-P5-04 | P5.2     | P5.3     | Kết quả từng bản ghi               |
-| DF-L2-P5-05 | P5.3     | Merchant | Phản hồi CRUD (DF-107/113)         |
+| Flow ID     | Nguồn     | Đích      | Nội dung                                                |
+|-------------|-----------|-----------|---------------------------------------------------------|
+| DF-L2-P5-01 | Người bán | P5.1      | Payload CRUD/batch sản phẩm (metadata, giá, trạng thái) |
+| DF-L2-P5-02 | P5.1      | P5.2      | Yêu cầu CRUD đã chuẩn hóa                               |
+| DF-L2-P5-03 | P5.2      | D2        | Dữ liệu sản phẩm mới/cập nhật/xóa                       |
+| DF-L2-P5-04 | P5.2      | P5.3      | Kết quả từng bản ghi (success/error)                    |
+| DF-L2-P5-05 | P5.3      | Người bán | Tổng hợp kết quả CRUD/batch (DF-107/113)                |
 
 ---
 ## 7. P6 – Cập nhật Tồn kho
 - Diagram: `Diagrams/software_dfd_level2_p6_inventory.puml`
 - Subprocesses: P6.1 Capture Adjustment, P6.2 Validate Batch, P6.3 Apply & Broadcast.
-- Actors: Người bán.
-- Data Store: D2 Items.
+- Actor: Người bán.
+- Data Store: D2 Sản phẩm.
 
-| Flow ID     | Nguồn    | Đích     | Nội dung                                |
-|-------------|----------|----------|-----------------------------------------|
-| DF-L2-P6-01 | Merchant | P6.1     | Lệnh chỉnh tồn hoặc file batch          |
-| DF-L2-P6-02 | P6.1     | P6.2     | Danh sách điều chỉnh đã chuẩn hóa       |
-| DF-L2-P6-03 | P6.2     | D2       | Đọc tồn hiện tại                        |
-| DF-L2-P6-04 | P6.2     | P6.3     | Điều chỉnh hợp lệ                       |
-| DF-L2-P6-05 | P6.3     | D2       | Cập nhật tồn                            |
-| DF-L2-P6-06 | P6.3     | Merchant | Trạng thái cập nhật (DF-108)            |
-| DF-L2-P6-07 | P6.3     | P2       | Sự kiện tồn thay đổi (broadcast nội bộ) |
+| Flow ID     | Nguồn     | Đích      | Nội dung                                       |
+|-------------|-----------|-----------|------------------------------------------------|
+| DF-L2-P6-01 | Người bán | P6.1      | Payload điều chỉnh tồn (item_id, delta, lý do) |
+| DF-L2-P6-02 | P6.1      | P6.2      | Danh sách điều chỉnh đã chuẩn hóa              |
+| DF-L2-P6-03 | P6.2      | D2        | Tồn hiện tại cho các item                      |
+| DF-L2-P6-04 | P6.2      | P6.3      | Điều chỉnh hợp lệ                              |
+| DF-L2-P6-05 | P6.3      | D2        | Bản cập nhật tồn kho                           |
+| DF-L2-P6-06 | P6.3      | Người bán | Báo cáo trạng thái tồn mới (DF-108)            |
+| DF-L2-P6-07 | P6.3      | P2        | Sự kiện tồn mới (item_id, stock hiện tại)      |
 
 ---
 ## 8. P7 – Quản lý Đơn hàng (Read)
 - Diagram: `Diagrams/software_dfd_level2_p7_orders.puml`
 - Subprocesses: P7.1 Fetch Customer History, P7.2 Fetch Merchant View, P7.3 Fetch Order Detail.
-- Actors: Khách hàng, Người bán.
-- Data Stores: D3 Orders, D4 Order Items.
+- Actor: Khách hàng, Người bán.
+- Data Stores: D3 Đơn hàng, D4 Chi tiết đơn.
 
-| Flow ID     | Nguồn    | Đích     | Nội dung                                |
-|-------------|----------|----------|-----------------------------------------|
-| DF-L2-P7-01 | Customer | P7.1     | Yêu cầu lịch sử                         |
-| DF-L2-P7-02 | P7.1     | D3       | Truy vấn orders theo user               |
-| DF-L2-P7-03 | P7.1     | Customer | Danh sách lịch sử (DF-105)              |
-| DF-L2-P7-04 | Merchant | P7.2     | Yêu cầu danh sách đơn bán               |
-| DF-L2-P7-05 | P7.2     | D3       | Truy vấn orders theo filter merchant    |
-| DF-L2-P7-06 | P7.2     | Merchant | Danh sách đơn (DF-109)                  |
-| DF-L2-P7-07 | Actor    | P7.3     | Yêu cầu chi tiết đơn / hóa đơn          |
-| DF-L2-P7-08 | P7.3     | D3/D4    | Truy vấn order + order items            |
-| DF-L2-P7-09 | P7.3     | Actor    | Chi tiết đơn / hóa đơn (DF-104/105/109) |
+| Flow ID     | Nguồn      | Đích       | Nội dung                                          |
+|-------------|------------|------------|---------------------------------------------------|
+| DF-L2-P7-01 | Khách hàng | P7.1       | Tham số truy vấn lịch sử mua (date range, status) |
+| DF-L2-P7-02 | P7.1       | D3         | Tiêu chí lọc orders theo user                     |
+| DF-L2-P7-03 | P7.1       | Khách hàng | Danh sách lịch sử đơn (DF-105)                    |
+| DF-L2-P7-04 | Người bán  | P7.2       | Tham số truy vấn danh sách đơn bán                |
+| DF-L2-P7-05 | P7.2       | D3         | Bộ lọc orders dành cho merchant                   |
+| DF-L2-P7-06 | P7.2       | Người bán  | Danh sách đơn bán (DF-109)                        |
+| DF-L2-P7-07 | Actor      | P7.3       | Yêu cầu chi tiết đơn / hóa đơn                    |
+| DF-L2-P7-08 | P7.3       | D3/D4      | ID đơn + item cần truy vấn chi tiết               |
+| DF-L2-P7-09 | P7.3       | Actor      | Chi tiết đơn/hóa đơn (DF-104/105/109)             |
 
 ---
 ## 9. Liên kết sơ đồ

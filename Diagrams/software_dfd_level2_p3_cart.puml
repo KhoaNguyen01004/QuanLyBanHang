@@ -12,13 +12,13 @@ database "D2\nItems" as D2
 database "D5\nCarts" as D5
 database "D6\nCart Items" as D6
 
-Customer --> P31 : DF-004
-P31 --> D5 : Read cart
-P31 --> D6 : Read cart items
-P31 --> P32 : Giỏ tạm
-P32 --> D2 : Check stock + price
-P32 --> P33 : Kết quả hợp lệ
-P33 --> D5 : Write cart
-P33 --> D6 : Write cart items
-P33 --> Customer : DF-103
+Customer --> P31 : DF-004 \n(Payload thao tác giỏ)
+P31 --> D5 : Khóa giỏ hiện tại
+P31 --> D6 : Danh sách cart items hiện tại
+P31 --> P32 : Ảnh chụp giỏ
+P32 --> D2 : Danh sách item cần kiểm tồn + giá
+P32 --> P33 : Giỏ đã chuẩn hóa + tồn hợp lệ
+P33 --> D5 : Bản ghi giỏ mới
+P33 --> D6 : Bản ghi cart item mới
+P33 --> Customer : DF-103 \n(Ảnh chụp giỏ sau thao tác)
 @enduml

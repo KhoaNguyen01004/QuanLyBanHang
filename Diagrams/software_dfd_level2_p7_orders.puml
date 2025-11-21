@@ -12,16 +12,16 @@ rectangle "P7.3\nOrder Detail" as P73
 database "D3\nOrders" as D3
 database "D4\nOrder Items" as D4
 
-Customer --> P71 : DF-006
-P71 --> D3 : Query orders by user
-P71 --> Customer : DF-105
-Merchant --> P72 : DF-010
-P72 --> D3 : Query orders by filters
-P72 --> Merchant : DF-109
-Customer --> P73 : DF-104
-Merchant --> P73 : DF-109 detail
-P73 --> D3 : Read order
-P73 --> D4 : Read order items
-P73 --> Customer : DF-104 detail
-P73 --> Merchant : DF-109 detail
+Customer --> P71 : DF-006 \n(Tham số truy vấn lịch sử)
+P71 --> D3 : Tiêu chí orders theo user
+P71 --> Customer : DF-105 \n(Danh sách lịch sử)
+Merchant --> P72 : DF-010 \n(Tham số truy vấn đơn bán)
+P72 --> D3 : Bộ lọc orders theo merchant
+P72 --> Merchant : DF-109 \n(Danh sách đơn)
+Customer --> P73 : DF-104 \n(Yêu cầu chi tiết đơn)
+Merchant --> P73 : DF-109 detail \n(Yêu cầu chi tiết đơn bán)
+P73 --> D3 : ID đơn cần xem
+P73 --> D4 : Danh sách order items cần xem
+P73 --> Customer : DF-104 detail \n(Hóa đơn chi tiết)
+P73 --> Merchant : DF-109 detail \n(Chi tiết đơn bán)
 @enduml

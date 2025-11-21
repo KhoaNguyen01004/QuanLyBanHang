@@ -15,15 +15,15 @@ database "D4\nOrder Items" as D4
 database "D5\nCarts" as D5
 database "D6\nCart Items" as D6
 
-Customer --> P41 : DF-005
-P41 --> D5 : Read cart
-P41 --> D6 : Read cart items
-P41 --> P42 : Snapshot giỏ
-P42 --> D2 : Check stock final
-P42 --> P43 : Dòng hàng hợp lệ
-P43 --> D3 : Create order
-P43 --> D4 : Create order items
-P43 --> P44 : Thông tin đơn
-P44 --> D2 : Update stock
-P44 --> Customer : DF-104
+Customer --> P41 : DF-005 \n(Payload checkout)
+P41 --> D5 : Snapshot giỏ khóa
+P41 --> D6 : Cart items đã khóa
+P41 --> P42 : Giỏ hợp lệ + thông tin khách
+P42 --> D2 : Danh sách item cần kiểm tồn cuối
+P42 --> P43 : Dòng hàng đủ tồn + giá cuối
+P43 --> D3 : Bản ghi đơn mới
+P43 --> D4 : Bản ghi order item mới
+P43 --> P44 : Thông tin đơn + tổng tiền
+P44 --> D2 : Danh sách item cần giảm tồn
+P44 --> Customer : DF-104 \n(Hóa đơn/biên nhận)
 @enduml
