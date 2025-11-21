@@ -1,0 +1,71 @@
+@startuml Database ER Diagram
+
+title Database Schema - ER Diagram
+
+entity User {
+  * id : String(5)
+  --
+  * username : String
+  * email : String
+  * hashed_password : String
+  created_at : DateTime
+  updated_at : DateTime
+}
+
+entity Item {
+  * id : Integer
+  --
+  * name : String
+  description : Text
+  * price : Float
+  * stock : Integer
+  picture_path : String
+  tags : String
+  created_at : DateTime
+  updated_at : DateTime
+}
+
+entity Cart {
+  * id : Integer
+  --
+  user_id : String(5)
+  session_id : String
+  created_at : DateTime
+  updated_at : DateTime
+}
+
+entity CartItem {
+  * id : Integer
+  --
+  * cart_id : Integer
+  * item_id : Integer
+  * quantity : Integer
+}
+
+entity Order {
+  * id : Integer
+  --
+  * user_id : String(5)
+  * total_amount : Float
+  * status : String
+  created_at : DateTime
+  updated_at : DateTime
+}
+
+entity OrderItem {
+  * id : Integer
+  --
+  * order_id : Integer
+  * item_id : Integer
+  * quantity : Integer
+  * price : Float
+}
+
+User ||--o{ Cart : has
+Cart ||--o{ CartItem : contains
+CartItem }o--|| Item : refers to
+User ||--o{ Order : places
+Order ||--o{ OrderItem : includes
+OrderItem }o--|| Item : refers to
+
+@enduml

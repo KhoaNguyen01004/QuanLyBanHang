@@ -1,0 +1,93 @@
+@startuml Purchase Workflow Activity Diagram
+
+title Purchase Workflow - Activity Diagram
+
+|User|
+start
+:Truy cập trang chủ (/);
+:Load items từ DB;
+
+if (Đã đăng nhập?) then (Có)
+  :Hiển thị username;
+else (Không)
+  :Mở form đăng nhập (/login);
+  if (Credentials hợp lệ?) then (Có)
+    :Tạo session;
+    :Redirect home;
+  else (Không)
+    :Hiển thị lỗi đăng nhập;
+    :Quay lại form;
+  endif
+endif
+
+while (Tiếp tục mua sắm?) is (Có)
+  :Duyệt/Filter items;
+
+  if (Thêm vào giỏ?) then (Có)
+    |System|
+    :Ensure cart (user_id hoặc session_id);
+    if (Stock đủ?) then (Có)
+      fork
+        :Giảm stock trong DB;
+        :Thêm item vào cart;
+      fork again
+        |WebSocket|
+        :Broadcast stock update;
+      end fork
+    else (Không)
+      |User|
+      :Hiển thị "Out-of-Stock";
+    endif
+  endif
+
+  if (Xem giỏ?) then (Có)
+    |System|
+    if (Giỏ trống?) then (Có)
+      |User|
+      :Hiển thị "Empty Cart";
+    else (Không)
+      :Render cart items;
+      if (Chỉnh sửa quantity?) then (Có)
+        :Update/Remove items;
+        note right
+        Nếu xóa → tăng stock.
+        Nếu thêm → giảm stock.
+        end note
+      endif
+    endif
+  endif
+
+  if (Checkout?) then (Có)
+    |System|
+    if (Authenticated?) then (Có)
+      :Tạo Order từ cart;
+      :Giảm stock, xóa cart;
+      |WebSocket|
+      :Broadcast stock update;
+      |User|
+      :Hiển thị confirmation + receipt;
+      if (In receipt?) then (Có)
+        :Mở cửa sổ in (window.print);
+      endif
+      if (Xem lịch sử?) then (Có)
+        :Mở trang purchases (/purchases);
+      endif
+    else (Không)
+      :Redirect login;
+    endif
+  endif
+
+endwhile (Không)
+
+|User|
+:Idle (session giữ nguyên);
+
+if (Đăng xuất?) then (Có)
+  :Clear session;
+  :Redirect home;
+  stop
+else (Không)
+  :Quay lại home;
+endif
+
+@enduml
