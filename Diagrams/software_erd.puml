@@ -1,0 +1,81 @@
+@startuml ERD_Shop
+left to right direction
+skinparam shadowing false
+skinparam class {
+  BackgroundColor White
+  BorderColor #111827
+  ArrowColor #4B5563
+}
+
+entity "User\n(users)" as User {
+  *id : char(5)
+  --
+  username : varchar (unique)
+  email : varchar (unique)
+  hashed_password : varchar
+  created_at : timestamptz
+  updated_at : timestamptz
+}
+
+entity "Cart\n(carts)" as Cart {
+  *id : serial
+  --
+  user_id : char(5) (FK users.id, nullable)
+  session_id : varchar (nullable)
+  created_at : timestamptz
+  updated_at : timestamptz
+}
+
+entity "CartItem\n(cart_items)" as CartItem {
+  *id : serial
+  --
+  cart_id : int (FK carts.id)
+  item_id : int (FK items.id)
+  quantity : int (>=1)
+}
+
+entity "Item\n(items)" as Item {
+  *id : serial
+  --
+  name : varchar
+  description : text (nullable)
+  price : decimal
+  stock : int
+  picture_path : varchar (nullable)
+  tags : varchar (nullable)
+  created_at : timestamptz
+  updated_at : timestamptz
+}
+
+entity "Order\n(orders)" as Order {
+  *id : serial
+  --
+  user_id : char(5) (FK users.id)
+  total_amount : decimal
+  status : varchar
+  created_at : timestamptz
+  updated_at : timestamptz
+}
+
+entity "OrderItem\n(order_items)" as OrderItem {
+  *id : serial
+  --
+  order_id : int (FK orders.id)
+  item_id : int (FK items.id)
+  quantity : int (>=1)
+  unit_price : decimal
+}
+
+note bottom of Cart
+  Cho phép giỏ khách vãng lai: user_id có thể null
+  và session_id giữ trạng thái ngắn hạn.
+end note
+
+User ||--o{ Cart : "sở hữu"
+Cart ||--o{ CartItem : "chứa"
+Item ||--o{ CartItem : "được chọn"
+User ||--o{ Order : "đặt"
+Order ||--o{ OrderItem : "bao gồm"
+Item ||--o{ OrderItem : "được bán"
+@enduml
+
