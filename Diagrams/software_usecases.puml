@@ -1,82 +1,63 @@
 @startuml
-' Use Case Diagram - Version 3 (Syntax and Logic Optimized)
-skinparam shadowing false
-skinparam packageStyle rectangle
-skinparam usecaseBorderColor #333333
-skinparam usecaseBackgroundColor #F8F8F8
-skinparam actorStyle awesome
-hide empty members
-
 left to right direction
+skinparam actorStyle awesome
+skinparam packageStyle rect
 
-actor Guest as Guest
+' Khai báo các actors theo thứ tự để chúng tự sắp xếp thành một cột thẳng hàng
 actor "Khách hàng" as Customer
 actor "Người bán" as Merchant
-actor "Người vận hành" as Ops
-actor "Nền tảng giám sát" as Monitor
+actor "Monitor" as MonitorActor
 
-' Khối chức năng chung (General)
-rectangle General {
-  usecase "Đăng ký tài khoản" as UC_GEN_001
-  usecase "Đăng nhập hệ thống" as UC_GEN_002
-  usecase "Đăng xuất" as UC_GEN_003
+rectangle "Ứng Dụng Bán Hàng" {
+  ' Khai báo các package theo thứ tự để chúng tự sắp xếp thành một hàng ngang thẳng hàng
+  package "Khách hàng" {
+    usecase "Đăng ký tài khoản\n(UC-CUS-001)" as UC_CUS_001
+    usecase "Đăng nhập\n(UC-CUS-002)" as UC_CUS_002
+    usecase "Đăng xuất\n(UC-CUS-003)" as UC_CUS_003
+    usecase "Xem & tìm sản phẩm\n(UC-CUS-004)" as UC_CUS_004
+    usecase "Quản lý giỏ hàng\n(UC-CUS-005)" as UC_CUS_005
+    usecase "Thanh toán\n(UC-CUS-006)" as UC_CUS_006
+    usecase "In/Lưu hóa đơn\n(UC-CUS-007)" as UC_CUS_007
+    usecase "Xem lịch sử mua hàng\n(UC-CUS-008)" as UC_CUS_008
+  }
+
+  package "Người bán" {
+    usecase "Đăng nhập người bán\n(UC-MER-001)" as UC_MER_001
+    usecase "Đăng xuất người bán\n(UC-MER-002)" as UC_MER_002
+    usecase "Quản lý sản phẩm\n(UC-MER-003)" as UC_MER_003
+    usecase "Cập nhật tồn kho\n(UC-MER-004)" as UC_MER_004
+    usecase "Xem đơn hàng\n(UC-MER-005)" as UC_MER_005
+    usecase "Cập nhật sản phẩm hàng loạt\n(UC-MER-006)" as UC_MER_006
+    usecase "Xem log & báo cáo\n(UC-MER-007)" as UC_MER_007
+  }
+
+  package "Monitor" {
+    usecase "Giám sát giao dịch\n(UC-MON-001)" as UC_MON_001
+    usecase "Nhận cảnh báo bất thường\n(UC-MON-002)" as UC_MON_002
+    usecase "Xuất báo cáo vận hành\n(UC-MON-003)" as UC_MON_003
+  }
 }
 
-' Khối chức năng vận hành hệ thống (System Operations)
-rectangle System_Ops {
-  usecase "Kiểm tra tình trạng" as UC_GEN_004
-  usecase "Khởi động hệ thống" as UC_GEN_005
-  usecase "Cấu hình dữ liệu" as UC_GEN_006
-}
-
-' Khối chức năng Khách hàng (Customer)
-rectangle Customer_Flow {
-  usecase "Xem & tìm sản phẩm" as UC_CUS_001
-  usecase "Quản lý giỏ hàng" as UC_CUS_002
-  usecase "Thanh toán" as UC_CUS_003
-  usecase "In hóa đơn" as UC_CUS_004
-  usecase "Xem lịch sử mua hàng" as UC_CUS_005
-
-  ' Mối quan hệ nghiệp vụ
-  UC_CUS_004 ..> UC_CUS_003 : «extend»
-  UC_CUS_002 .> UC_CUS_001 : «include»
-}
-
-' Khối chức năng Người bán (Merchant)
-rectangle Merchant_Flow {
-  usecase "Quản lý sản phẩm" as UC_MER_001
-  usecase "Cập nhật tồn kho" as UC_MER_002
-  usecase "Xem đơn hàng" as UC_MER_003
-  usecase "Cập nhật hàng loạt" as UC_MER_004
-  usecase "Xem log sự kiện" as UC_MER_005
-
-  ' Mối quan hệ nghiệp vụ
-  UC_MER_001 .> UC_MER_002 : «include»
-}
-
-' =========================================================
-' Actor associations
-' =========================================================
-Guest --> UC_GEN_001
-Customer --> UC_GEN_002
-Customer --> UC_GEN_003
+' Liên kết Actors và Use Cases
 Customer --> UC_CUS_001
 Customer --> UC_CUS_002
 Customer --> UC_CUS_003
 Customer --> UC_CUS_004
 Customer --> UC_CUS_005
-Customer --> UC_MER_003
+Customer --> UC_CUS_006
+Customer --> UC_CUS_007
+Customer --> UC_CUS_008
 
-Merchant --> UC_GEN_002
-Merchant --> UC_GEN_003
 Merchant --> UC_MER_001
 Merchant --> UC_MER_002
 Merchant --> UC_MER_003
 Merchant --> UC_MER_004
 Merchant --> UC_MER_005
+Merchant --> UC_MER_006
+Merchant --> UC_MER_007
 
-Ops --> UC_GEN_005
-Ops --> UC_GEN_006
-Monitor --> UC_GEN_004
+MonitorActor --> UC_MON_001
+MonitorActor --> UC_MON_002
+MonitorActor --> UC_MON_003
 
 @enduml
