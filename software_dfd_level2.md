@@ -127,7 +127,7 @@ Tài liệu này mở rộng DFD Level 1 bằng cách phân rã các tiến trì
 | DF-L2-P7-06 | P7.2       | Người bán  | Danh sách đơn bán (DF-109)                        |
 | DF-L2-P7-07 | Actor      | P7.3       | Yêu cầu chi tiết đơn / hóa đơn                    |
 | DF-L2-P7-08 | P7.3       | D3/D4      | ID đơn + item cần truy vấn chi tiết               |
-| DF-L2-P7-09 | P7.3       | Actor      | Chi tiết đơn/hóa đơn (DF-104/105/109)             |
+| DF-L2-P7-09 | P7.3       | Người Bán  | Chi tiết đơn/hóa đơn (DF-104/105/109)             |
 
 ---
 ## 9. P8 – Log & Giám sát
