@@ -15,7 +15,7 @@ Tài liệu này mở rộng DFD Level 1 bằng cách phân rã các tiến trì
 | P6 Cập nhật Tồn kho        | Điều chỉnh thủ công + batch + broadcast            | 3                 | `Diagrams/software_dfd_level2_p6_inventory.puml` | Chia sẻ chung D2         |
 | P7 Quản lý Đơn hàng (Read) | Hai vai trò đọc khác nhau + drill down             | 3                 | `Diagrams/software_dfd_level2_p7_orders.puml`    | Không tạo/ghi đơn        |
 | P2 Duyệt & Tìm Sản phẩm    | Luồng đã atomic ở Level 1                          | —                 | —                                                | Không cần Level 2        |
-| P8 Log & Giám sát          | Luồng monitoring đơn giản                          | —                 | —                                                | Không cần Level 2        |
+| P8 Log & Giám sát          | Luồng monitoring bao gồm health, alert, báo cáo    | 3                 | `Diagrams/software_dfd_level2_p8_monitor.puml`   | Phân rã thêm để bám use case |
 
 ---
 ## 2. Quy tắc cân bằng
@@ -130,6 +130,26 @@ Tài liệu này mở rộng DFD Level 1 bằng cách phân rã các tiến trì
 | DF-L2-P7-09 | P7.3       | Actor      | Chi tiết đơn/hóa đơn (DF-104/105/109)             |
 
 ---
+## 9. P8 – Log & Giám sát
+- Diagram: `Diagrams/software_dfd_level2_p8_monitor.puml`
+- Subprocesses: P8.1 Handle Health & Metrics, P8.2 Dispatch Alerts, P8.3 Generate Operational Reports.
+- Actor: Người bán (log realtime), Monitor.
+- Data Store: — (chỉ đọc trạng thái nội bộ / cache).
+
+| Flow ID      | Nguồn      | Đích       | Nội dung                                                   |
+|--------------|------------|------------|------------------------------------------------------------|
+| DF-L2-P8-01  | Monitor    | P8.1       | Ping health / yêu cầu snapshot trạng thái                  |
+| DF-L2-P8-02  | P8.1       | Monitor    | Health snapshot + metric realtime (DF-112/DF-114)          |
+| DF-L2-P8-03  | Người bán  | P8.1       | Yêu cầu log/metric realtime                                |
+| DF-L2-P8-04  | P8.1       | Người bán  | Log/metric realtime (DF-110)                               |
+| DF-L2-P8-05  | Monitor    | P8.2       | Yêu cầu subscribe cảnh báo / thiết lập rule                |
+| DF-L2-P8-06  | P8.2       | Monitor    | Cảnh báo bất thường + ID xử lý (DF-115)                    |
+| DF-L2-P8-07  | Monitor    | P8.2       | Phản hồi / xác nhận cảnh báo (DF-018)                      |
+| DF-L2-P8-08  | P8.2       | P8.1       | Tình trạng cảnh báo để hiển thị dashboard                  |
+| DF-L2-P8-09  | Monitor    | P8.3       | Tham số báo cáo vận hành (kỳ, định dạng) (DF-017)          |
+| DF-L2-P8-10  | P8.3       | Monitor    | Báo cáo vận hành (PDF/CSV + checksum) (DF-116)             |
+
+---
 ## 9. Liên kết sơ đồ
 | Diagram file                                     | Mô tả          | Cách render                                               |
 |--------------------------------------------------|----------------|-----------------------------------------------------------|
@@ -139,6 +159,7 @@ Tài liệu này mở rộng DFD Level 1 bằng cách phân rã các tiến trì
 | `Diagrams/software_dfd_level2_p5_items.puml`     | Level 2 cho P5 | `plantuml Diagrams/software_dfd_level2_p5_items.puml`     |
 | `Diagrams/software_dfd_level2_p6_inventory.puml` | Level 2 cho P6 | `plantuml Diagrams/software_dfd_level2_p6_inventory.puml` |
 | `Diagrams/software_dfd_level2_p7_orders.puml`    | Level 2 cho P7 | `plantuml Diagrams/software_dfd_level2_p7_orders.puml`    |
+| `Diagrams/software_dfd_level2_p8_monitor.puml`   | Level 2 cho P8 | `plantuml Diagrams/software_dfd_level2_p8_monitor.puml`   |
 
 ---
 Các sơ đồ trên đảm bảo sự cân bằng với Level 1 và giữ nguyên các actor/data store đã định nghĩa. Nếu phạm vi mở rộng (ví dụ thêm quy trình trả hàng), cần cập nhật Level 0/1 trước rồi mới bổ sung Level 2 tương ứng.

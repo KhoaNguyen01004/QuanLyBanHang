@@ -1,0 +1,31 @@
+@startuml DFD_Level_2_P8
+hide stereotype
+left to right direction
+
+actor "Monitor" as Monitor
+actor "Người bán" as Merchant
+
+package "P8 Log & Giám sát" {
+  rectangle "P8.1\nHealth & Metrics" as P81
+  rectangle "P8.2\nDispatch Alerts" as P82
+  rectangle "P8.3\nOperational Reports" as P83
+}
+
+' Health & metrics loop
+Monitor --> P81 : DF-L2-P8-01\n(Ping / yêu cầu snapshot)
+P81 --> Monitor : DF-L2-P8-02\n(Health snapshot + metric realtime)
+Merchant --> P81 : DF-L2-P8-03\n(Yêu cầu log/metric realtime)
+P81 --> Merchant : DF-L2-P8-04\n(Log/metric realtime)
+
+' Alert loop
+Monitor --> P82 : DF-L2-P8-05\n(Subscribe / configure alert)
+P82 --> Monitor : DF-L2-P8-06\n(Cảnh báo bất thường + ID)
+Monitor --> P82 : DF-L2-P8-07\n(Ack / phản hồi cảnh báo)
+P82 --> P81 : DF-L2-P8-08\n(Trạng thái cảnh báo cho dashboard)
+
+' Report loop
+Monitor --> P83 : DF-L2-P8-09\n(Tham số báo cáo vận hành)
+P83 --> Monitor : DF-L2-P8-10\n(Báo cáo vận hành PDF/CSV)
+
+@enduml
+

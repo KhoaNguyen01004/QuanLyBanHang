@@ -18,7 +18,7 @@ Level 0 giúp:
 |------------|----------------------------------|------------------------------------------------|----------------|---------------------------------------------------------------------------------|
 | Khách hàng | Người dùng cuối mua sản phẩm     | Tìm, thêm giỏ, thanh toán, xem lịch sử         | Cao            | Cần phiên đã xác thực cho hầu hết thao tác (trừ duyệt công khai nếu sau này mở) |
 | Người bán  | Quản trị nội dung & tồn kho      | Quản lý danh mục, điều chỉnh tồn, theo dõi đơn | Trung bình/Cao | Có thể có phân quyền nâng cao (ROLE_MERCHANT)                                   |
-| Monitor    | Agent kiểm tra sức khỏe hệ thống | Gửi ping health, thu thập trạng thái           | Thấp           | Chỉ đọc, không thay đổi dữ liệu                                                 |
+| Monitor    | Agent kiểm tra sức khỏe hệ thống | Gửi ping health, nhận realtime metrics, xác nhận cảnh báo, tải báo cáo vận hành | Thấp/Trung bình | Bao gồm SOC/Ops; không thay đổi dữ liệu nghiệp vụ                              |
 
 ---
 ## 3. Tổng quan tiến trình trung tâm
@@ -46,7 +46,9 @@ Mỗi luồng gán một mã DF-XXX để truy vết:
 | DF-009 | Người bán         | Ứng dụng     | Cập nhật tồn kho (số lượng, batch)        | Điều chỉnh tồn         | F-MER-002                                  |
 | DF-010 | Người bán         | Ứng dụng     | Yêu cầu xem danh sách đơn                 | Theo dõi bán hàng      | F-MER-003                                  |
 | DF-011 | Người bán         | Ứng dụng     | Yêu cầu xem log                           | Audit / kiểm tra       | F-MER-006                                  |
-| DF-013 | Monitor           | Ứng dụng     | Ping health                               | Định kỳ                | F-SYS-008                                  |
+| DF-013 | Monitor           | Ứng dụng     | Ping health / yêu cầu snapshot trạng thái         | Định kỳ                | F-SYS-008, NF-SYS-002                            |
+| DF-017 | Monitor           | Ứng dụng     | Tham số báo cáo vận hành (kỳ, định dạng, bộ lọc)  | Theo lịch kiểm toán    | NF-SYS-002, NF-SYS-004                          |
+| DF-018 | Monitor           | Ứng dụng     | Xác nhận / phản hồi cảnh báo bất thường           | Sau khi nhận cảnh báo  | NF-SYS-001, NF-SYS-003                          |
 | DF-014 | Khách hàng        | Ứng dụng     | Yêu cầu đăng xuất                         | Kết thúc phiên         | F-CUS-013, F-SYS-002                       |
 | DF-015 | Người bán         | Ứng dụng     | Yêu cầu đăng xuất                         | Kết thúc phiên         | F-SYS-002                                  |
 | DF-016 | Người bán         | Ứng dụng     | Cập nhật hàng loạt (CSV/Excel)            | Quản lý danh mục       | F-MER-004                                  |
@@ -66,6 +68,9 @@ Luồng ra từ hệ thống:
 | DF-109 | Ứng dụng    | Người bán         | Danh sách đơn                           | F-MER-003                       | Có phân trang & lọc           |
 | DF-110 | Ứng dụng    | Người bán         | Log sự kiện                             | F-MER-006, F-SYS-008            | Mask dữ liệu nhạy cảm         |
 | DF-112 | Ứng dụng    | Monitor           | Trạng thái sức khỏe (status, timestamp) | F-SYS-008, NF-SYS-002           | Không trả dữ liệu người dùng  |
+| DF-114 | Ứng dụng    | Monitor           | Luồng giao dịch / metric realtime       | NF-SYS-001, NF-SYS-002          | Phục vụ UC-MON-001            |
+| DF-115 | Ứng dụng    | Monitor           | Cảnh báo bất thường                     | NF-SYS-001, NF-SYS-003          | Có ID cảnh báo để ack         |
+| DF-116 | Ứng dụng    | Monitor           | Báo cáo vận hành (PDF/CSV + checksum)   | NF-SYS-002, NF-SYS-004          | Bao gồm chữ ký số             |
 | DF-113 | Ứng dụng    | Người bán         | Kết quả cập nhật hàng loạt              | F-MER-004                       | Tổng hợp thành công/lỗi       |
 
 ---
@@ -91,19 +96,26 @@ Luồng ra từ hệ thống:
 
 ---
 ## 7. Truy vết sang Use Case
-| Use Case                       | Luồng liên quan (ví dụ)   |
-|--------------------------------|---------------------------|
-| UC-CUS-001 Đăng ký             | DF-001, DF-101            |
-| UC-CUS-002 Quản lý giỏ         | DF-004, DF-103            |
-| UC-CUS-003 Thanh toán          | DF-005, DF-104            |
-| UC-CUS-004 Xem lịch sử         | DF-006, DF-105            |
-| UC-GEN-003 Đăng xuất           | DF-101 (hết hạn / revoke) |
-| UC-MER-001 Đăng nhập người bán | DF-007, DF-106            |
-| UC-MER-002 Quản lý sản phẩm    | DF-008, DF-107            |
-| UC-MER-003 Quản lý tồn kho     | DF-009, DF-108            |
-| UC-MER-004 Xem đơn bán         | DF-010, DF-109            |
-| UC-MER-005 Xem log             | DF-011, DF-110            |
-| UC-SYS-002 Health check        | DF-013, DF-112            |
+| Use Case                                 | Luồng liên quan                       |
+|------------------------------------------|---------------------------------------|
+| UC-CUS-001 Đăng ký tài khoản             | DF-001, DF-101                        |
+| UC-CUS-002 Đăng nhập                     | DF-002, DF-101                        |
+| UC-CUS-003 Đăng xuất                     | DF-014, DF-101                        |
+| UC-CUS-004 Xem & tìm sản phẩm            | DF-003, DF-102                        |
+| UC-CUS-005 Quản lý giỏ hàng              | DF-004, DF-103                        |
+| UC-CUS-006 Thanh toán                    | DF-005, DF-104                        |
+| UC-CUS-007 In/Lưu hóa đơn                | DF-005, DF-104                        |
+| UC-CUS-008 Xem lịch sử mua hàng          | DF-006, DF-105                        |
+| UC-MER-001 Đăng nhập người bán           | DF-007, DF-106                        |
+| UC-MER-002 Đăng xuất người bán           | DF-015, DF-106                        |
+| UC-MER-003 Quản lý sản phẩm              | DF-008, DF-107                        |
+| UC-MER-004 Cập nhật tồn kho              | DF-009, DF-108                        |
+| UC-MER-005 Xem đơn hàng                  | DF-010, DF-109                        |
+| UC-MER-006 Cập nhật sản phẩm hàng loạt   | DF-016, DF-113                        |
+| UC-MER-007 Xem log & báo cáo             | DF-011, DF-110                        |
+| UC-MON-001 Giám sát giao dịch            | DF-013, DF-114                        |
+| UC-MON-002 Nhận cảnh báo bất thường      | DF-013, DF-115, DF-018                |
+| UC-MON-003 Xuất báo cáo vận hành         | DF-017, DF-116                        |
 
 ---
 ## 8. Giả định & Ngoại lệ

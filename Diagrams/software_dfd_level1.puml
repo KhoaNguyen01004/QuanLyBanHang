@@ -36,8 +36,8 @@ Merchant --> P1 : DF-007 / DF-015 \n(Payload đăng nhập/đăng xuất)
 Merchant --> P5 : DF-008 / DF-016 \n(Payload CRUD/batch sản phẩm)
 Merchant --> P6 : DF-009 \n(Danh sách điều chỉnh tồn)
 Merchant --> P7 : DF-010 \n(Bộ lọc đơn bán)
-Merchant --> P8 : DF-011 \n(Tham số log/metric)
-Monitor --> P8 : DF-013 \n(Ping health)
+Merchant --> P8 : DF-011 \n(Tham số log/metric realtime)
+Monitor --> P8 : DF-013 / DF-017 / DF-018 \n(Ping health, yêu cầu báo cáo, ack cảnh báo)
 
 ' Process-to-process
 P1 --> P3 : Thông tin phiên
@@ -75,6 +75,6 @@ P5 --> Merchant : DF-107 / DF-113 \n(Kết quả CRUD/batch)
 P6 --> Merchant : DF-108 \n(Trạng thái tồn mới)
 P7 --> Merchant : DF-109 \n(Danh sách đơn)
 P8 --> Merchant : DF-110 \n(Log/metric realtime)
-P8 --> Monitor : DF-112 \n(Health snapshot)
+P8 --> Monitor : DF-112 / DF-114 / DF-115 / DF-116 \n(Health snapshot, metric realtime, cảnh báo, báo cáo)
 
 @enduml

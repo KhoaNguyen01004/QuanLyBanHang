@@ -7,6 +7,6 @@ Customer --> System : Đăng ký / Đăng nhập / Đăng xuất\nDuyệt sản 
 System --> Customer : Danh sách SP + tồn\nPhản hồi giỏ\nHóa đơn / Xác nhận (In/PDF)\nLịch sử đơn\nTrạng thái phiên
 Merchant --> System : Đăng nhập / Đăng xuất\nCRUD + Ẩn SP\nCập nhật tồn\nCập nhật hàng loạt (CSV/Excel)\nXem đơn / log
 System --> Merchant : Phản hồi CRUD\nTrạng thái tồn\nKết quả hàng loạt\nDanh sách đơn\nLog sự kiện\nTrạng thái phiên
-Monitor --> System : Ping health
-System --> Monitor : Trạng thái sức khỏe
+Monitor --> System : Ping health / Yêu cầu snapshot\nXác nhận cảnh báo\nYêu cầu báo cáo vận hành
+System --> Monitor : Luồng giao dịch / metric realtime\nCảnh báo bất thường\nBáo cáo vận hành\nTrạng thái sức khỏe
 @enduml

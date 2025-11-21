@@ -26,7 +26,7 @@ Tài liệu này mô tả DFD Level 1 (phân rã) dựa trên Level 0 đã hoàn
 |-------------------|--------------------------------------------------------|-----------------------------|-----------------------------------------------------------------|
 | Khách hàng        | DF-001, DF-002, DF-003, DF-004, DF-005, DF-006, DF-014 | P1, P2, P3, P4, P7          | Toàn bộ luồng vào/ra đã được gán cho tiến trình tương ứng.      |
 | Người bán         | DF-007, DF-008, DF-009, DF-010, DF-011, DF-015, DF-016 | P1, P5, P6, P7, P8          | CRUD sản phẩm, tồn kho, xem đơn/log đều có tiến trình đại diện. |
-| Monitor           | DF-013, DF-112                                         | P8                          | Health check chỉ thông qua tiến trình log/monitor.              |
+| Monitor           | DF-013, DF-017, DF-018, DF-114, DF-115, DF-116         | P8                          | Health, realtime metric, cảnh báo và báo cáo được gom vào cùng tiến trình. |
 
 ---
 ## 4. Danh sách Tiến trình
@@ -39,7 +39,7 @@ Tài liệu này mô tả DFD Level 1 (phân rã) dựa trên Level 0 đã hoàn
 | P5 | Quản lý Sản phẩm                 | CRUD thông tin sản phẩm, ẩn/hiện danh mục.                     | Người bán             | Người bán             | D2 Sản phẩm                 |
 | P6 | Cập nhật Tồn kho                 | Điều chỉnh số lượng, xử lý batch trên bảng sản phẩm.           | Người bán             | Người bán             | D2 Sản phẩm                 |
 | P7 | Quản lý Đơn hàng (Read)          | Khách & người bán xem đơn, lịch sử mua bán.                    | Khách hàng, Người bán | Khách hàng, Người bán | D3 Đơn hàng, D4 Chi tiết đơn|
-| P8 | Log & Giám sát                   | Trả health snapshot, streaming log runtime (không lưu DB).      | Người bán, Monitor    | Người bán, Monitor    | —                           |
+| P8 | Log & Giám sát                   | Trả health snapshot, streaming log runtime (không lưu DB), gửi cảnh báo và tổng hợp báo cáo vận hành.      | Người bán, Monitor    | Người bán, Monitor    | —                           |
 
 ---
 ## 5. Kho dữ liệu (Data Stores)
@@ -68,7 +68,9 @@ Tài liệu này mô tả DFD Level 1 (phân rã) dựa trên Level 0 đã hoàn
 | DF-009 | Người bán     | P6             | Danh sách điều chỉnh tồn (item_id, delta stock)            | Update stock trực tiếp trên D2                 |
 | DF-010 | Người bán     | P7             | Bộ lọc danh sách đơn bán (khoảng thời gian, trạng thái)    | Truy vấn D3 + D4                               |
 | DF-011 | Người bán     | P8             | Tham số truy vấn log/metric realtime                       | Nhận log/metric thời gian thực (không lưu DB)  |
-| DF-013 | Monitor       | P8             | Ping health payload (heartbeat token)                      | Nhận status                                    |
+| DF-013 | Monitor       | P8             | Ping health payload (heartbeat token)                      | Nhận status + metric                           |
+| DF-017 | Monitor       | P8             | Tham số báo cáo vận hành (kỳ, định dạng)                   | Sinh báo cáo vận hành                          |
+| DF-018 | Monitor       | P8             | Xác nhận cảnh báo / phản hồi xử lý                        | Ghi nhận xử lý cảnh báo                        |
 | DF-014 | Khách hàng    | P1             | Token cần hủy                                              | Hủy token                                      |
 | DF-015 | Người bán     | P1             | Token merchant cần hủy                                     | Hủy token                                      |
 | DF-016 | Người bán     | P5             | Tệp batch sản phẩm (danh sách item + thao tác)             | Batch CRUD trên D2                             |
@@ -87,7 +89,9 @@ Tài liệu này mô tả DFD Level 1 (phân rã) dựa trên Level 0 đã hoàn
 | DF-109 | P7              | Người bán              | Danh sách đơn bán / chi tiết tóm tắt          |
 | DF-110 | P8              | Người bán              | Luồng log/metric realtime                     |
 | DF-112 | P8              | Monitor                | Health snapshot (trạng thái, latency, build)  |
-| DF-113 | P5              | Người bán              | Báo cáo batch CRUD (thành công/thất bại)      |
+| DF-114 | P8              | Monitor                | Luồng giao dịch/metric realtime               |
+| DF-115 | P8              | Monitor                | Cảnh báo bất thường (subscribe + ack)         |
+| DF-116 | P8              | Monitor                | Báo cáo vận hành (PDF/CSV + checksum)         |
 
 ### 6.3 Process ↔ Data Store
 | Process | Data Store | Dữ liệu trao đổi                                      | Ghi chú                            |
